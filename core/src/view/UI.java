@@ -12,8 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 
-import model.NineMenMorrisRules;
-
 /**
  * Created by Datacom on 2015-12-03.
  */
@@ -48,7 +46,7 @@ public class UI {
         uiBatch = new SpriteBatch();
         uiStage = new Stage();
         //create uiStage units
-        //Gdx.input.setInputProcessor(uiStage);
+        //Gdx.Input.setInputProcessor(uiStage);
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         Table uiTable = new Table();
         //optionsTable.setDebug(true);
@@ -89,26 +87,26 @@ public class UI {
         final TextButton newGameSpot1 = new TextButton("New MainView", skin);
         optionsTable.add(newGameSpot1).minWidth(100f * density).minHeight(50f * density);
         newGameSpot1.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        newGameSpot1.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.startNewGame(0);
-                toggleOptions();
-                return false;
-            }
-        });
+//        newGameSpot1.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.startNewGame(0);
+//                toggleOptions();
+//                return false;
+//            }
+//        });
         //create load gameSpot 1 button
         final TextButton loadGameSpot1 = new TextButton("Load MainView spot 1", skin);
         optionsTable.add(loadGameSpot1).minWidth(100f * density).minHeight(50f * density);
         loadGameSpot1.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        loadGameSpot1.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.loadNewGame(0);
-                toggleOptions();
-                return false;
-            }
-        });
+//        loadGameSpot1.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.loadNewGame(0);
+//                toggleOptions();
+//                return false;
+//            }
+//        });
 
         optionsTable.row();
 
@@ -116,53 +114,53 @@ public class UI {
         final TextButton newGameSpot2 = new TextButton("New MainView", skin);
         optionsTable.add(newGameSpot2).minWidth(100f * density).minHeight(50f * density);
         newGameSpot2.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        newGameSpot2.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.startNewGame(1);
-                ;
-                toggleOptions();
-                return false;
-            }
-        });
+//        newGameSpot2.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.startNewGame(1);
+//                ;
+//                toggleOptions();
+//                return false;
+//            }
+//        });
         //create load gameSpot 1 button
         final TextButton loadGameSpot2 = new TextButton("Load MainView spot 2", skin);
         optionsTable.add(loadGameSpot2).minWidth(100f * density).minHeight(50f * density);
         loadGameSpot2.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        loadGameSpot2.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.loadNewGame(1);
-                toggleOptions();
-                return false;
-            }
-        });
+//        loadGameSpot2.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.loadNewGame(1);
+//                toggleOptions();
+//                return false;
+//            }
+//        });
         optionsTable.row();
 
         //Create gameSpot button 3
         final TextButton newGameSpot3 = new TextButton("New MainView", skin);
         optionsTable.add(newGameSpot3).minWidth(100f * density).minHeight(50f * density);
         newGameSpot3.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        newGameSpot3.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.startNewGame(2);
-                toggleOptions();
-                return false;
-            }
-        });
+//        newGameSpot3.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.startNewGame(2);
+//                toggleOptions();
+//                return false;
+//            }
+//        });
         //create load gameSpot 3 button
         final TextButton loadGameSpot3 = new TextButton("Load MainView spot 3", skin);
         optionsTable.add(loadGameSpot3).minWidth(100f * density).minHeight(50f * density);
         loadGameSpot3.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        loadGameSpot3.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                game.loadNewGame(2);
-                toggleOptions();
-                return false;
-            }
-        });
+//        loadGameSpot3.addListener(new InputListener() {
+//            @Override
+//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+//                game.loadNewGame(2);
+//                toggleOptions();
+//                return false;
+//            }
+//        });
 
         optionsTable.row();
 
@@ -192,7 +190,7 @@ public class UI {
 
 
     public void drawUI() {
-        updateTurnlabel();
+        //updateTurnlabel();
 
 
 
@@ -204,19 +202,19 @@ public class UI {
         uiBatch.end();
     }
 
-    private void updateTurnlabel() {
-
-        if (game.morris == null) {
-            labelMessage.setText("");
-        } else if (game.morris.gameOver) {
-            labelMessage.setText("You win!");
-        } else {
-            String s = (game.morris.getTurn() == NineMenMorrisRules.RED_MOVES) ? "Red turn" : "Blue turn";
-            s += (game.morris.turnType == NineMenMorrisRules.TurnType.REMOVE_BALL) ? " to remove" : "";
-            labelMessage.setText(s);
-        }
-
-    }
+//    private void updateTurnlabel() {
+//
+//        if (game.morris == null) {
+//            labelMessage.setText("");
+//        } else if (game.morris.gameOver) {
+//            labelMessage.setText("You win!");
+//        } else {
+//            String s = (game.morris.getTurn() == SavedState.RED_MOVES) ? "Red turn" : "Blue turn";
+//            s += (game.morris.turnType == SavedState.TurnType.REMOVE_BALL) ? " to remove" : "";
+//            labelMessage.setText(s);
+//        }
+//
+//    }
 
     public void dispose() {
         uiStage.dispose();

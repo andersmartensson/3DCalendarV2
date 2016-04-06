@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.utils.Array;
 
+import data.Statics;
+
 /**
  * Created by anders on 2015-11-26.
  */
@@ -35,7 +37,7 @@ public class Skybox extends GFXObject {
         ModelBuilder mb = new ModelBuilder();
         Material m = new Material();
         //Creates diffuse texture
-        diff = loadTexture(diff,Statics.skyboxDiffPath);
+        diff = loadTexture(diff, Statics.skyboxDiffPath);
         desertBG = loadTexture(desertBG, "textures/desertSkybox.jpg");
         m.set(TextureAttribute.createDiffuse(diff));
         //Create bump if mobile can handle it.

@@ -21,7 +21,7 @@ import java.io.Serializable;
  * 
  */
 
-public class NineMenMorrisRules implements Serializable{
+public class SavedState implements Serializable{
 	public enum TurnType{TAKE_TURNS, REMOVE_BALL};
 	public TurnType turnType = TurnType.TAKE_TURNS;
 	public int[] gameplan;
@@ -34,7 +34,7 @@ public class NineMenMorrisRules implements Serializable{
 	public static final int EMPTY_SPACE = 0;
 	public static final int BLUE_MARKER = 4;
 	public static final int RED_MARKER = 5;
-	public NineMenMorrisRules() {
+	public SavedState() {
 		gameOver = false;
 		gameplan = new int[25]; // zeroes
 		bluemarker = 9;

@@ -33,7 +33,6 @@ public abstract class GFXObject {
         bounds.getCenter(center);
         bounds.getDimensions(dimensions);
         radius = dimensions.len() / 2f;
-
     }
 
     public ModelInstance getModelInstance() {
@@ -121,4 +120,39 @@ public abstract class GFXObject {
     }
 
 
+    public static Color translateColor(String colorId) {
+
+        //int s = Integer.getInteger(colorId);
+        int s = Integer.decode(colorId);
+        switch (s){
+            case 2:
+                //Light green
+                return new Color(0.5f,1f,0.5f,1f);
+            case 3:
+                return Color.PURPLE;
+            case 4:
+                //Light Red
+                return new Color(1f,0.5f,0.5f,1f);
+            case 5:
+                return Color.YELLOW;
+            case 6:
+                return Color.ORANGE;
+            case 7:
+                //Turquoise
+                return Color.TEAL;
+            case 8:
+                return Color.GRAY;
+            case 9:
+                return Color.BLUE;
+            case 10:
+                return Color.GREEN;
+            case 11:
+                return Color.RED;
+
+
+
+        }
+
+        return Color.BLUE;
+    }
 }

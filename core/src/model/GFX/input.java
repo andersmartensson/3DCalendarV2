@@ -5,8 +5,8 @@ import com.badlogic.gdx.InputAdapter;
 /**
  * Created by Datacom on 2015-12-01.
  */
-public class input extends InputAdapter {
-    public input() {
+public class Input extends InputAdapter {
+    public Input() {
         super();
     }
 
