@@ -53,6 +53,7 @@ public class GoogleCalendarDownload {
      */
     private static final List<String> SCOPES =
             Arrays.asList(CalendarScopes.CALENDAR_READONLY);
+    public static DateTime timeFetched;
 
     static {
         try {
@@ -123,7 +124,7 @@ public class GoogleCalendarDownload {
         //downloadGoogle();
     }
 
-    public static List<Event> execute() throws IOException {
+    public static List<Event> execute(Long time) throws IOException {
         // Build a new authorized API client service.
         // Note: Do not confuse this class with the
         //   com.google.api.services.calendar.model.Calendar class.
@@ -131,14 +132,15 @@ public class GoogleCalendarDownload {
                 getCalendarService();
 
         // List the next 10 events from the primary calendar.
-        DateTime now = new DateTime( (System.currentTimeMillis() -10000000000L));
+        //DateTime now = new DateTime( (System.currentTimeMillis() -10000000000L));
+        timeFetched = new DateTime( time);
         //Date date = new Date(2015,1,1,1,1);// =
         //TimeZone zone = TimeZone.getTimeZone("America/Los_Angeles");
         //DateTime febmars = new DateTime(date);
         //now  -= 100000;
         Events events = service.events().list("primary")
-                .setMaxResults(50)
-                .setTimeMin(now)
+                .setMaxResults(20)
+                .setTimeMin(timeFetched)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute();

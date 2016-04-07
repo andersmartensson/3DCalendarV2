@@ -34,13 +34,12 @@ import com.badlogic.gdx.utils.Disposable;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import controller.GoogleCalendarDownload;
+import controller.CalendarController;
 import data.Statics;
 import model.Activity;
+import model.Date3d;
 import model.GFX.DatePillar;
 import model.GFX.GFXObject;
 import model.GFX.Ground;
@@ -86,6 +85,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Vector3 finalPosition;
 	private boolean camIsMoving;
 	private Array<DatePillar> datePillars;
+	private CalendarController calCont;
 
 	@Override
 	public void create () {
@@ -117,7 +117,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //create environment
 		environment = new Environment();
 
-//Create camera and controller
+//Create camera and calCont
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
 		finalPosition = new Vector3(10f, 10f, 10f);
@@ -166,20 +166,22 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		setLight();
 		//createWaterShader();
 		updateTheme();
-		GoogleCalendarDownload gcd = new GoogleCalendarDownload();
+		calCont = new CalendarController(this);
+		calCont.update();
+		//GoogleCalendarDownload gcd = new GoogleCalendarDownload();
 		//System.out.println(CalendarMain.class.getResource("/").getPath());
-		List<Event> events = null;
-		try {
-			events = gcd.execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		List<Event> events = null;
+//		try {
+//			events = gcd.execute();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		System.out.println("From render main:");
-		if (events == null || events.size() == 0) {
+		if (calCont.events == null || calCont.events.size() == 0) {
 			System.out.println("No upcoming events found.");
 		} else {
 			System.out.println("Upcoming events");
-			for (Event event : events) {
+			for (Event event : calCont.events) {
 				DateTime start = event.getStart().getDateTime();
 				if (start == null) {
 					start = event.getStart().getDate();
@@ -187,28 +189,19 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				System.out.printf("%s (%s)\n", event.getSummary(), start);
 			}
 		}
-		activities = new Array<Activity>(events.size());
-		createDays(events);
-		createActivities(events);
+		activities = new Array<Activity>(calCont.events.size());
+		createDays(calCont.events);
+		createActivities(calCont.events, datePillars);
 	}
 
 	private void createDays(List<Event> events) {
 		//figure out what date the first even is at
 		Event e = events.get(0);
-		System.out.println("Summary for first event: " + e.getSummary());
-		System.out.println("Date start: " + e.getStart().toString());
-		System.out.println("Start(getDate): "  + e.getStart().getDate());
-		System.out.println("Start(getDateTime): "  + e.getStart().getDateTime());
-
-		//DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		//LocalDateTime dateTime = LocalDateTime.from(f.parse("2012-01-10 23:13:26"));
-
-		//LocalDateTime dt = LocalDateTime.parse(e.getStart().getDateTime().toString());
-		//System.out.println("DT: " + dt);
-		//System.out.println("Date Stop: " + e.getStart().toString());
 		//takes first event and
 
-		LocalDateTime now = LocalDateTime.now();
+		//LocalDateTime now = LocalDateTime.now();
+		//Date should start on a monday
+
 		datePillars = new Array<DatePillar>();
 		//Draw two weeks of pillars
 		DatePillar dt = null;
@@ -217,24 +210,29 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Statics.DATEPILLAR_Y_ORIGIN,
 				Statics.DATEPILLAR_Z_ORIGIN);
 		float step = Statics.ACTIVITY_WIDTH + 1f;
-		for(int i=0;i<15;i++){
-			//Create datePillar
-			dt = new DatePillar();
+		//Create datePillar
+		Date3d d = new Date3d(e);
+		for(int i=0;i<21;i++){
+			dt = new DatePillar(d.clone());
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
 			//ground.setModelInstance(new ModelInstance(ground.getModel()));
 			origin.x += step;
+			if(i % 7 == 0){
+				//Add extra step if end of week
+				origin.x += step;
+			}
 			Vector3 tv = origin.cpy();
 			//tv.x += step;
 			dt.setPosition(tv);
 			firstShadedLayer.add(dt.getModelInstance());
 			datePillars.add(dt);
 			dt.getModelInstance().transform.setTranslation(dt.getPosition());
-			//ground.getModelInstance().transform.setTranslation(ground.getPosition());
+			d.day +=1;
 		}
 
 	}
 
-	private void createActivities(List<Event> events) {
+	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
 		Activity a;
 		Color c = null;
@@ -250,29 +248,21 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				//System.out.println("color:" + e.getSummary() + " ->" + e.getColorId() + "<-");
 				c = GFXObject.translateColor(e.getColorId());
 			}
-			//System.out.println("START: ");
-			//System.out.println("star time: " + e.getStart().getDateTime().getValue());
-//			System.out.println("start time: " + e.getStart().getDate().getValue());
-//			System.out.println("endtime: " + e.getEnd().getDate().getValue());
-
-			//Get startTim
+			//Get startTime
 			if(e.getStart().getDateTime() != null
 					&& e.getEnd().getDateTime() != null){
-				a = new Activity(c,e.getStart().getDateTime().getValue()
-						,e.getEnd().getDateTime().getValue());
+				Date3d d3d = new Date3d(e);
+				x = d3d.matchXValue(pillars);
+				a = new Activity(c, d3d,e);
 				a.setModelInstance(new ModelInstance(a.getModel()));
+				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
 				a.getModelInstance().transform.setTranslation(a.getPosition());
-
 				firstShadedLayer.add(a.getModelInstance());
-				System.out.println("");
-				//a = new Activity()
-				x += Statics.ACTIVITY_WIDTH + 1f;
-				a.event = e;
+				//x += Statics.ACTIVITY_WIDTH + 1f;
+				//a.event = e;
 				activities.add(a);
-
 			}
-
 		}
 	}
 
@@ -484,11 +474,12 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		int result = getActivity(screenX, screenY);
 		if(result != -1){
 			Activity ca = activities.get(result);
+			System.out.println(ca.toString());
 			//Focus and move camera to activity
 			//Focus
 			cam.lookAt(ca.position);
 			//move
-			//finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
+			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
 			//Vector3 v = cam.position;
 			cam.position.set(finalPosition);
 			//Focus
@@ -496,7 +487,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 			camController.target = ca.position;
 			cam.normalizeUp();
-			cam.rotate(cam.up,1);
+			cam.rotate(cam.up, 1);
 			camController.update();
 			//camController.target
 			cam.update();
@@ -517,7 +508,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			float dist2 = ray.origin.dst2(position);
 			if (distance >= 0f && dist2 > distance) continue;
 			if (Intersector.intersectRayBoundsFast(ray,position,a.dimensions)){
-				System.out.println("Hit: " + a.event.getSummary());
+				//System.out.println("Hit: " + a.event.getSummary());
 				result = i;
 				distance = dist2;
 			}

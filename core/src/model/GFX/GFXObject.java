@@ -134,7 +134,6 @@ public abstract class GFXObject implements Disposable{
         position.z = ((int) position.z * 10) / 10f;
     }
 
-
     public static Color translateColor(String colorId) {
 
         //int s = Integer.getInteger(colorId);

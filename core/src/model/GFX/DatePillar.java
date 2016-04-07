@@ -6,24 +6,25 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.google.api.client.util.DateTime;
 
 import data.Statics;
+import model.Date3d;
 
 /**
  * Created by Anders on 2016-04-07.
  */
 public class DatePillar extends GFXObject{
-    DateTime dateTime;
-    public DatePillar(DateTime dt){
-        super();
-        color = Color.BLACK;
-        dateTime = dt;
-    }
+    public Date3d d3d;
+//    public DatePillar(DateTime dt){
+//        super();
+//        color = Color.BLACK;
+//        dateTime = dt;
+//    }
 
-    public DatePillar(){
+    public DatePillar(Date3d d){
         super();
         color = Color.BLACK;
+        d3d = d;
     }
 
     public Model getModel(){

@@ -20,16 +20,18 @@ public class Activity extends GFXObject{
     Date date;
     long from;
     long to;
-    private long yOrigin;
-    public long height;
+    private float yOrigin;
+    public float height;
     public Event event;
-
-    public Activity(Color c, long from, long to) {
+    public Date3d d3d;
+    public Activity(Color c, Date3d d, Event e) {
+        event = e;
         this.color = c;
         //this.date = d;
-        this.from = from;
-        this.to = to;
+        //this.from = d.startHour;
+        //this.to = to;
         scale = 10f;
+        d3d = d;
     }
 
 //    public void createActivity(Color c, Date d, long from, long to){
@@ -54,13 +56,21 @@ public class Activity extends GFXObject{
         //Create Specular texture
         m.set(ColorAttribute.createSpecular(Color.WHITE));
         //Create bump if mobile can handle it.
-        height = to - from;
-        height = height / Statics.HEIGHT_DIVIDER;
+        //height = to - from;
+        //height = height / Statics.HEIGHT_DIVIDER;
         //System.out.println("Height: " + height );
-        Model mod = mb.createBox(Statics.ACTIVITY_WIDTH,(float) height,Statics.ACTIVITY_DEPTH, m
+        yOrigin = d3d.startHour;
+        yOrigin += d3d.startMin / 60f;
+        System.out.println("name: " + event.getSummary());
+        System.out.println("Start hour: " + yOrigin);
+        height = d3d.stopHour + (d3d.stopMin / 60f);
+        System.out.println("Stop hour: " + height);
+        height -= yOrigin;
+        //yOrigin -= height /2;
+        Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
         //return mb.createSphere(scale,scale,scale,30,30,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
-        yOrigin = height / 2;
+
         return mod;
 
     }
@@ -70,5 +80,8 @@ public class Activity extends GFXObject{
         return yOrigin;
     }
 
+    public String toString(){
+        return "Event: " + event.getSummary() + " x: " + position.x + " y: " + position.y + " " +  d3d.toString();
+    }
 
 }
