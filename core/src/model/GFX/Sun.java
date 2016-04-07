@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
  */
 public class Sun extends GFXObject {
     public Sun() {
+        super();
         scale = 5.0f;
         color = Color.WHITE;
     }
@@ -21,6 +22,8 @@ public class Sun extends GFXObject {
     public Model getModel(){
         if(model == null){
             model = createSunModel();
+            //disposables = new Array<Disposable>();
+            disposables.add(model);
         }
 
         return model;

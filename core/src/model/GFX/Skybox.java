@@ -19,7 +19,8 @@ public class Skybox extends GFXObject {
 
     Texture desertBG;
     public Skybox(float size){
-        scale = size*2 -80;
+        super();
+        scale = size*4 -80;
         //scale = 590;
         color = Color.BLUE;
     }
@@ -28,8 +29,8 @@ public class Skybox extends GFXObject {
         if(model == null){
             model = createSkyBoxModel();
             modelInstance = new ModelInstance(model);
+            disposables.add(model);
         }
-
         return model;
     }
 
@@ -38,7 +39,9 @@ public class Skybox extends GFXObject {
         Material m = new Material();
         //Creates diffuse texture
         diff = loadTexture(diff, Statics.skyboxDiffPath);
+        disposables.add(diff);
         desertBG = loadTexture(desertBG, "textures/desertSkybox.jpg");
+        disposables.add(desertBG);
         m.set(TextureAttribute.createDiffuse(diff));
         //Create bump if mobile can handle it.
         return mb.createSphere(-scale,-scale,-scale,40,40,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
@@ -57,14 +60,5 @@ public class Skybox extends GFXObject {
             getModelInstance().materials.set(0, m);
         }
     }
-
-
-
-    public void dispose(){
-        diff.dispose();
-        desertBG.dispose();
-        model.dispose();
-    }
-
 
 }

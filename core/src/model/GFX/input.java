@@ -12,6 +12,16 @@ public class Input extends InputAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
+//        if(Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.X)){
+//            Gdx.app.exit();
+//        }
+//        if(Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.K)){
+//            Gdx.app.exit();
+//        }
+//        switch (keycode){
+//            case Input.
+//
+//        }
         return super.keyDown(keycode);
     }
 

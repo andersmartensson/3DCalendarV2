@@ -11,11 +11,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 
 /**
  * Created by Datacom on 2015-12-03.
  */
-public class UI {
+public class UI implements Disposable{
 
     public SpriteBatch uiBatch;
     public Skin skin;
@@ -24,6 +26,7 @@ public class UI {
     private Stage optionsStage;
     private InputMultiplexer inputMultiplexer;
     private MainView game;
+    Array<Disposable> disposables;
 
     public Stage getOptionsStage() {
         return optionsStage;
@@ -40,14 +43,17 @@ public class UI {
     float density;
 
     public void createUI(InputMultiplexer inputMultiplexer, final MainView game) {
+        disposables = new Array<Disposable>();
         this.game = game;
         this.inputMultiplexer = inputMultiplexer;
         density = Gdx.graphics.getDensity();
         uiBatch = new SpriteBatch();
+        disposables.add(uiBatch);
         uiStage = new Stage();
+        disposables.add(uiStage);
         //create uiStage units
-        //Gdx.Input.setInputProcessor(uiStage);
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+        disposables.add(skin);
         Table uiTable = new Table();
         //optionsTable.setDebug(true);
         uiTable.setFillParent(true);
@@ -79,6 +85,7 @@ public class UI {
          * Create Options buttons
          */
         optionsStage = new Stage();
+        disposables.add(optionsStage);
         Table optionsTable = new Table();
         optionsTable.setFillParent(true);
         optionsStage.addActor(optionsTable);
@@ -191,9 +198,6 @@ public class UI {
 
     public void drawUI() {
         //updateTurnlabel();
-
-
-
         uiBatch.begin();
         uiStage.draw();
         if (optionsMenuVisible) {
@@ -217,9 +221,9 @@ public class UI {
 //    }
 
     public void dispose() {
-        uiStage.dispose();
-        //uiRenderer.dispose();
-        uiBatch.dispose();
+        for(Disposable d: disposables){
+            d.dispose();
+        }
 
     }
 

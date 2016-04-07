@@ -16,6 +16,13 @@ public class Statics {
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final float SKYBOX_SIZE = CAM_FAR / 4;
+    public static final float DATEPILLAR_WIDTH = 0.5f;
+    public static final float DATEPILLAR_HEIGHT = 24f;
+    public static final float DATEPILLAR_DEPTH = 0.5f;
+    public static final float DATEPILLAR_X_ORIGN = -15f;
+    public static final float DATEPILLAR_Y_ORIGIN = 0f;
+    public static final float DATEPILLAR_Z_ORIGIN = - ACTIVITY_DEPTH /2;
+
 
     public static long HEIGHT_DIVIDER = 1000000;
     public static float DISTANCE_FROM_CAMERA = 5f;

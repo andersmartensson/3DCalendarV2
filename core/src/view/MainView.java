@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -36,11 +35,13 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import controller.GoogleCalendarDownload;
 import data.Statics;
 import model.Activity;
+import model.GFX.DatePillar;
 import model.GFX.GFXObject;
 import model.GFX.Ground;
 import model.GFX.Skybox;
@@ -49,9 +50,6 @@ import operations.SaveManager;
 import shaders.WaterShader;
 
 public class MainView extends InputAdapter implements ApplicationListener {
-
-	//private ModelInstance waterInstance;
-
 
 	//Render stuff
 	Environment environment;
@@ -87,21 +85,23 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Array<Activity> activities;
 	private Vector3 finalPosition;
 	private boolean camIsMoving;
+	private Array<DatePillar> datePillars;
 
 	@Override
 	public void create () {
-
+		//Settings for OpenGL
 		Gdx.gl.glClearDepthf(1.0f);
 		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthFunc(GL20.GL_LESS);
 		Gdx.gl.glDepthRangef(0f, 1f);
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
-		camIsMoving = false;
+
+		camIsMoving = false; //For camera interpolarisation.
 		disposables = new Array<Disposable>();
-		spriteBatch = new SpriteBatch();
-		blackTexture = new Texture(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGBA8888);
-		disposables.add(blackTexture);
+		//spriteBatch = new SpriteBatch();
+		//blackTexture = new Texture(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGBA8888);
+		//disposables.add(blackTexture);
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
 		//Create save manager
 		saveManager = new SaveManager();
@@ -129,16 +129,16 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		cam.near = Statics.CAM_NEAR;
 		cam.update();
 		camController = new CameraInputController(cam);
-
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		ui = new UI();
+		disposables.add(ui);
 		ui.createUI(multiplexer, this);
 		multiplexer.addProcessor(ui.getUiStage());
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
-//Create models
 
+//Create models
 		//Create sun - Not visible but is going to be needed to get a position for the lens flare
 		sun = new Sun();
 		//Create model and modelInstance and add it to render array
@@ -146,10 +146,12 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		sun.setPosition(new Vector3(115.0f, 150.0f, 200.0f));
 		sun.modelInstance.transform.setTranslation(sun.getPosition());
 		//firstNonShadedLayer.add(sun.getModelInstance());
+		disposables.add(sun);
 
 		//Create skybox sphere
 		skybox = new Skybox(Statics.SKYBOX_SIZE);
 		skybox.getModel();
+		disposables.add(skybox);
 
 		//Create ground
 		ground = new Ground();
@@ -159,9 +161,10 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 //Create model batch and texture region
 		modelBatch = new ModelBatch();
+		disposables.add(modelBatch);
 		fboRegion = new TextureRegion();
 		setLight();
-		createWaterShader();
+		//createWaterShader();
 		updateTheme();
 		GoogleCalendarDownload gcd = new GoogleCalendarDownload();
 		//System.out.println(CalendarMain.class.getResource("/").getPath());
@@ -185,7 +188,50 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			}
 		}
 		activities = new Array<Activity>(events.size());
+		createDays(events);
 		createActivities(events);
+	}
+
+	private void createDays(List<Event> events) {
+		//figure out what date the first even is at
+		Event e = events.get(0);
+		System.out.println("Summary for first event: " + e.getSummary());
+		System.out.println("Date start: " + e.getStart().toString());
+		System.out.println("Start(getDate): "  + e.getStart().getDate());
+		System.out.println("Start(getDateTime): "  + e.getStart().getDateTime());
+
+		//DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		//LocalDateTime dateTime = LocalDateTime.from(f.parse("2012-01-10 23:13:26"));
+
+		//LocalDateTime dt = LocalDateTime.parse(e.getStart().getDateTime().toString());
+		//System.out.println("DT: " + dt);
+		//System.out.println("Date Stop: " + e.getStart().toString());
+		//takes first event and
+
+		LocalDateTime now = LocalDateTime.now();
+		datePillars = new Array<DatePillar>();
+		//Draw two weeks of pillars
+		DatePillar dt = null;
+		ModelInstance mi = null;
+		Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
+				Statics.DATEPILLAR_Y_ORIGIN,
+				Statics.DATEPILLAR_Z_ORIGIN);
+		float step = Statics.ACTIVITY_WIDTH + 1f;
+		for(int i=0;i<15;i++){
+			//Create datePillar
+			dt = new DatePillar();
+			dt.setModelInstance(new ModelInstance(dt.getModel()));
+			//ground.setModelInstance(new ModelInstance(ground.getModel()));
+			origin.x += step;
+			Vector3 tv = origin.cpy();
+			//tv.x += step;
+			dt.setPosition(tv);
+			firstShadedLayer.add(dt.getModelInstance());
+			datePillars.add(dt);
+			dt.getModelInstance().transform.setTranslation(dt.getPosition());
+			//ground.getModelInstance().transform.setTranslation(ground.getPosition());
+		}
+
 	}
 
 	private void createActivities(List<Event> events) {
@@ -201,7 +247,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				c = Color.RED;
 			}
 			else {
-				System.out.println("color:" + e.getSummary() + " ->" + e.getColorId() + "<-");
+				//System.out.println("color:" + e.getSummary() + " ->" + e.getColorId() + "<-");
 				c = GFXObject.translateColor(e.getColorId());
 			}
 			//System.out.println("START: ");
@@ -402,8 +448,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public void pause() {
-		//saveManager.saveThisGame(morris);
-		//saveManager.writeSaves();
+
 	}
 
 	@Override
@@ -416,27 +461,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	}
 
 	public void dispose() {
-		modelBatch.dispose();
-		disposeAndClearRenderLayers();
-		ui.dispose();
-		ground.dispose();
-		skybox.dispose();
-	}
+		//modelBatch.dispose();
 
-
-	public void disposeRenderLayer(Array<ModelInstance> al){
-		for(ModelInstance mi : al){
-			mi.model.dispose();
+		for(Disposable d: disposables){
+			d.dispose();
 		}
-		al.clear();
-	}
-	/**
-	 * Disposes of all models in render layers
-	 */
-	public void disposeAndClearRenderLayers() {
-		disposeRenderLayer(firstShadedLayer);
-		disposeRenderLayer(firstNonShadedLayer);
-		disposeRenderLayer(firstNonShadedLayer);
 	}
 
 	protected boolean isVisible ( Camera cam, Activity a) {
@@ -451,8 +480,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		//System.out.println("X: " + screenX + " y: " + screenY);
-
 		//Get clicked activity
 		int result = getActivity(screenX, screenY);
 		if(result != -1){
@@ -461,22 +488,22 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			//Focus
 			cam.lookAt(ca.position);
 			//move
-			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
+			//finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
 			//Vector3 v = cam.position;
-			//cam.position.set(finalPosition);
+			cam.position.set(finalPosition);
 			//Focus
 			cam.lookAt(ca.position);
+
 			camController.target = ca.position;
+			cam.normalizeUp();
+			cam.rotate(cam.up,1);
 			camController.update();
 			//camController.target
 			cam.update();
-			camIsMoving = true;
+			//camIsMoving = true;
 		}
-
-
 		return false;
 	}
-
 
 	public int getActivity (int screenX, int screenY) {
 		position = new Vector3();

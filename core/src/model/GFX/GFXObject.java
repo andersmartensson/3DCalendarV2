@@ -7,11 +7,13 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 
 /**
  * Created by anders on 2015-11-26.
  */
-public abstract class GFXObject {
+public abstract class GFXObject implements Disposable{
     public float scale;
     public Color color;
     public Model model;
@@ -24,8 +26,14 @@ public abstract class GFXObject {
     public Texture spec; //Specular texture
     public Texture bump;
     private int time;
+    public Array<Disposable> disposables;
+
+    public GFXObject(){
+        disposables = new Array<Disposable>();
+    }
 
     public void initGFXOBject(){
+        disposables = new Array<Disposable>();
         center = new Vector3();
         dimensions = new Vector3();
         BoundingBox bounds = new BoundingBox();
@@ -57,7 +65,14 @@ public abstract class GFXObject {
      */
     protected Texture loadTexture(Texture text, String textPath) {
         text = new Texture(Gdx.files.internal(textPath));
+        disposables.add(text);
         return text;
+    }
+
+    public void dispose(){
+        for(Disposable d: disposables){
+            d.dispose();
+        }
     }
 
     public float getScale() {

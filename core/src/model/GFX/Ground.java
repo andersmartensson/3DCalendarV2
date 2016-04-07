@@ -30,6 +30,7 @@ public class Ground extends GFXObject {
     public Model getModel(){
         if(model == null){
             model = createGroundModel();
+            disposables.add(model);
         }
         return model;
     }
@@ -41,10 +42,12 @@ public class Ground extends GFXObject {
         //Load array with diffuse Textures
         //diffTextures = loadTextures(diffTextures, 1, "textures/waterDiffSeq/diffusion.");
         diff = loadTexture(diff, "textures/waterTexture.jpg");
+        disposables.add(diff);
         diff.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
         waterRegion = new TextureRegion(diff);
         waterRegion.setRegion(0, 0, diff.getWidth() * 8, diff.getHeight() * 8);
         destertTexture = loadTexture(destertTexture, "textures/desertTexture.jpg");
+        disposables.add(destertTexture);
         //destertTexture.setFilter(Texture.TextureFilter.MipMapLinearNearest,Texture.TextureFilter.MipMapLinearNearest );
         destertTexture.setWrap(Texture.TextureWrap.MirroredRepeat, Texture.TextureWrap.MirroredRepeat);
         desertRegion = new TextureRegion(destertTexture);
@@ -100,11 +103,4 @@ public class Ground extends GFXObject {
 
     }
 
-
-    public void dispose(){
-        diff.dispose();
-        destertTexture.dispose();
-        model.dispose();
-        //modelInstance.model.dispose();
-    }
 }
