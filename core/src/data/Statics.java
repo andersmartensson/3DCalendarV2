@@ -5,7 +5,7 @@ package data;
  */
 public class Statics {
     public static final String  skyboxDiffPath = "textures/skybox.png";
-
+    public static final String backPlateTextPath = "textures/weekBG.png";
     public final static String G_KEY = "{\"installed\":{\"client_id\":\"53035057420-se1v5o64qkd72cmcqi1je5i9vopdeoo7.apps.googleusercontent.com\",\"project_id\":\"weighty-card-124409\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://accounts.google.com/o/oauth2/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"2FpOI5-XUiu6FfTNhJKEb_Uo\",\"redirect_uris\":[\"urn:ietf:wg:oauth:2.0:oob\",\"http://localhost\"]}}";
 
 
@@ -26,7 +26,12 @@ public class Statics {
     public static final float DATEPILLAR_Z_ORIGIN = -ACTIVITY_DEPTH /2;
     public static final float ACTIVITY_DUMP_X_POSTION = -100f;
 
+    public static final float WEEK_BACKPLATE_WIDTH = 7f * (ACTIVITY_WIDTH + 1f);
+    public static final float WEEK_BACKPLATE_HEIGHT = 24f;
+    public static final float WEEK_BACKPLATE_DEPTH = 0.1f;
+
 
     public static long HEIGHT_DIVIDER = 1000000;
     public static float DISTANCE_FROM_CAMERA = -40f;
+
 }

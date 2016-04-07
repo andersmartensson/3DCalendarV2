@@ -40,6 +40,7 @@ import controller.CalendarController;
 import data.Statics;
 import model.Activity;
 import model.Date3d;
+import model.GFX.BackPlate;
 import model.GFX.DatePillar;
 import model.GFX.GFXObject;
 import model.GFX.Ground;
@@ -195,7 +196,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	}
 
 	private void createDays(List<Event> events) {
-		//figure out what date the first even is at
+		BackPlate bPlate= new BackPlate();
+		disposables.add(bPlate);
+		bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
+		firstShadedLayer.add(bPlate.getModelInstance());
+		//figure out what date the first event is at
 		Event e = events.get(0);
 		//takes first event and
 
@@ -212,7 +217,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		float step = Statics.ACTIVITY_WIDTH + 1f;
 		//Create datePillar
 		Date3d d = new Date3d(e);
-		for(int i=0;i<21;i++){
+		for(int i=0;i<28;i++){
 			dt = new DatePillar(d.clone());
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
 			//ground.setModelInstance(new ModelInstance(ground.getModel()));
@@ -340,10 +345,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	public void render (){
 		appTime += 1 %1000000;
 		updateCamera();
-		//Gdx.gl.glClearColor(0.0f, 0.0f, 1.0f, 1f);
+		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		//modelBatch.;
 		modelBatch.begin(cam);
 		modelBatch.render(firstNonShadedLayer);
 		modelBatch.render(firstShadedLayer, environment);
