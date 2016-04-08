@@ -59,6 +59,10 @@ public class Statics {
     Ground settings
      */
     public static final Vector3 GROUND_POSITION = new Vector3(0, -15.0f, 0.0f);
+    /*
+    Post Proccess settings
+     */
+    public static final String SHADER_BASE_PATH = "cShaders/";
 
 
 }

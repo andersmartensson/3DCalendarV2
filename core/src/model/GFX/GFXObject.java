@@ -65,7 +65,7 @@ public abstract class GFXObject implements Disposable{
      */
     protected Texture loadTexture(Texture text, String textPath) {
         text = new Texture(Gdx.files.internal(textPath));
-        disposables.add(text);
+        //disposables.add(text);
         return text;
     }
 

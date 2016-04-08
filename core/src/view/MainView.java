@@ -46,6 +46,10 @@ import model.GFX.Ground;
 import model.GFX.Skybox;
 import model.GFX.Sun;
 import operations.SaveManager;
+import postprocessing.PostProcessor;
+import postprocessing.ShaderLoader;
+import postprocessing.effects.Fxaa;
+import postprocessing.effects.Nfaa;
 import shaders.WaterShader;
 
 public class MainView extends InputAdapter implements ApplicationListener {
@@ -86,6 +90,31 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private boolean camIsMoving;
 	private Array<DatePillar> datePillars;
 	private CalendarController calCont;
+	private PostProcessor postProcessor;
+
+	private void createPostProcesses() {
+		ShaderLoader.BasePath = Statics.SHADER_BASE_PATH;
+		postProcessor = new PostProcessor( true, false, true );
+		disposables.add(postProcessor);
+//		Bloom bloom = createBloom();
+//		if(Statics.RENDER_BLOOM)postProcessor.addEffect(bloom);
+//		disposables.add(bloom);
+		Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		disposables.add(fxaa);
+		postProcessor.addEffect(fxaa);
+		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		disposables.add(nfaa);
+		postProcessor.addEffect(nfaa);
+		//Create lens flare
+		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//		createLensFlare();
+//		disposables.add(lens);
+//		postProcessor.addEffect(lens);
+//		//create spaceship lens
+//		spaceShipLens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//		disposables.add(spaceShipLens);
+//		postProcessor.addEffect(spaceShipLens);
+	}
 
 	@Override
 	public void create () {
@@ -133,7 +162,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
-
+//Create Post Proccesing effects
+		createPostProcesses();
 		//=============Create models =================
 		//Create sun - Not visible but is going to be needed to get a position for the lens flare
 		sun = new Sun();
@@ -321,7 +351,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		updateCamera();
 		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
+		postProcessor.capture();
 		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//modelBatch.;
 		modelBatch.begin(cam);
@@ -331,7 +361,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		modelBatch.render(ground.getModelInstance(), environment);
 		modelBatch.render(secondShadedLayer, environment);
 		modelBatch.end();
-
+		postProcessor.render();
 		ui.drawUI();
 	}
 
@@ -455,6 +485,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		if(result != -1){
 			System.out.println("=============================");
 			Activity ca = activities.get(result);
+			System.out.println("Clicked: " + ca.toString());
 			//Focus and move camera to activity
 
 			//move
@@ -466,8 +497,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			camController.target = ca.position;
 			cam.update();
 			//Fix pitch
-
-
 
 //
 //			cam.lookAt(ca.position);

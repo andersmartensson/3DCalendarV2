@@ -1,5 +1,6 @@
 package model.GFX;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -37,13 +38,18 @@ public class BackPlate extends GFXObject{
         Material m = new Material();
         //Creates diffuse texture
         if(backPlateText == null) {
-            backPlateText = loadTexture(backPlateText, Statics.backPlateTextPath);
+            backPlateText = new Texture(Gdx.files.internal(Statics.backPlateTextPath) ,true);
+            backPlateText.setFilter(Texture.TextureFilter.MipMap,Texture.TextureFilter.MipMap);
+            // = loadTexture(backPlateText, );
             disposables.add(backPlateText);
         }
         //backPlateText.getTextureData();
-        //backPlateText.
+        //backPlateText.setFilter(GL_LINEAR_MIPMAP_LINEAR,);
+
+
 
         m.set(TextureAttribute.createDiffuse(backPlateText));
+
         m.set(new BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE)); //set so that its transparent
         //Create bump if mobile can handle it.
         float width = Statics.WEEK_BACKPLATE_WIDTH;
