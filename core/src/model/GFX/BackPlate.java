@@ -16,7 +16,7 @@ import data.Statics;
  * Created by Anders on 2016-04-07.
  */
 public class BackPlate extends GFXObject{
-    Texture backPlateText;
+    static Texture backPlateText;
 
     public BackPlate(){
         super();
@@ -36,10 +36,13 @@ public class BackPlate extends GFXObject{
         ModelBuilder mb = new ModelBuilder();
         Material m = new Material();
         //Creates diffuse texture
-        backPlateText = loadTexture(backPlateText, Statics.backPlateTextPath);
+        if(backPlateText == null) {
+            backPlateText = loadTexture(backPlateText, Statics.backPlateTextPath);
+            disposables.add(backPlateText);
+        }
         //backPlateText.getTextureData();
         //backPlateText.
-        disposables.add(backPlateText);
+
         m.set(TextureAttribute.createDiffuse(backPlateText));
         m.set(new BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE)); //set so that its transparent
         //Create bump if mobile can handle it.
@@ -48,5 +51,14 @@ public class BackPlate extends GFXObject{
         float depth = Statics.WEEK_BACKPLATE_DEPTH;
         return mb.createBox(width, height, depth, m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
 
+    }
+
+    /**
+     * Adjusts the x position depending on what week it is
+     * @param x
+     */
+    public void fixPosition(float x) {
+        position.x += x;
+        this.setPosition(position);
     }
 }

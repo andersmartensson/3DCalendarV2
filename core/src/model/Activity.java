@@ -61,11 +61,9 @@ public class Activity extends GFXObject{
         //System.out.println("Height: " + height );
         yOrigin = d3d.startHour;
         yOrigin += d3d.startMin / 60f;
-        System.out.println("name: " + event.getSummary());
-        System.out.println("Start hour: " + yOrigin);
         height = d3d.stopHour + (d3d.stopMin / 60f);
-        System.out.println("Stop hour: " + height);
         height -= yOrigin;
+        yOrigin += height/2f;
         //yOrigin -= height /2;
         Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
@@ -81,7 +79,7 @@ public class Activity extends GFXObject{
     }
 
     public String toString(){
-        return "Event: " + event.getSummary() + " x: " + position.x + " y: " + position.y + " " +  d3d.toString();
+        return "Event: " + event.getSummary() + " x: " + position.x + " y: " + position.y + " h: " + height + " " +  d3d.toString();
     }
 
 }

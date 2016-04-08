@@ -97,6 +97,9 @@ public abstract class GFXObject implements Disposable{
 
     public void setPosition(Vector3 position) {
         this.position = position;
+        if(modelInstance != null){
+            modelInstance.transform.setTranslation(position);
+        }
     }
 
     public void updatePosition(){

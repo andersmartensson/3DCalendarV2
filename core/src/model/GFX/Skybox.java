@@ -44,7 +44,7 @@ public class Skybox extends GFXObject {
         disposables.add(desertBG);
         m.set(TextureAttribute.createDiffuse(diff));
         //Create bump if mobile can handle it.
-        return mb.createSphere(-scale,-scale,-scale,40,40,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
+        return mb.createSphere(-scale,-scale,-scale,80,80,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
     }
 
     public void setSkyBoxTexture(int theme){

@@ -31,7 +31,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.List;
@@ -100,9 +99,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		camIsMoving = false; //For camera interpolarisation.
 		disposables = new Array<Disposable>();
-		//spriteBatch = new SpriteBatch();
-		//blackTexture = new Texture(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGBA8888);
-		//disposables.add(blackTexture);
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
 		//Create save manager
 		saveManager = new SaveManager();
@@ -119,9 +115,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		environment = new Environment();
 
 //Create camera and calCont
-		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-		finalPosition = new Vector3(10f, 10f, 10f);
+		cam = new PerspectiveCamera(Statics.CAMERA_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		finalPosition = Statics.CAM_START_POSITION;
 		cam.position.set(finalPosition);
 		cam.viewportHeight = 720f;
 		cam.viewportWidth = 1280f;
@@ -139,13 +134,12 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
 
-//Create models
+		//=============Create models =================
 		//Create sun - Not visible but is going to be needed to get a position for the lens flare
 		sun = new Sun();
 		//Create model and modelInstance and add it to render array
 		sun.setModelInstance(new ModelInstance(sun.getModel()));
 		sun.setPosition(new Vector3(115.0f, 150.0f, 200.0f));
-		sun.modelInstance.transform.setTranslation(sun.getPosition());
 		//firstNonShadedLayer.add(sun.getModelInstance());
 		disposables.add(sun);
 
@@ -157,8 +151,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Create ground
 		ground = new Ground();
 		ground.setModelInstance(new ModelInstance(ground.getModel()));
-		ground.setPosition(new Vector3(0, -15.0f, 0.0f));
-		ground.getModelInstance().transform.setTranslation(ground.getPosition());
+		ground.setPosition(Statics.GROUND_POSITION);
+
 
 //Create model batch and texture region
 		modelBatch = new ModelBatch();
@@ -167,46 +161,20 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		setLight();
 		//createWaterShader();
 		updateTheme();
+		//Create Calender and download events
 		calCont = new CalendarController(this);
 		calCont.update();
-		//GoogleCalendarDownload gcd = new GoogleCalendarDownload();
-		//System.out.println(CalendarMain.class.getResource("/").getPath());
-//		List<Event> events = null;
-//		try {
-//			events = gcd.execute();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		System.out.println("From render main:");
-		if (calCont.events == null || calCont.events.size() == 0) {
-			System.out.println("No upcoming events found.");
-		} else {
-			System.out.println("Upcoming events");
-			for (Event event : calCont.events) {
-				DateTime start = event.getStart().getDateTime();
-				if (start == null) {
-					start = event.getStart().getDate();
-				}
-				System.out.printf("%s (%s)\n", event.getSummary(), start);
-			}
-		}
 		activities = new Array<Activity>(calCont.events.size());
 		createDays(calCont.events);
 		createActivities(calCont.events, datePillars);
 	}
 
 	private void createDays(List<Event> events) {
-		BackPlate bPlate= new BackPlate();
-		disposables.add(bPlate);
-		bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
-		firstShadedLayer.add(bPlate.getModelInstance());
 		//figure out what date the first event is at
 		Event e = events.get(0);
 		//takes first event and
-
 		//LocalDateTime now = LocalDateTime.now();
 		//Date should start on a monday
-
 		datePillars = new Array<DatePillar>();
 		//Draw two weeks of pillars
 		DatePillar dt = null;
@@ -220,18 +188,24 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		for(int i=0;i<28;i++){
 			dt = new DatePillar(d.clone());
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
-			//ground.setModelInstance(new ModelInstance(ground.getModel()));
 			origin.x += step;
+			//If is week then add step and back plate
 			if(i % 7 == 0){
-				//Add extra step if end of week
 				origin.x += step;
+				//Add backplate
+				BackPlate bPlate= new BackPlate();
+				disposables.add(bPlate);
+				bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
+				bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
+				bPlate.fixPosition(origin.x);
+				firstShadedLayer.add(bPlate.getModelInstance());
 			}
 			Vector3 tv = origin.cpy();
 			//tv.x += step;
 			dt.setPosition(tv);
 			firstShadedLayer.add(dt.getModelInstance());
 			datePillars.add(dt);
-			dt.getModelInstance().transform.setTranslation(dt.getPosition());
+			//dt.getModelInstance().transform.setTranslation(dt.getPosition());
 			d.day +=1;
 		}
 
@@ -262,7 +236,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
-				a.getModelInstance().transform.setTranslation(a.getPosition());
+				//a.getModelInstance().transform.setTranslation(a.getPosition());
 				firstShadedLayer.add(a.getModelInstance());
 				//x += Statics.ACTIVITY_WIDTH + 1f;
 				//a.event = e;
@@ -479,25 +453,49 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Get clicked activity
 		int result = getActivity(screenX, screenY);
 		if(result != -1){
+			System.out.println("=============================");
 			Activity ca = activities.get(result);
-			System.out.println(ca.toString());
 			//Focus and move camera to activity
-			//Focus
-			cam.lookAt(ca.position);
+
 			//move
 			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
-			//Vector3 v = cam.position;
 			cam.position.set(finalPosition);
+			cam.update();
 			//Focus
 			cam.lookAt(ca.position);
-
 			camController.target = ca.position;
-			cam.normalizeUp();
-			cam.rotate(cam.up, 1);
-			camController.update();
-			//camController.target
 			cam.update();
+			//Fix pitch
+
+
+
+//
+//			cam.lookAt(ca.position);
+//			camController.target = ca.position;
+
+			//camController.update();
+			//camController.target
+
+
 			//camIsMoving = true;
+//			Vector3 t = new Vector3(1,0,0);
+//			Vector3 cv = cam.direction;
+//			System.out.println("cam direction: " + cv);
+//
+//			//cam.rotate(cam.up, cam.normalizeUp());
+//			//cam.rotateAround(finalPosition, cam.up, 90f);
+//			cam.
+//					cam.update();
+//			System.out.println("canmera up " + cam.up);
+//			//cam.normalizeUp();
+//			cam.update();
+//			System.out.println("canmera after noirmal up " + cam.up);
+//
+//			cv = cam.direction;
+//
+//			System.out.println("cam direction: " + cv);
+//			System.out.println("=============================");
+
 		}
 		return false;
 	}
@@ -514,7 +512,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			float dist2 = ray.origin.dst2(position);
 			if (distance >= 0f && dist2 > distance) continue;
 			if (Intersector.intersectRayBoundsFast(ray,position,a.dimensions)){
-				//System.out.println("Hit: " + a.event.getSummary());
 				result = i;
 				distance = dist2;
 			}
