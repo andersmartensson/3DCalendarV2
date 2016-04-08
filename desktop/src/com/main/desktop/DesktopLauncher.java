@@ -3,8 +3,6 @@ package com.main.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
-import view.MainView;
-
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -14,6 +12,6 @@ public class DesktopLauncher {
 		config.foregroundFPS = 30;
 		config.vSyncEnabled = true;
 		config.fullscreen = false;
-		new LwjglApplication(new MainView(), config);
+		new LwjglApplication(new view.MainView(), config);
 	}
 }

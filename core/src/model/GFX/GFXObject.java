@@ -172,4 +172,6 @@ public abstract class GFXObject implements Disposable{
 
         return Color.BLUE;
     }
+
+
 }

@@ -2,7 +2,10 @@ package view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -10,9 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+
+import data.Statics;
 
 /**
  * Created by Datacom on 2015-12-03.
@@ -27,6 +33,7 @@ public class UI implements Disposable{
     private InputMultiplexer inputMultiplexer;
     private MainView game;
     Array<Disposable> disposables;
+    private Label detailsLabel;
 
     public Stage getOptionsStage() {
         return optionsStage;
@@ -70,16 +77,8 @@ public class UI implements Disposable{
             }
         });
         optionsButton.getLabel().setFontScale(2.0f * density, 2.0f * density);
-        uiTable.add(optionsButton).minWidth(100f * density).minHeight(100f * density);
-        labelMessage = new Label("                                          ", skin);
-        Table turnTable = new Table();
-        turnTable.setDebug(true);
-        turnTable.setFillParent(true);
-        //turnTable.
-        turnTable.align(Align.top);
-        uiStage.addActor(turnTable);
-        turnTable.add(labelMessage).align(Align.topLeft).minWidth(100f * density);
-        labelMessage.setFontScale(2.0f * density, 2.0f * density);
+        uiTable.add(optionsButton).minWidth(100f * density)
+                .minHeight(100f * density).align(Align.left);
 
         /*
          * Create Options buttons
@@ -89,87 +88,6 @@ public class UI implements Disposable{
         Table optionsTable = new Table();
         optionsTable.setFillParent(true);
         optionsStage.addActor(optionsTable);
-
-        //Create newgameSpot1 button
-        final TextButton newGameSpot1 = new TextButton("New MainView", skin);
-        optionsTable.add(newGameSpot1).minWidth(100f * density).minHeight(50f * density);
-        newGameSpot1.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        newGameSpot1.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.startNewGame(0);
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-        //create load gameSpot 1 button
-        final TextButton loadGameSpot1 = new TextButton("Load MainView spot 1", skin);
-        optionsTable.add(loadGameSpot1).minWidth(100f * density).minHeight(50f * density);
-        loadGameSpot1.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        loadGameSpot1.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.loadNewGame(0);
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-
-        optionsTable.row();
-
-        //Create gameSpot button 2
-        final TextButton newGameSpot2 = new TextButton("New MainView", skin);
-        optionsTable.add(newGameSpot2).minWidth(100f * density).minHeight(50f * density);
-        newGameSpot2.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        newGameSpot2.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.startNewGame(1);
-//                ;
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-        //create load gameSpot 1 button
-        final TextButton loadGameSpot2 = new TextButton("Load MainView spot 2", skin);
-        optionsTable.add(loadGameSpot2).minWidth(100f * density).minHeight(50f * density);
-        loadGameSpot2.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        loadGameSpot2.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.loadNewGame(1);
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-        optionsTable.row();
-
-        //Create gameSpot button 3
-        final TextButton newGameSpot3 = new TextButton("New MainView", skin);
-        optionsTable.add(newGameSpot3).minWidth(100f * density).minHeight(50f * density);
-        newGameSpot3.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        newGameSpot3.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.startNewGame(2);
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-        //create load gameSpot 3 button
-        final TextButton loadGameSpot3 = new TextButton("Load MainView spot 3", skin);
-        optionsTable.add(loadGameSpot3).minWidth(100f * density).minHeight(50f * density);
-        loadGameSpot3.getLabel().setFontScale(2.0f * density, 2.0f * density);
-//        loadGameSpot3.addListener(new InputListener() {
-//            @Override
-//            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-//                game.loadNewGame(2);
-//                toggleOptions();
-//                return false;
-//            }
-//        });
-
-        optionsTable.row();
 
         final TextButton toggleTheme = new TextButton("Switch theme (1)", skin);
         optionsTable.add(toggleTheme).minWidth(100f * density).minHeight(50f * density);
@@ -181,8 +99,31 @@ public class UI implements Disposable{
                 return false;
             }
         });
+        uiTable.row();
+        Pixmap gray = new Pixmap(1, 1, Pixmap.Format.RGB565);
+        gray.setColor(Statics.DETAILS_BACKGROUND_COLOR);
+        gray.fill();
+        //Create details label
+        Table detailsTable = new Table();
+        Texture grayText = new Texture( gray);
+        //grayText.
+        detailsTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(gray))));
+        uiTable.add(detailsTable);
+        detailsLabel = new Label("",skin);
+
+        detailsTable.add(detailsLabel).align(Align.left);
+//        detailsLabel.setText("Details: \n " +
+//                "HEJ HEJ HEJ \n" +
+//                "HEJ HEJ HEJ");
+        //Create time Report
+
+        //Create edit
 
 
+    }
+
+    public void updateDetails(String text){
+        detailsLabel.setText(text);
     }
 
     private void toggleOptions() {
@@ -197,7 +138,10 @@ public class UI implements Disposable{
 
 
     public void drawUI() {
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         //updateTurnlabel();
+        uiBatch.enableBlending();
         uiBatch.begin();
         uiStage.draw();
         if (optionsMenuVisible) {

@@ -45,11 +45,11 @@ import model.GFX.GFXObject;
 import model.GFX.Ground;
 import model.GFX.Skybox;
 import model.GFX.Sun;
+import model.GFX.TextTexture;
 import operations.SaveManager;
 import postprocessing.PostProcessor;
 import postprocessing.ShaderLoader;
 import postprocessing.effects.Fxaa;
-import postprocessing.effects.Nfaa;
 import shaders.WaterShader;
 
 public class MainView extends InputAdapter implements ApplicationListener {
@@ -92,6 +92,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private CalendarController calCont;
 	private PostProcessor postProcessor;
 
+
 	private void createPostProcesses() {
 		ShaderLoader.BasePath = Statics.SHADER_BASE_PATH;
 		postProcessor = new PostProcessor( true, false, true );
@@ -102,9 +103,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		disposables.add(fxaa);
 		postProcessor.addEffect(fxaa);
-		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		disposables.add(nfaa);
-		postProcessor.addEffect(nfaa);
+//		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+//		disposables.add(nfaa);
+//		postProcessor.addEffect(nfaa);
 		//Create lens flare
 		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		createLensFlare();
@@ -118,9 +119,10 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public void create () {
+
 		//Settings for OpenGL
 		Gdx.gl.glClearDepthf(1.0f);
-		Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
 		Gdx.gl.glDepthFunc(GL20.GL_LESS);
 		Gdx.gl.glDepthRangef(0f, 1f);
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
@@ -128,6 +130,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		camIsMoving = false; //For camera interpolarisation.
 		disposables = new Array<Disposable>();
+		//Create text render
+		spriteBatch = new SpriteBatch();
+		disposables.add(spriteBatch);
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
 		//Create save manager
 		saveManager = new SaveManager();
@@ -197,8 +202,13 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		activities = new Array<Activity>(calCont.events.size());
 		createDays(calCont.events);
 		createActivities(calCont.events, datePillars);
-	}
 
+
+		//TEST
+		//createTest();
+		tt = new TextTexture();
+	}
+	TextTexture tt;
 	private void createDays(List<Event> events) {
 		//figure out what date the first event is at
 		Event e = events.get(0);
@@ -248,6 +258,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //		EventDateTime sTime;
 //		DateTime sTime2;
 		float x = 0;
+		SpriteBatch sb = new SpriteBatch();
+
 		for(Event e: events){
 			//Get Color:
 			if(e.getColorId() == null){
@@ -263,7 +275,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Date3d d3d = new Date3d(e);
 				x = d3d.matchXValue(pillars);
 				a = new Activity(c, d3d,e);
-				a.setModelInstance(new ModelInstance(a.getModel()));
+				a.setModelInstance(new ModelInstance(a.getModel(sb,ui.skin)));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
 				//a.getModelInstance().transform.setTranslation(a.getPosition());
@@ -345,6 +357,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	}
 
+
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
@@ -361,9 +374,17 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		modelBatch.render(ground.getModelInstance(), environment);
 		modelBatch.render(secondShadedLayer, environment);
 		modelBatch.end();
+
 		postProcessor.render();
 		ui.drawUI();
+
+
+		//renderTest();
+		//tt.createTextTexture(spriteBatch,ui.skin,Color.BROWN,"Hejsan HEHSAN \n Andra raden",10f,10f);
+
 	}
+
+
 
 	private void updateCamera() {
 		//CheckCameraPosition
@@ -485,20 +506,35 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		if(result != -1){
 			System.out.println("=============================");
 			Activity ca = activities.get(result);
+			//Update text
+			ui.updateDetails(ca.getDetails());
 			System.out.println("Clicked: " + ca.toString());
 			//Focus and move camera to activity
-
+			//Gdx.input.
 			//move
 			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
 			cam.position.set(finalPosition);
 			cam.update();
+
+			//Fix pitch
+			System.out.println("can UP: " + cam.up);
+//			//Rotate x
+			while(cam.up.x > 0.05f || cam.up.x < - 0.05f){
+				cam.rotateAround(finalPosition, new Vector3(0, 1f, 0), 3f);
+				//cam.update();
+				//System.out.println("FIX x, can UP: " + cam.up);
+			}
+			while(cam.up.y < 0.95f ){
+				cam.rotateAround(finalPosition,new Vector3(1f,0,0),3f);
+				//cam.update();
+				//System.out.println("Fix y, can UP: " + cam.up);
+			}
 			//Focus
 			cam.lookAt(ca.position);
 			camController.target = ca.position;
 			cam.update();
-			//Fix pitch
+			//Roate y
 
-//
 //			cam.lookAt(ca.position);
 //			camController.target = ca.position;
 

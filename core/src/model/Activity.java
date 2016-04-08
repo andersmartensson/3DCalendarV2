@@ -2,16 +2,19 @@ package model;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.Date;
 
 import data.Statics;
 import model.GFX.GFXObject;
+import model.GFX.TextTexture;
 
 /**
  * Created by Anders on 2016-04-06.
@@ -41,20 +44,17 @@ public class Activity extends GFXObject{
 //        this.to = to;
 //    }
 
-    public Model getModel(){
+    public Model getModel(SpriteBatch sb,Skin skin){
         if(model == null){
-            model = createActivityModel();
+            model = createActivityModel(sb, skin);
+            disposables.add(model);
         }
         return model;
     }
 
-    private Model createActivityModel() {
+    private Model createActivityModel(SpriteBatch sb,Skin skin) {
         ModelBuilder mb = new ModelBuilder();
-        Material m = new Material();
-        //Creates diffuse texture
-        m.set(ColorAttribute.createDiffuse(color));
-        //Create Specular texture
-        m.set(ColorAttribute.createSpecular(Color.WHITE));
+
         //Create bump if mobile can handle it.
         //height = to - from;
         //height = height / Statics.HEIGHT_DIVIDER;
@@ -64,6 +64,21 @@ public class Activity extends GFXObject{
         height = d3d.stopHour + (d3d.stopMin / 60f);
         height -= yOrigin;
         yOrigin += height/2f;
+        Material m = new Material();
+        //Creates diffuse texture
+
+        TextTexture tt = new TextTexture();
+        disposables.add(tt);
+//        m.set(TextureAttribute.createDiffuse(tt.createTextTexture(
+//                sb
+//                ,skin
+//                ,color
+//                ,"TESTAR!!!"
+//                ,height
+//                , Statics.ACTIVITY_WIDTH)));
+        m.set(ColorAttribute.createDiffuse(color));
+        //Create Specular texture
+        m.set(ColorAttribute.createSpecular(Color.WHITE));
         //yOrigin -= height /2;
         Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
@@ -71,6 +86,16 @@ public class Activity extends GFXObject{
 
         return mod;
 
+    }
+
+    public String getDetails(){
+        StringBuilder sb = new StringBuilder("Details:\n");
+        sb.append(event.getSummary() + "\n");
+        sb.append("Start: " + event.getStart());
+        sb.append("\n");
+        sb.append("Stop: " + event.getEnd());
+
+        return sb.toString();
     }
 
     public float getYOrigin() {
