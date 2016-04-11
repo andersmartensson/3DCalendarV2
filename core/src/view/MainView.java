@@ -33,19 +33,21 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.api.services.calendar.model.Event;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import controller.CalendarController;
 import data.Statics;
 import model.Activity;
 import model.Date3d;
+import model.GFX.Alphabet;
 import model.GFX.BackPlate;
 import model.GFX.DatePillar;
 import model.GFX.GFXObject;
 import model.GFX.Ground;
 import model.GFX.Skybox;
 import model.GFX.Sun;
-import model.GFX.TextTexture;
 import operations.SaveManager;
 import postprocessing.PostProcessor;
 import postprocessing.ShaderLoader;
@@ -91,6 +93,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Array<DatePillar> datePillars;
 	private CalendarController calCont;
 	private PostProcessor postProcessor;
+	private Alphabet alphabet;
 
 
 	private void createPostProcesses() {
@@ -154,7 +157,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		cam.position.set(finalPosition);
 		cam.viewportHeight = 720f;
 		cam.viewportWidth = 1280f;
-		cam.lookAt(0,0,0);
+		cam.lookAt(finalPosition.x,finalPosition.y,Statics.DISTANCE_FROM_CAMERA);
 		cam.far = Statics.CAM_FAR;
 		cam.near = Statics.CAM_NEAR;
 		cam.update();
@@ -167,6 +170,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
+		//Create text
+		alphabet = new Alphabet();
+		disposables.add(alphabet);
 //Create Post Proccesing effects
 		createPostProcesses();
 		//=============Create models =================
@@ -188,7 +194,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		ground.setModelInstance(new ModelInstance(ground.getModel()));
 		ground.setPosition(Statics.GROUND_POSITION);
 
-
 //Create model batch and texture region
 		modelBatch = new ModelBatch();
 		disposables.add(modelBatch);
@@ -202,18 +207,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		activities = new Array<Activity>(calCont.events.size());
 		createDays(calCont.events);
 		createActivities(calCont.events, datePillars);
-
-
-		//TEST
-		//createTest();
-		tt = new TextTexture();
 	}
-	TextTexture tt;
+	//TextTexture tt;
 	private void createDays(List<Event> events) {
 		//figure out what date the first event is at
 		Event e = events.get(0);
-		//takes first event and
-		//LocalDateTime now = LocalDateTime.now();
 		//Date should start on a monday
 		datePillars = new Array<DatePillar>();
 		//Draw two weeks of pillars
@@ -223,30 +221,59 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Statics.DATEPILLAR_Y_ORIGIN,
 				Statics.DATEPILLAR_Z_ORIGIN);
 		float step = Statics.ACTIVITY_WIDTH + 1f;
+		Calendar c = Calendar.getInstance();
 		//Create datePillar
 		Date3d d = new Date3d(e);
 		for(int i=0;i<28;i++){
 			dt = new DatePillar(d.clone());
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
+
 			origin.x += step;
-			//If is week then add step and back plate
+
+			/*
+			        Calendar c = Calendar.getInstance();
+        c.setTime(new Date(currentTime));
+        int day = c.get(Calendar.DAY_OF_WEEK) -1;
+        System.out.println("Day = " + day);
+        currentTime -= day * milliSecondsInADay();
+        c.setTime(new Date(currentTime));
+        System.out.println("Current time is " + c.get(Calendar.DAY_OF_WEEK));
+			 */
+
+
+			//If is end of week then add step and back plate
 			if(i % 7 == 0){
 				origin.x += step;
-				//Add backplate
+				//Add back plate
 				BackPlate bPlate= new BackPlate();
 				disposables.add(bPlate);
 				bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
 				bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
 				bPlate.fixPosition(origin.x);
 				firstShadedLayer.add(bPlate.getModelInstance());
+				//Type out week number
+				//Check if e + days are
+				c.setTime(new Date(d.date));
+				System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
+				firstShadedLayer.addAll(
+						alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
+								, new Vector3(origin.x, Statics.DATEPILLAR_HEIGHT + 4f, Statics.DATEPILLAR_Z_ORIGIN)
+								, Statics.WEEK_NUMBER_SCALE));
+
 			}
 			Vector3 tv = origin.cpy();
 			//tv.x += step;
 			dt.setPosition(tv);
 			firstShadedLayer.add(dt.getModelInstance());
 			datePillars.add(dt);
-			//dt.getModelInstance().transform.setTranslation(dt.getPosition());
+			//Type date
+			firstShadedLayer.addAll(alphabet.load3DText(dt.d3d.getDayString()
+					, new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
+					, Statics.DATEPILLAR_HEIGHT + 1f
+					, Statics.DATEPILLAR_Z_ORIGIN)
+					, 0.5f));
 			d.day +=1;
+			d.date += calCont.milliSecondsInADay();
 		}
 
 	}
@@ -259,7 +286,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //		DateTime sTime2;
 		float x = 0;
 		SpriteBatch sb = new SpriteBatch();
-
+		disposables.add(sb);
 		for(Event e: events){
 			//Get Color:
 			if(e.getColorId() == null){
@@ -275,7 +302,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Date3d d3d = new Date3d(e);
 				x = d3d.matchXValue(pillars);
 				a = new Activity(c, d3d,e);
-				a.setModelInstance(new ModelInstance(a.getModel(sb,ui.skin)));
+				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
 				//a.getModelInstance().transform.setTranslation(a.getPosition());
@@ -365,8 +392,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		postProcessor.capture();
-		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		//modelBatch.;
+
 		modelBatch.begin(cam);
 		modelBatch.render(firstNonShadedLayer);
 		modelBatch.render(firstShadedLayer, environment);
@@ -377,11 +403,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		postProcessor.render();
 		ui.drawUI();
-
-
-		//renderTest();
-		//tt.createTextTexture(spriteBatch,ui.skin,Color.BROWN,"Hejsan HEHSAN \n Andra raden",10f,10f);
-
 	}
 
 
@@ -533,33 +554,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			cam.lookAt(ca.position);
 			camController.target = ca.position;
 			cam.update();
-			//Roate y
-
-//			cam.lookAt(ca.position);
-//			camController.target = ca.position;
-
-			//camController.update();
-			//camController.target
-
-
-			//camIsMoving = true;
-//			Vector3 t = new Vector3(1,0,0);
-//			Vector3 cv = cam.direction;
-//			System.out.println("cam direction: " + cv);
-//
-//			//cam.rotate(cam.up, cam.normalizeUp());
-//			//cam.rotateAround(finalPosition, cam.up, 90f);
-//			cam.
-//					cam.update();
-//			System.out.println("canmera up " + cam.up);
-//			//cam.normalizeUp();
-//			cam.update();
-//			System.out.println("canmera after noirmal up " + cam.up);
-//
-//			cv = cam.direction;
-//
-//			System.out.println("cam direction: " + cv);
-//			System.out.println("=============================");
 
 		}
 		return false;

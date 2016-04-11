@@ -39,7 +39,7 @@ public class CalendarController {
         }
     }
 
-    private long milliSecondsInADay() {
+    public long milliSecondsInADay() {
         System.out.println("Milliseconds in a day = " + (24*60*60*1000));
         return 24*60*60*1000;
     }

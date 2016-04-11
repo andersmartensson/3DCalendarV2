@@ -2,12 +2,10 @@ package model;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.Date;
@@ -27,38 +25,25 @@ public class Activity extends GFXObject{
     public float height;
     public Event event;
     public Date3d d3d;
+
     public Activity(Color c, Date3d d, Event e) {
         event = e;
         this.color = c;
-        //this.date = d;
-        //this.from = d.startHour;
-        //this.to = to;
         scale = 10f;
         d3d = d;
     }
 
-//    public void createActivity(Color c, Date d, long from, long to){
-//        this.color = c;
-//        this.date = d;
-//        this.from = from;
-//        this.to = to;
-//    }
-
-    public Model getModel(SpriteBatch sb,Skin skin){
+    public Model getModel(){
         if(model == null){
-            model = createActivityModel(sb, skin);
+            model = createActivityModel();
             disposables.add(model);
         }
         return model;
     }
 
-    private Model createActivityModel(SpriteBatch sb,Skin skin) {
+    private Model createActivityModel() {
         ModelBuilder mb = new ModelBuilder();
 
-        //Create bump if mobile can handle it.
-        //height = to - from;
-        //height = height / Statics.HEIGHT_DIVIDER;
-        //System.out.println("Height: " + height );
         yOrigin = d3d.startHour;
         yOrigin += d3d.startMin / 60f;
         height = d3d.stopHour + (d3d.stopMin / 60f);
@@ -69,20 +54,12 @@ public class Activity extends GFXObject{
 
         TextTexture tt = new TextTexture();
         disposables.add(tt);
-//        m.set(TextureAttribute.createDiffuse(tt.createTextTexture(
-//                sb
-//                ,skin
-//                ,color
-//                ,"TESTAR!!!"
-//                ,height
-//                , Statics.ACTIVITY_WIDTH)));
         m.set(ColorAttribute.createDiffuse(color));
         //Create Specular texture
         m.set(ColorAttribute.createSpecular(Color.WHITE));
         //yOrigin -= height /2;
         Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
-        //return mb.createSphere(scale,scale,scale,30,30,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
 
         return mod;
 

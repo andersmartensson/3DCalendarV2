@@ -24,12 +24,24 @@ public class Date3d implements Cloneable{
     public int stopMin;
     public Day dayOfWeek;
     private int dayOfWeekNum;
+    public long date;
+
+    public String getDayString() {
+        return getDateString(day);
+    }
+
+    public String getDateString(int num){
+        if(num / 10 == 0){
+            return "0" + num;
+        }
+        return "" + num;
+    }
 
     public enum Day{
         Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,  None
     }
 
-    public Date3d(int stopMin, int year, int month, int day, int startHour, int startMin, int stopHour) {
+    public Date3d(long date, int stopMin, int year, int month, int day, int startHour, int startMin, int stopHour) {
         this.stopMin = stopMin;
         this.year = year;
         this.month = month;
@@ -37,9 +49,18 @@ public class Date3d implements Cloneable{
         this.startHour = startHour;
         this.startMin = startMin;
         this.stopHour = stopHour;
+        this.date = date;
     }
 
     public Date3d(Event e){
+        if(e.getStart().getDateTime() != null){
+            date = e.getStart().getDateTime().getValue();
+        }
+        else {
+            System.out.println("WARNING:===== "+ e.getSummary() + " start time is null");
+            date = 0;
+        }
+
         DateTime dt = e.getStart().getDateTime();
         Calendar c = Calendar.getInstance();
         Date d = new Date(e.getStart().getDateTime().getValue());
@@ -85,7 +106,7 @@ public class Date3d implements Cloneable{
 
     @Override
     public Date3d clone(){
-        return new Date3d(stopMin, year, month, day, startHour, startMin, stopHour);
+        return new Date3d(date,stopMin, year, month, day, startHour, startMin, stopHour);
     }
 
     /**

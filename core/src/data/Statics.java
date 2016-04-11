@@ -21,6 +21,9 @@ public class Statics {
      */
     public static final float ACTIVITY_WIDTH = 3.0f;
     public static final float ACTIVITY_DEPTH = 1.0f;
+    public static final float ACTIVITY_DUMP_X_POSTION = -100f;
+    public static final float ACTIVITY_TEXTURE_WIDTH_MODIFIER = 100f;
+    public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
 
     /*
     Date pillar settings
@@ -31,7 +34,7 @@ public class Statics {
     public static final float DATEPILLAR_X_ORIGN = -15f;
     public static final float DATEPILLAR_Y_ORIGIN = DATEPILLAR_HEIGHT /2f;
     public static final float DATEPILLAR_Z_ORIGIN = -ACTIVITY_DEPTH /2f;
-    public static final float ACTIVITY_DUMP_X_POSTION = -100f;
+    public static final float DATEPILLAR_DATE_NUM_MOD = - ACTIVITY_WIDTH /2f -1f;
 
     /*
     Backplate settings
@@ -45,19 +48,19 @@ public class Statics {
                 +  (ACTIVITY_WIDTH * 4) ,
         WEEK_BACKPLATE_HEIGHT/2f,
         DATEPILLAR_Z_ORIGIN -0.1f);
-        /*
+    public static final float WEEK_NUMBER_SCALE = 0.8f;
+
+    /*
     CAMERA settings
     */
     public static final float CAMERA_FOV = 75f;
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
-    public static final float ACTIVITY_TEXTURE_WIDTH_MODIFIER = 100f;
-    public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
 
     public static float DISTANCE_FROM_CAMERA = -30f;
     public static Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH / 2f,
-            WEEK_BACKPLATE_HEIGHT /2f,
+            WEEK_BACKPLATE_HEIGHT,
             - DISTANCE_FROM_CAMERA);
     /*
     Skybox settings
@@ -71,6 +74,13 @@ public class Statics {
     Post Proccess settings
      */
     public static final String SHADER_BASE_PATH = "cShaders/";
+
+
+    public static final String  ALPHA_A_PATH = "models/alphabet/A.g3dj";
+    public static final String  ALPHA_B_PATH = "models/alphabet/B.g3dj" ;
+    public static final String  ALPHA_C_PATH = "models/alphabet/C.g3dj" ;
+    public static final String  ALPHA_PATH = "models/alphabet/" ;
+
 
 
 }
