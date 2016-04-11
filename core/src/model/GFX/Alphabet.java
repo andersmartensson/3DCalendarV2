@@ -18,6 +18,7 @@ public class Alphabet implements Disposable{
     private final Array<Disposable> disposables;
     private float step;
     private float scale;
+    private Character3D lastChar;
 
     @Override
     public void dispose() {
@@ -34,7 +35,7 @@ public class Alphabet implements Disposable{
     }
 
     public Array<ModelInstance> load3DText(String s, Vector3 origin, float scale){
-        System.out.println("String: " + s + " at " + origin.x);
+        //System.out.println("String: " + s + " at " + origin.x);
         Array<ModelInstance> chars = new Array<ModelInstance>(s.length());
         //For each character, create a corresponding model instance
         step  = 0;
@@ -42,24 +43,21 @@ public class Alphabet implements Disposable{
         for(Character c: s.toCharArray()){
             ModelInstance mi = getChar(c);
             if(mi != null){
-                //origin.x += step;
                 mi.transform.setTranslation(origin.x + step,
                         origin.y,
                         origin.z);
                 //Set the correct spacing between letters
-                System.out.println(c + " step: " + step + " origin.x = " + origin.x);
-                //System.out.println(origin.x);
+                //System.out.println(c + " step: " + step + " origin.x = " + origin.x);
                 //Scale
-                //mi.transform.setToScaling(new Vector3(scale,scale,scale));
                 mi.transform.scale(scale,scale,scale);
                 chars.add(mi);
+                step += lastChar.spacing * scale;
             }
         }
         return chars;
     }
 
     private ModelInstance getChar(Character c) {
-        Character3D currentC;
         switch (c){
             case 'A':
             case 'a':
@@ -151,7 +149,7 @@ public class Alphabet implements Disposable{
 
             case 'W':
             case 'w':
-                return loadCharacter(W, 'W', 3.5f);
+                return loadCharacter(W, 'W', 3.8f);
 
             case 'X':
             case 'x':
@@ -221,8 +219,8 @@ public class Alphabet implements Disposable{
     private ModelInstance loadCharacter(Character3D c, char l, float space) {
         if(c == null){
             c = new Character3D(l,Statics.ALPHA_PATH + l + ".g3dj", space);
+            lastChar = c;
         }
-        step += c.spacing * scale;
         return c.getModelInstance();
     }
 

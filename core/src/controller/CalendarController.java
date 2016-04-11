@@ -26,10 +26,10 @@ public class CalendarController {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date(currentTime));
         int day = c.get(Calendar.DAY_OF_WEEK) -1;
-        System.out.println("Day = " + day);
+        //System.out.println("Day = " + day);
         currentTime -= day * milliSecondsInADay();
         c.setTime(new Date(currentTime));
-        System.out.println("Current time is " + c.get(Calendar.DAY_OF_WEEK));
+        //System.out.println("Current time is " + c.get(Calendar.DAY_OF_WEEK));
         lastUpdate = currentTime;
         //int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
         try {
@@ -40,7 +40,7 @@ public class CalendarController {
     }
 
     public long milliSecondsInADay() {
-        System.out.println("Milliseconds in a day = " + (24*60*60*1000));
+        //System.out.println("Milliseconds in a day = " + (24*60*60*1000));
         return 24*60*60*1000;
     }
 }

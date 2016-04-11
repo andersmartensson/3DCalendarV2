@@ -207,6 +207,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		activities = new Array<Activity>(calCont.events.size());
 		createDays(calCont.events);
 		createActivities(calCont.events, datePillars);
+
+		//firstShadedLayer.addAll(alphabet.load3DText("WWW123 WEKW PLEW",new Vector3(0,30f,0),1f));
 	}
 	//TextTexture tt;
 	private void createDays(List<Event> events) {
@@ -226,21 +228,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Date3d d = new Date3d(e);
 		for(int i=0;i<28;i++){
 			dt = new DatePillar(d.clone());
+			//dt = new DatePillar(d.date);
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
-
 			origin.x += step;
-
-			/*
-			        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(currentTime));
-        int day = c.get(Calendar.DAY_OF_WEEK) -1;
-        System.out.println("Day = " + day);
-        currentTime -= day * milliSecondsInADay();
-        c.setTime(new Date(currentTime));
-        System.out.println("Current time is " + c.get(Calendar.DAY_OF_WEEK));
-			 */
-
-
 			//If is end of week then add step and back plate
 			if(i % 7 == 0){
 				origin.x += step;
@@ -254,11 +244,18 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				//Type out week number
 				//Check if e + days are
 				c.setTime(new Date(d.date));
-				System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
+				//System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
 				firstShadedLayer.addAll(
 						alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
 								, new Vector3(origin.x, Statics.DATEPILLAR_HEIGHT + 4f, Statics.DATEPILLAR_Z_ORIGIN)
 								, Statics.WEEK_NUMBER_SCALE));
+				//Check if it is the first of month
+				if(d.day == 1){
+					//Type out month as well.
+					firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month - 1].name()
+					,new Vector3(origin.x, 40f,0f)
+					,1f));
+				}
 
 			}
 			Vector3 tv = origin.cpy();
@@ -274,6 +271,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 					, 0.5f));
 			d.day +=1;
 			d.date += calCont.milliSecondsInADay();
+
 		}
 
 	}

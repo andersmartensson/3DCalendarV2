@@ -26,6 +26,15 @@ public class Date3d implements Cloneable{
     private int dayOfWeekNum;
     public long date;
 
+    public Date3d(long date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        this.date = date;
+        day = c.get(Calendar.DAY_OF_MONTH);
+        month = c.get(Calendar.MONTH);
+        year = c.get(Calendar.YEAR);
+    }
+
     public String getDayString() {
         return getDateString(day);
     }
@@ -39,6 +48,10 @@ public class Date3d implements Cloneable{
 
     public enum Day{
         Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,  None
+    }
+
+    public enum Month{
+        January, February, Mars, April, May, June, July, August, September, October, November, December
     }
 
     public Date3d(long date, int stopMin, int year, int month, int day, int startHour, int startMin, int stopHour) {

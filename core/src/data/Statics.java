@@ -34,7 +34,7 @@ public class Statics {
     public static final float DATEPILLAR_X_ORIGN = -15f;
     public static final float DATEPILLAR_Y_ORIGIN = DATEPILLAR_HEIGHT /2f;
     public static final float DATEPILLAR_Z_ORIGIN = -ACTIVITY_DEPTH /2f;
-    public static final float DATEPILLAR_DATE_NUM_MOD = - ACTIVITY_WIDTH /2f -1f;
+    public static final float DATEPILLAR_DATE_NUM_MOD = - ACTIVITY_WIDTH /2f ;
 
     /*
     Backplate settings

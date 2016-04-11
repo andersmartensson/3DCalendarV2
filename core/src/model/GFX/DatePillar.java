@@ -27,6 +27,12 @@ public class DatePillar extends GFXObject{
         d3d = d;
     }
 
+    public DatePillar(long date) {
+        super();
+        color = Color.BLACK;
+        d3d = new Date3d(date);
+    }
+
     public Model getModel(){
         if(model == null){
             model = createDatePillar();
