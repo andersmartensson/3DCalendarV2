@@ -29,8 +29,12 @@ public class Statics {
     public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
     public static final float ACTIVITY_SPACING = 1f; // Space in between Calendar Activities
     /*
-    Date pillar settings
+    Day  & Date pillar settings
      */
+    public static final int NUM_OF_WEEKS_BEFORE_AND_AFTER = 3;
+    public static final int NUM_OF_DAYS_TO_DRAW = 7 * ( NUM_OF_WEEKS_BEFORE_AND_AFTER * 2 +1);
+    public static final int NUM_OF_PREVIOUS_DAYS_TO_DOWNLOAD = NUM_OF_WEEKS_BEFORE_AND_AFTER;
+
     public static final float DATEPILLAR_WIDTH = 0.1f;
     public static final float DATEPILLAR_HEIGHT = 24f;
     public static final float DATEPILLAR_DEPTH = 0.2f;
@@ -89,5 +93,5 @@ public class Statics {
     public static final String  ALPHA_PATH = "models/alphabet/" ;
 
 
-    public static Calendar Calender;
+    public static Calendar calendar;
 }

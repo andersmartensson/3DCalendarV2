@@ -117,7 +117,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	@Override
 	public void create () {
 		//create calender
-		Statics.Calender = Calendar.getInstance();
+		Statics.calendar = Calendar.getInstance();
 		//Settings for OpenGL
 		Gdx.gl.glClearDepthf(1.0f);
 		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST); // This conflicts with texture filtering
@@ -149,10 +149,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //Create camera and calCont
 		cam = new PerspectiveCamera(Statics.CAMERA_FOV, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		finalPosition = Statics.CAM_START_POSITION;
-		cam.position.set(finalPosition);
-		cam.viewportHeight = 720f;
-		cam.viewportWidth = 1280f;
-		cam.lookAt(finalPosition.x,finalPosition.y,Statics.CAMERA_DISTANCE_FROM);
+		//Set camera aspect
+		cam.viewportHeight = 9f;
+		cam.viewportWidth = 16f;
 		cam.far = Statics.CAM_FAR;
 		cam.near = Statics.CAM_NEAR;
 		cam.update();
@@ -196,32 +195,41 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		setLight();
 		//createWaterShader();
 		updateTheme();
-		//Create Calender and download events
+		//Create calendar and download events
 		calCont = new CalendarController(this);
-		calCont.update();
+		calCont.initialDownload();
+
+
 		activities = new Array<Activity>(calCont.events.size());
 		createDays(calCont.events);
-		createActivities(calCont.events, datePillars);
 
+		createActivities(calCont.events, datePillars);
+		//Center camera on current date
+		long currentTime = System.currentTimeMillis();
+		Date3d d = new Date3d(currentTime);
+		Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
+		cam.position.set(camPos);
+		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,Statics.CAMERA_DISTANCE_FROM);
+		cam.lookAt(camLookAt);
+		camController.target = camLookAt.cpy();
+		cam.update();
 		//firstShadedLayer.addAll(alphabet.load3DText("WWW123 WEKW PLEW",new Vector3(0,30f,0),1f));
 	}
 
 	private void createDays(List<Event> events) {
 		//figure out what date the first event is at
-		Event e = events.get(0);
+		//Event e = events.get(0);
 		//Date should start on a monday
 		datePillars = new Array<DatePillar>();
 		//Draw four weeks of pillars
-		DatePillar dt = null;
-		ModelInstance mi = null;
 		Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
 				Statics.DATEPILLAR_Y_ORIGIN,
 				Statics.DATEPILLAR_Z_ORIGIN);
 		float step = Statics.ACTIVITY_WIDTH + Statics.ACTIVITY_SPACING;
 		//Create datePillar
-		Date3d d = new Date3d(e);
-		for(int i=0;i<28;i++){
-			dt = new DatePillar(d.clone(true));
+		Date3d d = new Date3d(calCont.lastUpdate);
+		for(int i=0;i<Statics.NUM_OF_DAYS_TO_DRAW;i++){
+			DatePillar dt = new DatePillar(d.clone(true));
 			d = dt.d3d;
 			//dt = new DatePillar(d.date);
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
@@ -238,36 +246,32 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			firstShadedLayer.add(dt.getModelInstance());
 			datePillars.add(dt);
 			//Insert Month
-			//Check if it is the first week of a month
-			if(d.day ==1 ){
-
+			//Check if it is the first week of a month or
+			// if this is the first instance
+			if(i == 0 || d.day ==1 ){
 				//Type out month as well.
 			firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month].name()
 					, new Vector3(origin.x
 					, Statics.MONTH_ORIGIN_Y
 					, Statics.MONTH_ORIGIN_Z)
 					, 1f));
-//				firstShadedLayer.addAll(alphabet.load3DText("NEW MONTH"
-//						,new Vector3(origin.x, 40f,0f)
-//						,1f));
 			}
+
 			//Type date
 			firstShadedLayer.addAll(alphabet.load3DText(dt.d3d.getDayString()
 					, new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
 					, Statics.DATEPILLAR_HEIGHT + 1f
 					, Statics.DATEPILLAR_Z_ORIGIN)
 					, 0.5f));
-			d.day +=1;
 			d.date += calCont.milliSecondsInADay();
 		}
 	}
 
 	private void insertWeek(Vector3 origin, float step, Date3d d) {
-		Calendar c = Statics.Calender;
+		Calendar c = Statics.calendar;
 		//Type out week number
 		//Check if e + days are
 		c.setTime(new Date(d.date));
-		//System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
 		firstShadedLayer.addAll(
 				alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
 						, new Vector3( origin.x + Statics.WEEK_NUM_MODIFIER_X
@@ -288,13 +292,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
-		Activity a;
+		//Activity a;
 		Color c = null;
-//		EventDateTime sTime;
-//		DateTime sTime2;
 		float x = 0;
-		SpriteBatch sb = new SpriteBatch();
-		disposables.add(sb);
 		for(Event e: events){
 			//Get Color:
 			if(e.getColorId() == null){
@@ -308,8 +308,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			if(e.getStart().getDateTime() != null
 					&& e.getEnd().getDateTime() != null){
 				Date3d d3d = new Date3d(e);
+				//System.out.println("Day: " + d3d.day);
 				x = d3d.matchXValue(pillars);
-				a = new Activity(c, d3d,e);
+				Activity a = new Activity(c, d3d,e);
 				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));

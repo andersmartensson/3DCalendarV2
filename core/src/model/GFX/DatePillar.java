@@ -15,11 +15,6 @@ import model.Date3d;
  */
 public class DatePillar extends GFXObject{
     public Date3d d3d;
-//    public DatePillar(DateTime dt){
-//        super();
-//        color = Color.BLACK;
-//        dateTime = dt;
-//    }
 
     public DatePillar(Date3d d){
         super();
@@ -52,5 +47,9 @@ public class DatePillar extends GFXObject{
                 m,
                 VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
         return mod;
+    }
+
+    public String toString(){
+        return " D: " + d3d.day + " M: " + d3d.month + " Y: " + d3d.year;
     }
 }

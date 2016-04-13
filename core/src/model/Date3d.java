@@ -27,7 +27,7 @@ public class Date3d implements Cloneable{
     public long date;
 
     public Date3d(long date) {
-        Calendar c = Statics.Calender;
+        Calendar c = Statics.calendar;
         c.setTime(new Date(date));
         day = c.get(Calendar.DAY_OF_MONTH);
         month = c.get(Calendar.MONTH) +1;
@@ -102,13 +102,13 @@ public class Date3d implements Cloneable{
             System.out.println("WARNING:===== "+ e.getSummary() + " start time is null");
             date = 0;
         }
-
+        //System.out.println("EVENT NAME: " + e.getSummary());
         DateTime dt = e.getStart().getDateTime();
-        Calendar c = Statics.Calender;
+        Calendar c = Statics.calendar;
         Date d = new Date(e.getStart().getDateTime().getValue());
         c.setTime(d);
         if(c.get(Calendar.DAY_OF_WEEK) <= 7 ){
-            dayOfWeek = Day.values()[c.get(Calendar.DAY_OF_WEEK)-1];
+            dayOfWeek = Day.values()[c.get(Calendar.DAY_OF_WEEK)];
         }
         else{
             dayOfWeek = Day.None;
@@ -119,6 +119,7 @@ public class Date3d implements Cloneable{
     }
 
     private void parseDate(String s, boolean start){
+
         String[] over = s.split("T");
         String[] date  = over[0].split("-");
         year = Integer.parseInt(date[0]);
@@ -136,6 +137,7 @@ public class Date3d implements Cloneable{
             stopHour = Integer.parseInt(time[0]);
             stopMin  = Integer.parseInt(time[1]);
         }
+        //System.out.println("PARSE: " + s + "\n Becomes: Y: " + year + " M: " + month + " D: " + day);
     }
 
     private void parseEnd(String s) {
@@ -145,8 +147,6 @@ public class Date3d implements Cloneable{
     private void parseStart(String s) {
         parseDate(s, true);
     }
-
-
 
     /**
      * Matches a day with a day from the array and returns its x-value
@@ -158,9 +158,11 @@ public class Date3d implements Cloneable{
             if(p.d3d.year == year
                 && p.d3d.month == month
                 && p.d3d.day == day){
+                //System.out.println("Matched " + p.d3d.day + " with " + day + " Sending back pos.x:  " + p.position.x);
                 return p.position.x;
             }
         }
+        //System.out.println("No match for " + day );
         return Statics.ACTIVITY_DUMP_X_POSTION;
     }
 
