@@ -71,6 +71,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	int screenWidth;
 	int screenHeigth;
+	int currentWeek;
 	private ShaderProgram bgShader;
 	private float appTime;
 	private ModelInstance waterInstance;
@@ -88,6 +89,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private CalendarController calCont;
 	private PostProcessor postProcessor;
 	private Alphabet alphabet;
+	//private Array<ModelInstance> weekLayer;
+	//private Array<ModelInstance> dayLayer;
+	//private Array<ModelInstance> monthLayer;
 
 
 	private void createPostProcesses() {
@@ -142,6 +146,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		firstShadedLayer = new Array<ModelInstance>();
 		firstNonShadedLayer = new Array<ModelInstance>();
 		secondShadedLayer = new Array<ModelInstance>();
+//		weekLayer = new Array<ModelInstance>();
+//		dayLayer = new Array<ModelInstance>();
+//		monthLayer = new Array<ModelInstance>();
 
 //create environment
 		environment = new Environment();
@@ -198,44 +205,45 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Create calendar and download events
 		calCont = new CalendarController(this);
 		calCont.initialDownload();
-
-
 		activities = new Array<Activity>(calCont.events.size());
-		createDays(calCont.events);
 
+		long time = System.currentTimeMillis();
+		currentWeek = findWeek(time);
+		//Date3d d = new Date3d(calCont.lastUpdate);
+
+		createDatePillars(calCont.lastUpdate);
 		createActivities(calCont.events, datePillars);
+		System.out.println("CreatingDays and activies took " + (System.currentTimeMillis() - time));
+
 		//Center camera on current date
-		long currentTime = System.currentTimeMillis();
-		Date3d d = new Date3d(currentTime);
-		Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
-		cam.position.set(camPos);
-		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,Statics.CAMERA_DISTANCE_FROM);
-		cam.lookAt(camLookAt);
-		camController.target = camLookAt.cpy();
-		cam.update();
+		centerCameraOnDate(System.currentTimeMillis());
+
 		//firstShadedLayer.addAll(alphabet.load3DText("WWW123 WEKW PLEW",new Vector3(0,30f,0),1f));
 	}
 
-	private void createDays(List<Event> events) {
-		//figure out what date the first event is at
-		//Event e = events.get(0);
+	private int findWeek(long time) {
+		Calendar c = Statics.calendar;
+		c.setTime(new Date(time));
+		return c.get(Calendar.WEEK_OF_YEAR);
+	}
+
+	private void createDatePillars(long from) {
 		//Date should start on a monday
 		datePillars = new Array<DatePillar>();
-		//Draw four weeks of pillars
+		//Draw pillars
 		Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
 				Statics.DATEPILLAR_Y_ORIGIN,
 				Statics.DATEPILLAR_Z_ORIGIN);
 		float step = Statics.ACTIVITY_WIDTH + Statics.ACTIVITY_SPACING;
 		//Create datePillar
-		Date3d d = new Date3d(calCont.lastUpdate);
+		Date3d d = new Date3d(from);
+
 		for(int i=0;i<Statics.NUM_OF_DAYS_TO_DRAW;i++){
 			DatePillar dt = new DatePillar(d.clone(true));
 			d = dt.d3d;
-			//dt = new DatePillar(d.date);
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
 			origin.x += step;
 			//If is end of week then add step and back plate
-			// =============== WEEK =======================
 			if(i % 7 == 0){
 				insertWeek(origin, step, d);
 			}
@@ -272,9 +280,10 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Type out week number
 		//Check if e + days are
 		c.setTime(new Date(d.date));
+		//weekLayer.addAll(
 		firstShadedLayer.addAll(
 				alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
-						, new Vector3( origin.x + Statics.WEEK_NUM_MODIFIER_X
+						, new Vector3(origin.x + Statics.WEEK_NUM_MODIFIER_X
 						, Statics.WEEK_NUM_ORIGIN_Y
 						, Statics.WEEK_NUM_ORIGIN_Z)
 						, Statics.WEEK_NUMBER_SCALE));
@@ -536,33 +545,70 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			//Update text
 			ui.updateDetails(ca.getDetails());
 			System.out.println("Clicked: " + ca.toString());
-			//Focus and move camera to activity
-			//Gdx.input.
-			//move
-			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.CAMERA_DISTANCE_FROM);
-			cam.position.set(finalPosition);
-			cam.update();
+			//Check if same week, else update calender
+			//if(false){
+			if(currentWeek != findWeek(ca.d3d.date)){
+				System.out.println("Not the same week: " + currentWeek + " Clicked act: " + findWeek(ca.d3d.date));
+				long from = calCont.getAdjustedDay(ca.d3d.date);
+				long to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+				long time = System.currentTimeMillis();
+				calCont.update(from, to);
+				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
 
-			//Fix pitch
-			System.out.println("can UP: " + cam.up);
+				//Clear OpenGL objects from memory
+				Array<Disposable> dispose = new Array<Disposable>();
+				dispose.addAll(activities);
+				dispose.addAll(datePillars);
+				for(Disposable d: dispose){
+					d.dispose();
+				}
+				datePillars.clear();
+				firstShadedLayer.clear();
+				time = System.currentTimeMillis();
+				createDatePillars( from);
+				System.out.println("Pillars creation took : " + (System.currentTimeMillis() - time));
+				time = System.currentTimeMillis();
+				createActivities(calCont.events,datePillars);
+				System.out.println("Activities creation took : " + (System.currentTimeMillis() - time));
+				//Center camera
+				centerCameraOnDate(ca.d3d.date);
+				//Set current week
+
+				currentWeek = findWeek(ca.d3d.date);
+				System.out.println("Current week is " + currentWeek);
+				cam.update();
+			}
+			else {
+				//Focus and move camera to activity
+				finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.CAMERA_DISTANCE_FROM);
+				cam.position.set(finalPosition);
+				cam.update();
+				//Fix pitch
+				System.out.println("cam UP: " + cam.up);
 //			//Rotate x
-			while(cam.up.x > 0.05f || cam.up.x < - 0.05f){
-				cam.rotateAround(finalPosition, new Vector3(0, 1f, 0), 3f);
-				//cam.update();
-				//System.out.println("FIX x, can UP: " + cam.up);
+				while(cam.up.x > 0.05f || cam.up.x < - 0.05f){
+					cam.rotateAround(finalPosition, new Vector3(0, 1f, 0), 3f);
+				}
+				while(cam.up.y < 0.95f ){
+					cam.rotateAround(finalPosition,new Vector3(1f,0,0),3f);
+				}
+				//Focus
+				cam.lookAt(ca.position);
+				camController.target = ca.position;
+				cam.update();
 			}
-			while(cam.up.y < 0.95f ){
-				cam.rotateAround(finalPosition,new Vector3(1f,0,0),3f);
-				//cam.update();
-				//System.out.println("Fix y, can UP: " + cam.up);
-			}
-			//Focus
-			cam.lookAt(ca.position);
-			camController.target = ca.position;
-			cam.update();
-
 		}
 		return false;
+	}
+
+	private void centerCameraOnDate(long date) {
+		Date3d d = new Date3d(date);
+		Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
+		cam.position.set(camPos);
+		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,0);
+		cam.lookAt(camLookAt);
+		camController.target = camLookAt.cpy();
+		cam.update();
 	}
 
 	public int getActivity (int screenX, int screenY) {

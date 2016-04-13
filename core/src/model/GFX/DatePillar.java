@@ -15,7 +15,7 @@ import model.Date3d;
  */
 public class DatePillar extends GFXObject{
     public Date3d d3d;
-
+    public static Model model;
     public DatePillar(Date3d d){
         super();
         color = Color.BLACK;
@@ -31,6 +31,7 @@ public class DatePillar extends GFXObject{
     public Model getModel(){
         if(model == null){
             model = createDatePillar();
+            System.out.println("Created new model for datepillar");
             disposables.add(model);
         }
         return model;

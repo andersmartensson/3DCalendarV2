@@ -30,6 +30,7 @@ public class UI implements Disposable{
     private boolean optionsMenuVisible;
 
     private Stage optionsStage;
+    private Stage detailsStage;
     private InputMultiplexer inputMultiplexer;
     private MainView game;
     Array<Disposable> disposables;
@@ -58,13 +59,17 @@ public class UI implements Disposable{
         disposables.add(uiBatch);
         uiStage = new Stage();
         disposables.add(uiStage);
+        detailsStage = new Stage();
+        disposables.add(detailsStage);
         //create uiStage units
         skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
         disposables.add(skin);
         Table uiTable = new Table();
         //optionsTable.setDebug(true);
+        //uiTable.setDebug(true);
         uiTable.setFillParent(true);
         uiTable.align(Align.topLeft);
+        //uiTable.setHeight(Gdx.graphics.getHeight());
 
         uiStage.addActor(uiTable);
 
@@ -105,10 +110,13 @@ public class UI implements Disposable{
         gray.fill();
         //Create details label
         Table detailsTable = new Table();
-        Texture grayText = new Texture( gray);
+        //Texture grayText = new Texture( gray);
         //grayText.
         detailsTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(gray))));
-        uiTable.add(detailsTable);
+        //detailsTable.setFillParent(true);
+        detailsTable.align(Align.bottomLeft);
+        detailsStage.addActor(detailsTable);
+        //uiTable.add(detailsTable).align(Align.bottomLeft);
         detailsLabel = new Label("",skin);
 
         detailsTable.add(detailsLabel).align(Align.left);
@@ -144,6 +152,7 @@ public class UI implements Disposable{
         uiBatch.enableBlending();
         uiBatch.begin();
         uiStage.draw();
+        detailsStage.draw();
         if (optionsMenuVisible) {
             optionsStage.draw();
         }
