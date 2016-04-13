@@ -4,13 +4,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.Date;
 
 import data.Statics;
+import model.GFX.Alphabet;
 import model.GFX.GFXObject;
 import model.GFX.TextTexture;
 
@@ -25,7 +29,6 @@ public class Activity extends GFXObject{
     public float height;
     public Event event;
     public Date3d d3d;
-
     public Activity(Color c, Date3d d, Event e) {
         event = e;
         this.color = c;
@@ -39,6 +42,47 @@ public class Activity extends GFXObject{
             disposables.add(model);
         }
         return model;
+    }
+
+    public Array<ModelInstance> generateSummaryText(Alphabet a){
+        Vector3 v = new Vector3(position.x - Statics.ACTIVITY_WIDTH /2f
+                ,position.y + height / 2f
+                ,position.z + Statics.ACTIVITY_DEPTH);
+        String s = event.getSummary();
+        System.out.println("TEXT TO BE GENERATED:\n->" + event.getSummary() + "<-");
+        s = autoNewLine(s, Statics.ACTIVITY_TEXT_SCALE);
+        return a.load3DText(s, v, Statics.ACTIVITY_TEXT_SCALE);
+    }
+    /*
+    Checks where it needs to create a new line
+     */
+    private String autoNewLine(String s, float scale) {
+        //See if current text exceeds current activity width
+        return checkLine(s, scale);
+
+    }
+
+    private String checkLine(String s, float scale) {
+//        float l = s.length() * 3f * scale;
+//        if(l > Statics.ACTIVITY_WIDTH ){
+//            //Split last and check again
+//            String ns = null;
+//            String[] ts = s.split(" ");
+//            for(int i=0;i<ts.length -1;i++){
+//                ns += ts[1];
+//            }
+//            //Add last and new line
+//            ns += "\n" + ts[ts.length-1];
+//        }
+//        return ns;
+        String ns = "";
+        String[] ts = s.split(" ");
+        for(int i=0;i<ts.length;i++){
+            System.out.println("line: " + i + " ->" + ts[i] + "<-");
+            ns += ts[i] + "\n";
+        }
+        System.out.println("text ->" + ns + "<-");
+        return ns;
     }
 
     private Model createActivityModel() {

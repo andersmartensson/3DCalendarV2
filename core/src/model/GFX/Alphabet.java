@@ -19,6 +19,8 @@ public class Alphabet implements Disposable{
     private float step;
     private float scale;
     private Character3D lastChar;
+    private Vector3 origin;
+    private float originX;
 
     @Override
     public void dispose() {
@@ -34,8 +36,10 @@ public class Alphabet implements Disposable{
         disposables = new Array<Disposable>();
     }
 
-    public Array<ModelInstance> load3DText(String s, Vector3 origin, float scale){
+    public Array<ModelInstance> load3DText(String s, Vector3 o, float scale){
         Array<ModelInstance> chars = new Array<ModelInstance>(s.length());
+        this.origin = o;
+        originX = o.x;
         //For each character, create a corresponding model instance
         step  = 0;
         this.scale = scale;
@@ -204,11 +208,19 @@ public class Alphabet implements Disposable{
                 return loadCharacter(NINE, '9');
 
             case ' ':
-                step += 3f;
+                step += 3f * scale;
+                return null;
+
+            case '\n':
+                //Create new line
+                origin.y -= 3f * scale;
+                //reset X
+                step = 0;
+                //origin.x = originX;
                 return null;
 
             default:
-                step += 3f;
+                step += 3f * scale;
                 return null;
         }
     }

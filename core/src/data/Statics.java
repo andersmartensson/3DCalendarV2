@@ -71,7 +71,8 @@ public class Statics {
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
-    public static float CAMERA_DISTANCE_FROM = -30f;
+    public static final float ACTIVITY_TEXT_SCALE = 0.1f;
+    public static float CAMERA_DISTANCE_FROM = -13f;
     public static Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH / 2f,
             WEEK_BACKPLATE_HEIGHT,
             -CAMERA_DISTANCE_FROM);

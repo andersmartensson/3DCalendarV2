@@ -50,6 +50,7 @@ import model.GFX.Sun;
 import postprocessing.PostProcessor;
 import postprocessing.ShaderLoader;
 import postprocessing.effects.Fxaa;
+import postprocessing.effects.Nfaa;
 import shaders.WaterShader;
 
 public class MainView extends InputAdapter implements ApplicationListener {
@@ -104,9 +105,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		disposables.add(fxaa);
 		postProcessor.addEffect(fxaa);
-//		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-//		disposables.add(nfaa);
-//		postProcessor.addEffect(nfaa);
+		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		disposables.add(nfaa);
+		postProcessor.addEffect(nfaa);
 		//Create lens flare
 		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		createLensFlare();
@@ -301,7 +302,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
-		//Activity a;
 		Color c = null;
 		float x = 0;
 		for(Event e: events){
@@ -328,6 +328,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				//x += Statics.ACTIVITY_WIDTH + 1f;
 				//a.event = e;
 				activities.add(a);
+				//Add text
+				firstShadedLayer.addAll(a.generateSummaryText(alphabet));
 			}
 		}
 	}
