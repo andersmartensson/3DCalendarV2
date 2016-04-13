@@ -35,7 +35,6 @@ public class Alphabet implements Disposable{
     }
 
     public Array<ModelInstance> load3DText(String s, Vector3 origin, float scale){
-        //System.out.println("String: " + s + " at " + origin.x);
         Array<ModelInstance> chars = new Array<ModelInstance>(s.length());
         //For each character, create a corresponding model instance
         step  = 0;
@@ -47,7 +46,6 @@ public class Alphabet implements Disposable{
                         origin.y,
                         origin.z);
                 //Set the correct spacing between letters
-                //System.out.println(c + " step: " + step + " origin.x = " + origin.x);
                 //Scale
                 mi.transform.scale(scale,scale,scale);
                 chars.add(mi);
@@ -206,7 +204,6 @@ public class Alphabet implements Disposable{
                 return loadCharacter(NINE, '9');
 
             case ' ':
-                System.out.println("SPACE!!!!");
                 step += 3f;
                 return null;
 

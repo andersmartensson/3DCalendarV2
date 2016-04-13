@@ -139,7 +139,8 @@ public class GoogleCalendarDownload {
         //DateTime febmars = new DateTime(date);
         //now  -= 100000;
         Events events = service.events().list("primary")
-                .setMaxResults(20)
+                //.set
+                .setMaxResults(40)
                 .setTimeMin(timeFetched)
                 .setOrderBy("startTime")
                 .setSingleEvents(true)

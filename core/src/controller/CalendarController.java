@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import data.Statics;
 import view.MainView;
 
 /**
@@ -23,7 +24,7 @@ public class CalendarController {
         //Get current week
         long currentTime = System.currentTimeMillis();
         //Convert to monday:
-        Calendar c = Calendar.getInstance();
+        Calendar c = Statics.Calender;
         c.setTime(new Date(currentTime));
         int day = c.get(Calendar.DAY_OF_WEEK) -1;
         //System.out.println("Day = " + day);

@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -48,7 +47,6 @@ import model.GFX.GFXObject;
 import model.GFX.Ground;
 import model.GFX.Skybox;
 import model.GFX.Sun;
-import operations.SaveManager;
 import postprocessing.PostProcessor;
 import postprocessing.ShaderLoader;
 import postprocessing.effects.Fxaa;
@@ -61,11 +59,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	PerspectiveCamera cam;
 	CameraInputController camController;
 	ModelBatch modelBatch;
-	//ShapeRenderer shapeRender;
 	TextureRegion fboRegion;
 	private DirectionalLight dirLight;
 	private SpriteBatch spriteBatch;
-	private Texture blackTexture;
 	//Ui
 	UI ui;
 	//Render Layers
@@ -80,9 +76,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private ModelInstance waterInstance;
 
 	private Vector3 position;
-
 	private Ground ground;
-	private SaveManager saveManager;
 	public int theme;
 	private Skybox skybox;
 	private Sun sun;
@@ -122,10 +116,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public void create () {
-
+		//create calender
+		Statics.Calender = Calendar.getInstance();
 		//Settings for OpenGL
 		Gdx.gl.glClearDepthf(1.0f);
-		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+		//Gdx.gl.glEnable(GL20.GL_DEPTH_TEST); // This conflicts with texture filtering
 		Gdx.gl.glDepthFunc(GL20.GL_LESS);
 		Gdx.gl.glDepthRangef(0f, 1f);
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
@@ -138,7 +133,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		disposables.add(spriteBatch);
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
 		//Create save manager
-		saveManager = new SaveManager();
+		//saveManager = new SaveManager();
 		appTime = 1.0f;
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeigth = Gdx.graphics.getHeight();
@@ -157,7 +152,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		cam.position.set(finalPosition);
 		cam.viewportHeight = 720f;
 		cam.viewportWidth = 1280f;
-		cam.lookAt(finalPosition.x,finalPosition.y,Statics.DISTANCE_FROM_CAMERA);
+		cam.lookAt(finalPosition.x,finalPosition.y,Statics.CAMERA_DISTANCE_FROM);
 		cam.far = Statics.CAM_FAR;
 		cam.near = Statics.CAM_NEAR;
 		cam.update();
@@ -210,59 +205,52 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		//firstShadedLayer.addAll(alphabet.load3DText("WWW123 WEKW PLEW",new Vector3(0,30f,0),1f));
 	}
-	//TextTexture tt;
+
 	private void createDays(List<Event> events) {
 		//figure out what date the first event is at
 		Event e = events.get(0);
 		//Date should start on a monday
 		datePillars = new Array<DatePillar>();
-		//Draw two weeks of pillars
+		//Draw four weeks of pillars
 		DatePillar dt = null;
 		ModelInstance mi = null;
 		Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
 				Statics.DATEPILLAR_Y_ORIGIN,
 				Statics.DATEPILLAR_Z_ORIGIN);
-		float step = Statics.ACTIVITY_WIDTH + 1f;
-		Calendar c = Calendar.getInstance();
+		float step = Statics.ACTIVITY_WIDTH + Statics.ACTIVITY_SPACING;
 		//Create datePillar
 		Date3d d = new Date3d(e);
 		for(int i=0;i<28;i++){
-			dt = new DatePillar(d.clone());
+			dt = new DatePillar(d.clone(true));
+			d = dt.d3d;
 			//dt = new DatePillar(d.date);
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
 			origin.x += step;
 			//If is end of week then add step and back plate
+			// =============== WEEK =======================
 			if(i % 7 == 0){
-				origin.x += step;
-				//Add back plate
-				BackPlate bPlate= new BackPlate();
-				disposables.add(bPlate);
-				bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
-				bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
-				bPlate.fixPosition(origin.x);
-				firstShadedLayer.add(bPlate.getModelInstance());
-				//Type out week number
-				//Check if e + days are
-				c.setTime(new Date(d.date));
-				//System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
-				firstShadedLayer.addAll(
-						alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
-								, new Vector3(origin.x, Statics.DATEPILLAR_HEIGHT + 4f, Statics.DATEPILLAR_Z_ORIGIN)
-								, Statics.WEEK_NUMBER_SCALE));
-				//Check if it is the first of month
-				if(d.day == 1){
-					//Type out month as well.
-					firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month - 1].name()
-					,new Vector3(origin.x, 40f,0f)
-					,1f));
-				}
-
+				insertWeek(origin, step, d);
 			}
+
 			Vector3 tv = origin.cpy();
 			//tv.x += step;
 			dt.setPosition(tv);
 			firstShadedLayer.add(dt.getModelInstance());
 			datePillars.add(dt);
+			//Insert Month
+			//Check if it is the first week of a month
+			if(d.day ==1 ){
+
+				//Type out month as well.
+			firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month].name()
+					, new Vector3(origin.x
+					, Statics.MONTH_ORIGIN_Y
+					, Statics.MONTH_ORIGIN_Z)
+					, 1f));
+//				firstShadedLayer.addAll(alphabet.load3DText("NEW MONTH"
+//						,new Vector3(origin.x, 40f,0f)
+//						,1f));
+			}
 			//Type date
 			firstShadedLayer.addAll(alphabet.load3DText(dt.d3d.getDayString()
 					, new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
@@ -271,9 +259,31 @@ public class MainView extends InputAdapter implements ApplicationListener {
 					, 0.5f));
 			d.day +=1;
 			d.date += calCont.milliSecondsInADay();
-
 		}
+	}
 
+	private void insertWeek(Vector3 origin, float step, Date3d d) {
+		Calendar c = Statics.Calender;
+		//Type out week number
+		//Check if e + days are
+		c.setTime(new Date(d.date));
+		//System.out.println("Adding week: Week number for " + d.date + " is " + c.get(Calendar.WEEK_OF_YEAR));
+		firstShadedLayer.addAll(
+				alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
+						, new Vector3( origin.x + Statics.WEEK_NUM_MODIFIER_X
+						, Statics.WEEK_NUM_ORIGIN_Y
+						, Statics.WEEK_NUM_ORIGIN_Z)
+						, Statics.WEEK_NUMBER_SCALE));
+
+		//add extra step
+		origin.x += step;
+		//Add back plate
+		BackPlate bPlate= new BackPlate();
+		disposables.add(bPlate);
+		bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
+		bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
+		bPlate.fixPosition(origin.x);
+		firstShadedLayer.add(bPlate.getModelInstance());
 	}
 
 	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
@@ -403,8 +413,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		ui.drawUI();
 	}
 
-
-
 	private void updateCamera() {
 		//CheckCameraPosition
 		float step = 0.5f;
@@ -485,7 +493,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		return true;
 	}
 
-
 	@Override
 	public void pause() {
 
@@ -531,7 +538,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			//Focus and move camera to activity
 			//Gdx.input.
 			//move
-			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.DISTANCE_FROM_CAMERA);
+			finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.CAMERA_DISTANCE_FROM);
 			cam.position.set(finalPosition);
 			cam.update();
 
@@ -572,7 +579,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				result = i;
 				distance = dist2;
 			}
-
 		}
 		return result;
 	}

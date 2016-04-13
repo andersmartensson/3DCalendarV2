@@ -27,20 +27,58 @@ public class Date3d implements Cloneable{
     public long date;
 
     public Date3d(long date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        this.date = date;
+        Calendar c = Statics.Calender;
+        c.setTime(new Date(date));
         day = c.get(Calendar.DAY_OF_MONTH);
-        month = c.get(Calendar.MONTH);
+        month = c.get(Calendar.MONTH) +1;
         year = c.get(Calendar.YEAR);
+        //System.out.println("Constructor 1: \nDate: " + date + "\nDay: " + day + " Month: " + month + " Year: " + year);
+        this.startHour = 0;
+        this.stopMin = 0;
+        this.startMin = 0;
+        this.stopHour = 0;
+        this.date = date;
+    }
+
+    public Date3d(long date, int stopMin, int startHour, int startMin, int stopHour){
+        this(date);
+        //System.out.println("Constructor 2: \nDate: " + date + "\nDay: " + day + " Month: " + month + " Year: " + year);
+        this.startHour = startHour;
+        this.stopMin = stopMin;
+        this.startMin = startMin;
+        this.stopHour = stopHour;
+    }
+
+    public Date3d(long date, int stopMin, int year, int month, int day, int startHour, int startMin, int stopHour) {
+//        System.out.println("Constructor 3: \nDate: " + date + "\nDay: " + day + " Month: " + month + " Year: " + year);
+        this.day = day;
+        this.month = month;
+        this.year = year;
+        this.startHour = startHour;
+        this.stopMin = stopMin;
+        this.startMin = startMin;
+        this.stopHour = stopHour;
+        this.date = date;
+    }
+
+    public Date3d clone(boolean recalcualateDate){
+        if(recalcualateDate){
+            //Recalculate day, year and month
+            return new Date3d(date, stopMin, startHour, startMin, stopHour);
+        }
+        return new Date3d(date, stopMin, year, month, day, startHour, startMin, stopHour);
+
     }
 
     public String getDayString() {
-        return getDateString(day);
+        return getDateString(day, true);
     }
 
-    public String getDateString(int num){
-        if(num / 10 == 0){
+    public String getDateString(int num, boolean leadingZero){
+        /*
+        Places a zero in front of the num
+         */
+        if(leadingZero && num / 10 == 0) {
             return "0" + num;
         }
         return "" + num;
@@ -51,19 +89,10 @@ public class Date3d implements Cloneable{
     }
 
     public enum Month{
-        January, February, Mars, April, May, June, July, August, September, October, November, December
+        ZERO, January, February, Mars, April, May, June, July, August, September, October, November, December
     }
 
-    public Date3d(long date, int stopMin, int year, int month, int day, int startHour, int startMin, int stopHour) {
-        this.stopMin = stopMin;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.startHour = startHour;
-        this.startMin = startMin;
-        this.stopHour = stopHour;
-        this.date = date;
-    }
+
 
     public Date3d(Event e){
         if(e.getStart().getDateTime() != null){
@@ -75,7 +104,7 @@ public class Date3d implements Cloneable{
         }
 
         DateTime dt = e.getStart().getDateTime();
-        Calendar c = Calendar.getInstance();
+        Calendar c = Statics.Calender;
         Date d = new Date(e.getStart().getDateTime().getValue());
         c.setTime(d);
         if(c.get(Calendar.DAY_OF_WEEK) <= 7 ){
@@ -117,10 +146,7 @@ public class Date3d implements Cloneable{
         parseDate(s, true);
     }
 
-    @Override
-    public Date3d clone(){
-        return new Date3d(date,stopMin, year, month, day, startHour, startMin, stopHour);
-    }
+
 
     /**
      * Matches a day with a day from the array and returns its x-value
