@@ -16,7 +16,6 @@ import java.util.Date;
 import data.Statics;
 import model.GFX.Alphabet;
 import model.GFX.GFXObject;
-import model.GFX.TextTexture;
 
 /**
  * Created by Anders on 2016-04-06.
@@ -29,7 +28,9 @@ public class Activity extends GFXObject{
     public float height;
     public Event event;
     public Date3d d3d;
+
     public Activity(Color c, Date3d d, Event e) {
+        super();
         event = e;
         this.color = c;
         scale = 10f;
@@ -47,7 +48,7 @@ public class Activity extends GFXObject{
     public Array<ModelInstance> generateSummaryText(Alphabet a){
         Vector3 v = new Vector3(position.x - Statics.ACTIVITY_WIDTH /2f
                 ,(position.y + height / 2f) -(3f*Statics.ACTIVITY_TEXT_SCALE)
-                ,position.z + Statics.ACTIVITY_DEPTH);
+                ,position.z + Statics.ACTIVITY_TEXT_MODIFY_Z);
         String s = event.getSummary();
         //System.out.println("TEXT TO BE GENERATED:\n->" + event.getSummary() + "<-");
         s = autoNewLine(s, Statics.ACTIVITY_TEXT_SCALE);
@@ -78,10 +79,10 @@ public class Activity extends GFXObject{
         String ns = "";
         String[] ts = s.split(" ");
         for(int i=0;i<ts.length;i++){
-            System.out.println("line: " + i + " ->" + ts[i] + "<-");
+            //System.out.println("line: " + i + " ->" + ts[i] + "<-");
             ns += ts[i] + "\n";
         }
-        System.out.println("text ->" + ns + "<-");
+        //System.out.println("text ->" + ns + "<-");
         return ns;
     }
 
@@ -96,8 +97,8 @@ public class Activity extends GFXObject{
         Material m = new Material();
         //Creates diffuse texture
 
-        TextTexture tt = new TextTexture();
-        disposables.add(tt);
+       //TextTexture tt = new TextTexture();
+        //disposables.add(tt);
         m.set(ColorAttribute.createDiffuse(color));
         //Create Specular texture
         m.set(ColorAttribute.createSpecular(Color.WHITE));

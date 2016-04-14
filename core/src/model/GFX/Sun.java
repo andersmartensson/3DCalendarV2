@@ -36,6 +36,9 @@ public class Sun extends GFXObject {
         //Creates diffuse texture
         m.set(ColorAttribute.createDiffuse(color));
 
-        return mb.createSphere(scale,scale,scale,10,10,m, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
+        return mb.createSphere(scale,scale,scale,10,10,m
+                , VertexAttributes.Usage.Position
+                | VertexAttributes.Usage.Normal
+                | VertexAttributes.Usage.TextureCoordinates);
     }
 }

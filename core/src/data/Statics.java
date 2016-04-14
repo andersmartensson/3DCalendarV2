@@ -28,6 +28,8 @@ public class Statics {
     public static final float ACTIVITY_TEXTURE_WIDTH_MODIFIER = 100f;
     public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
     public static final float ACTIVITY_SPACING = 1f; // Space in between Calendar Activities
+    public static final float ACTIVITY_TEXT_MODIFY_Z = 0.05f + ACTIVITY_DEPTH /2f;
+
     /*
     Day  & Date pillar settings
      */

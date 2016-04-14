@@ -22,17 +22,17 @@ public class CalendarController {
     }
 
     public void update(long from, long to){
-        long time = System.currentTimeMillis();
-        System.out.println();
+        //long time = System.currentTimeMillis();
+        //System.out.println();
         try {
             events = GoogleCalendarDownload.execute( from, to );
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Downloading took : " + (time - System.currentTimeMillis() ) );
+        //System.out.println("Downloading took : " + (time - System.currentTimeMillis() ) );
     }
     /**
-     *      Downloads activities 4 weeks back, beginning
+     *      Downloads activities default weeks back, beginning
      *      with the first day of the current week.
      */
     public void initialDownload(){

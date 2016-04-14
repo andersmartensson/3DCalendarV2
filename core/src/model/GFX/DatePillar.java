@@ -31,7 +31,6 @@ public class DatePillar extends GFXObject{
     public Model getModel(){
         if(model == null){
             model = createDatePillar();
-            System.out.println("Created new model for datepillar");
             disposables.add(model);
         }
         return model;

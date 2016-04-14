@@ -83,6 +83,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Skybox skybox;
 	private Sun sun;
 	private Array<Disposable> disposables;
+	private Array<Disposable> dynamicDisposables;
 	private Array<Activity> activities;
 	private Vector3 finalPosition;
 	private boolean camIsMoving;
@@ -90,6 +91,10 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private CalendarController calCont;
 	private PostProcessor postProcessor;
 	private Alphabet alphabet;
+	private boolean updateActivities;
+	private long from;
+	private long to;
+	private Activity currentActivity;
 	//private Array<ModelInstance> weekLayer;
 	//private Array<ModelInstance> dayLayer;
 	//private Array<ModelInstance> monthLayer;
@@ -121,6 +126,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	@Override
 	public void create () {
+		updateActivities = false;
 		//create calender
 		Statics.calendar = Calendar.getInstance();
 		//Settings for OpenGL
@@ -133,6 +139,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		camIsMoving = false; //For camera interpolarisation.
 		disposables = new Array<Disposable>();
+		dynamicDisposables = new Array<Disposable>();
 		//Create text render
 		spriteBatch = new SpriteBatch();
 		disposables.add(spriteBatch);
@@ -207,14 +214,13 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		calCont = new CalendarController(this);
 		calCont.initialDownload();
 		activities = new Array<Activity>(calCont.events.size());
-
 		long time = System.currentTimeMillis();
 		currentWeek = findWeek(time);
 		//Date3d d = new Date3d(calCont.lastUpdate);
 
-		createDatePillars(calCont.lastUpdate);
+		createDatePillars(calCont.lastUpdate, true);
 		createActivities(calCont.events, datePillars);
-		System.out.println("CreatingDays and activies took " + (System.currentTimeMillis() - time));
+		System.out.println("CreatingDays and activities took " + (System.currentTimeMillis() - time));
 
 		//Center camera on current date
 		centerCameraOnDate(System.currentTimeMillis());
@@ -228,7 +234,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		return c.get(Calendar.WEEK_OF_YEAR);
 	}
 
-	private void createDatePillars(long from) {
+	private void createDatePillars(long from, boolean initial) {
 		//Date should start on a monday
 		datePillars = new Array<DatePillar>();
 		//Draw pillars
@@ -246,7 +252,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			origin.x += step;
 			//If is end of week then add step and back plate
 			if(i % 7 == 0){
-				insertWeek(origin, step, d);
+				insertWeek(origin, step, d, initial);
 			}
 
 			Vector3 tv = origin.cpy();
@@ -276,7 +282,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		}
 	}
 
-	private void insertWeek(Vector3 origin, float step, Date3d d) {
+	private void insertWeek(Vector3 origin, float step, Date3d d, boolean initial) {
 		Calendar c = Statics.calendar;
 		//Type out week number
 		//Check if e + days are
@@ -291,13 +297,16 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		//add extra step
 		origin.x += step;
-		//Add back plate
-		BackPlate bPlate= new BackPlate();
-		disposables.add(bPlate);
-		bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
-		bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
-		bPlate.fixPosition(origin.x);
-		firstShadedLayer.add(bPlate.getModelInstance());
+		if(initial){
+			//Add back plate
+			BackPlate bPlate= new BackPlate();
+			disposables.add(bPlate);
+			bPlate.setModelInstance(new ModelInstance(bPlate.getModel()));
+			bPlate.setPosition(Statics.WEEK_BACKPLATE_POSITION.cpy());
+			bPlate.fixPosition(origin.x);
+			secondShadedLayer.add(bPlate.getModelInstance());
+		}
+
 	}
 
 	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
@@ -323,6 +332,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
+				a.calculateBoundingBox();
 				//a.getModelInstance().transform.setTranslation(a.getPosition());
 				firstShadedLayer.add(a.getModelInstance());
 				//x += Statics.ACTIVITY_WIDTH + 1f;
@@ -404,25 +414,31 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	}
 
-
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
 		updateCamera();
+		if(updateActivities) updateActivities();
 		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		postProcessor.capture();
 
 		modelBatch.begin(cam);
 		modelBatch.render(firstNonShadedLayer);
-		modelBatch.render(firstShadedLayer, environment);
 		modelBatch.render(skybox.getModelInstance());
 		modelBatch.render(ground.getModelInstance(), environment);
+		modelBatch.render(firstShadedLayer, environment);
 		modelBatch.render(secondShadedLayer, environment);
 		modelBatch.end();
 
 		postProcessor.render();
 		ui.drawUI();
+	}
+
+	private void handleInput() {
+		if(Gdx.input.isTouched()){
+
+		}
 	}
 
 	private void updateCamera() {
@@ -436,7 +452,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			else if (finalPosition.x > v.x){
 				cam.position.x += step;
 			}
-
 			if(finalPosition.y < v.y){
 				cam.position.y -= step;
 			}
@@ -521,10 +536,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	public void dispose() {
 		//modelBatch.dispose();
-
 		for(Disposable d: disposables){
 			d.dispose();
 		}
+		disposables.clear();
+		disposables = null;
 	}
 
 	protected boolean isVisible ( Camera cam, Activity a) {
@@ -550,35 +566,14 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			//Check if same week, else update calender
 			//if(false){
 			if(currentWeek != findWeek(ca.d3d.date)){
-				System.out.println("Not the same week: " + currentWeek + " Clicked act: " + findWeek(ca.d3d.date));
-				long from = calCont.getAdjustedDay(ca.d3d.date);
-				long to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+				//System.out.println("Not the same week: " + currentWeek + " Clicked act: " + findWeek(ca.d3d.date));
+				from = calCont.getAdjustedDay(ca.d3d.date);
+				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
 				long time = System.currentTimeMillis();
 				calCont.update(from, to);
 				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
-
-				//Clear OpenGL objects from memory
-				Array<Disposable> dispose = new Array<Disposable>();
-				dispose.addAll(activities);
-				dispose.addAll(datePillars);
-				for(Disposable d: dispose){
-					d.dispose();
-				}
-				datePillars.clear();
-				firstShadedLayer.clear();
-				time = System.currentTimeMillis();
-				createDatePillars( from);
-				System.out.println("Pillars creation took : " + (System.currentTimeMillis() - time));
-				time = System.currentTimeMillis();
-				createActivities(calCont.events,datePillars);
-				System.out.println("Activities creation took : " + (System.currentTimeMillis() - time));
-				//Center camera
-				centerCameraOnDate(ca.d3d.date);
-				//Set current week
-
-				currentWeek = findWeek(ca.d3d.date);
-				System.out.println("Current week is " + currentWeek);
-				cam.update();
+				updateActivities = true;
+				currentActivity = ca;
 			}
 			else {
 				//Focus and move camera to activity
@@ -586,14 +581,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				cam.position.set(finalPosition);
 				cam.update();
 				//Fix pitch
-				System.out.println("cam UP: " + cam.up);
-//			//Rotate x
-				while(cam.up.x > 0.05f || cam.up.x < - 0.05f){
-					cam.rotateAround(finalPosition, new Vector3(0, 1f, 0), 3f);
-				}
-				while(cam.up.y < 0.95f ){
-					cam.rotateAround(finalPosition,new Vector3(1f,0,0),3f);
-				}
+				fixPitch(finalPosition);
+
 				//Focus
 				cam.lookAt(ca.position);
 				camController.target = ca.position;
@@ -603,14 +592,59 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		return false;
 	}
 
+	/*
+	* Rotates camera so it's level with horizon
+	 */
+	private void fixPitch(Vector3 pos) {
+		//Rotate x
+		while(cam.up.x > 0.05f || cam.up.x < - 0.05f){
+			cam.rotateAround(pos, new Vector3(0, 1f, 0), 3f);
+		}
+		while(cam.up.y < 0.95f ){
+			cam.rotateAround(pos,new Vector3(1f,0,0),3f);
+		}
+	}
+
+	private void updateActivities(){
+		//Clearing
+		//Clear OpenGL objects from memory
+		System.out.println("Clearing acvities");
+		long time = System.currentTimeMillis();
+		Array<Disposable> dispose = new Array<Disposable>();
+		dispose.addAll(activities);
+		//dispose.addAll(datePillars);
+		for(Disposable d: dispose){
+			d.dispose();
+		}
+		activities.clear();
+		datePillars.clear();
+		firstShadedLayer.clear();
+		System.out.println("Clearing took: " + (System.currentTimeMillis() - time));
+		time = System.currentTimeMillis();
+		createDatePillars(from, false);
+		System.out.println("Pillars creation took : " + (System.currentTimeMillis() - time));
+		time = System.currentTimeMillis();
+		createActivities(calCont.events, datePillars);
+		System.out.println("Activities creation took : " + (System.currentTimeMillis() - time));
+		//Center camera
+		centerCameraOnDate(currentActivity.d3d.date);
+		//Set current week
+		currentWeek = findWeek(currentActivity.d3d.date);
+		cam.update();
+		updateActivities = false;
+	}
+
 	private void centerCameraOnDate(long date) {
 		Date3d d = new Date3d(date);
 		Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
+		fixPitch(camPos.cpy());
+		cam.update();
 		cam.position.set(camPos);
 		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,0);
 		cam.lookAt(camLookAt);
 		camController.target = camLookAt.cpy();
 		cam.update();
+
 	}
 
 	public int getActivity (int screenX, int screenY) {

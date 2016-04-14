@@ -33,7 +33,11 @@ public abstract class GFXObject implements Disposable{
     }
 
     public void initGFXOBject(){
-        disposables = new Array<Disposable>();
+
+        calculateBoundingBox();
+    }
+
+    public void calculateBoundingBox(){
         center = new Vector3();
         dimensions = new Vector3();
         BoundingBox bounds = new BoundingBox();
@@ -49,7 +53,9 @@ public abstract class GFXObject implements Disposable{
 
     public void setModelInstance(ModelInstance modelInstance) {
         this.modelInstance = modelInstance;
-        initGFXOBject();
+        //disposables = new Array<Disposable>();
+        //calculateBoundingBox();
+        //initGFXOBject();
     }
 
     /**
@@ -65,14 +71,18 @@ public abstract class GFXObject implements Disposable{
      */
     protected Texture loadTexture(Texture text, String textPath) {
         text = new Texture(Gdx.files.internal(textPath));
-        //disposables.add(text);
+        disposables.add(text);
         return text;
     }
 
     public void dispose(){
+        //System.out.println("Disposing!!!");
         for(Disposable d: disposables){
             d.dispose();
         }
+        disposables.clear();
+        disposables = null;
+
     }
 
     public float getScale() {
