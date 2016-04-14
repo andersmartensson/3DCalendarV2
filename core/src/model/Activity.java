@@ -46,10 +46,10 @@ public class Activity extends GFXObject{
 
     public Array<ModelInstance> generateSummaryText(Alphabet a){
         Vector3 v = new Vector3(position.x - Statics.ACTIVITY_WIDTH /2f
-                ,position.y + height / 2f
+                ,(position.y + height / 2f) -(3f*Statics.ACTIVITY_TEXT_SCALE)
                 ,position.z + Statics.ACTIVITY_DEPTH);
         String s = event.getSummary();
-        System.out.println("TEXT TO BE GENERATED:\n->" + event.getSummary() + "<-");
+        //System.out.println("TEXT TO BE GENERATED:\n->" + event.getSummary() + "<-");
         s = autoNewLine(s, Statics.ACTIVITY_TEXT_SCALE);
         return a.load3DText(s, v, Statics.ACTIVITY_TEXT_SCALE);
     }

@@ -33,7 +33,7 @@ public class Statics {
      */
     public static final int NUM_OF_WEEKS_BEFORE_AND_AFTER = 4;
     public static final int NUM_OF_DAYS_TO_DRAW = 7 * ( NUM_OF_WEEKS_BEFORE_AND_AFTER * 2 +1);
-    public static final int NUM_OF_PREVIOUS_DAYS_TO_DOWNLOAD = NUM_OF_WEEKS_BEFORE_AND_AFTER;
+    public static final int NUM_OF_PREVIOUS_DAYS_TO_DOWNLOAD = NUM_OF_WEEKS_BEFORE_AND_AFTER * 7;
 
     public static final float DATEPILLAR_WIDTH = 0.1f;
     public static final float DATEPILLAR_HEIGHT = 24f;
