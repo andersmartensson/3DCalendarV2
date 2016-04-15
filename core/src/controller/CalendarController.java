@@ -1,10 +1,11 @@
 package controller;
 
+import com.badlogic.gdx.utils.Array;
 import com.google.api.services.calendar.model.Event;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import data.Statics;
 import view.MainView;
@@ -13,33 +14,42 @@ import view.MainView;
  * Created by Anders on 2016-04-07.
  */
 public class CalendarController {
-    public List<Event> events;
+    public Array<Event> events;
     public long lastUpdate;
     MainView main;
+    Array<String> calendarNames;
 
     public CalendarController(MainView m){
         main = m;
     }
 
     public void update(long from, long to){
-        //long time = System.currentTimeMillis();
+        main.setDownloadDone(false);
         //System.out.println();
-        try {
-            events = GoogleCalendarDownload.execute( from, to );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //System.out.println("Downloading took : " + (time - System.currentTimeMillis() ) );
+        UpdateThread updateThread = new UpdateThread(main, from,to);
+        updateThread.start();
+
     }
     /**
      *      Downloads activities default weeks back, beginning
      *      with the first day of the current week.
      */
     public void initialDownload(){
-
+        try {
+            calendarNames = GoogleCalendarDownload.getCalenderNames();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         lastUpdate = getAdjustedDay(System.currentTimeMillis());
         long to = lastUpdate + milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
         update(lastUpdate, to);
+        while(!main.isDownloadDone()){
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public long milliSecondsInADay() {
@@ -65,5 +75,30 @@ public class CalendarController {
 
         System.out.println("currentTime is " + c.get(Calendar.DAY_OF_MONTH));
         return date;
+    }
+
+    private class UpdateThread extends Thread{
+        MainView main;
+        long from;
+        long to;
+        public UpdateThread(MainView m, long f, long t) {
+            main = m;
+            from = f;
+            to = t;
+        }
+
+        public void run(){
+            long time = System.currentTimeMillis();
+
+            try {
+                events = GoogleCalendarDownload.execute(calendarNames, from, to );
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            main.setDownloadDone(true);
+            System.out.println("Downloading took : " + (time - System.currentTimeMillis()));
+
+        }
+
     }
 }

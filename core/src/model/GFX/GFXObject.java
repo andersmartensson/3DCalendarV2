@@ -3,12 +3,16 @@ package model.GFX;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+
+import data.Statics;
 
 /**
  * Created by anders on 2015-11-26.
@@ -147,40 +151,99 @@ public abstract class GFXObject implements Disposable{
         position.z = ((int) position.z * 10) / 10f;
     }
 
-    public static Color translateColor(String colorId) {
+    public static Material translateColor(String colorId) {
 
         //int s = Integer.getInteger(colorId);
         int s = Integer.decode(colorId);
         switch (s){
             case 2:
                 //Light green
-                return new Color(0.5f,1f,0.5f,1f);
+                if(Statics.MatLightGreen == null){
+                    Statics.MatLightGreen = new Material();
+                    Statics.MatLightGreen.set(ColorAttribute.createDiffuse(new Color(0.3f,1f,0.3f,1f)));
+                    Statics.MatLightGreen.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatLightGreen;
             case 3:
-                return Color.PURPLE;
+                if(Statics.MatPurple == null){
+                    Statics.MatPurple = new Material();
+                    Statics.MatPurple.set(ColorAttribute.createDiffuse(Color.GREEN));
+                    Statics.MatPurple.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatPurple;
             case 4:
                 //Light Red
-                return new Color(1f,0.5f,0.5f,1f);
+                if(Statics.MatLightRed == null){
+                    Statics.MatLightRed = new Material();
+                    Statics.MatLightRed.set(ColorAttribute.createDiffuse(new Color(1f,0.5f,0.5f,1f)));
+                    Statics.MatLightRed.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatLightRed;
             case 5:
-                return Color.YELLOW;
+                //Yellow
+                if(Statics.MatYellow == null){
+                    Statics.MatYellow = new Material();
+                    Statics.MatYellow.set(ColorAttribute.createDiffuse(Color.YELLOW));
+                    Statics.MatYellow.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatYellow;
             case 6:
-                return Color.ORANGE;
+                //Orange
+                if(Statics.MatOrange == null){
+                    Statics.MatOrange = new Material();
+                    Statics.MatOrange.set(ColorAttribute.createDiffuse(Color.ORANGE));
+                    Statics.MatOrange.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatOrange;
             case 7:
                 //Turquoise
-                return Color.TEAL;
+                if(Statics.MatTurquoise == null){
+                    Statics.MatTurquoise = new Material();
+                    Statics.MatTurquoise.set(ColorAttribute.createDiffuse(new Color(1f,0,0.8f,1f)));
+                    Statics.MatTurquoise.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatTurquoise;
             case 8:
-                return Color.GRAY;
+                //Gray
+                if(Statics.MatGray == null){
+                    Statics.MatGray = new Material();
+                    Statics.MatGray.set(ColorAttribute.createDiffuse(Color.GRAY));
+                    Statics.MatGray.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatGray;
             case 9:
-                return Color.BLUE;
+                //Blue
+                if(Statics.MatBlue == null){
+                    Statics.MatBlue = new Material();
+                    Statics.MatBlue.set(ColorAttribute.createDiffuse(Color.BLUE));
+                    Statics.MatBlue.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatBlue;
             case 10:
-                return Color.GREEN;
+                if(Statics.MatGreen == null){
+                    Statics.MatGreen = new Material();
+                    Statics.MatGreen.set(ColorAttribute.createDiffuse(Color.GREEN));
+                    Statics.MatGreen.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatGreen;
             case 11:
-                return Color.RED;
-
-
+                //Red
+                if(Statics.MatRed == null){
+                    Statics.MatRed = new Material();
+                    Statics.MatRed.set(ColorAttribute.createDiffuse(Color.RED));
+                    Statics.MatRed.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatRed;
+            default:
+                //Blue
+                if(Statics.MatBlue == null){
+                    Statics.MatBlue = new Material();
+                    Statics.MatBlue.set(ColorAttribute.createDiffuse(Color.BLUE));
+                    Statics.MatBlue.set(ColorAttribute.createSpecular(Color.WHITE));
+                }
+                return Statics.MatBlue;
 
         }
-
-        return Color.BLUE;
     }
 
 

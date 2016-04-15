@@ -29,8 +29,8 @@ public class Alphabet implements Disposable{
         }
     }
 
-    Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,Å,Ä,Ö;
-    Character3D ZERO,ONE,TWO,THREE,FOUR,FIVE,SIX,SEVEN,EIGHT,NINE;
+    static Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,Å,Ä,Ö;
+    static Character3D ZERO,ONE,TWO,THREE,FOUR,FIVE,SIX,SEVEN,EIGHT,NINE;
 
     public Alphabet(){
         disposables = new Array<Disposable>();
@@ -63,149 +63,382 @@ public class Alphabet implements Disposable{
         switch (c){
             case 'A':
             case 'a':
-                return loadCharacter(A, 'A', 3.1f);
-
+                if(A == null){
+                    System.out.println("Creating character: " + c);
+                    A = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj", 3.1f);
+                }
+                lastChar = A;
+                return A.getModelInstance();
+                //return loadCharacter(A, 'A', 3.1f);
             case 'B':
             case 'b':
-                return loadCharacter(B, 'B');
+                if(B == null){
+                    System.out.println("Creating character: " + c);
+                    B = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = B;
+                return B.getModelInstance();
+                //return loadCharacter(B, 'B');
 
             case 'C':
             case 'c':
-                return loadCharacter(C, 'C', 2.6f);
+                if(C == null){
+                    System.out.println("Creating character: " + c);
+                    C = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                }
+                lastChar = C;
+                return C.getModelInstance();
+                //return loadCharacter(C, 'C', 2.6f);
 
             case 'D':
             case 'd':
-                return loadCharacter(D, 'D');
+                if(D == null){
+                    System.out.println("Creating character: " + c);
+                    D = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                }
+                lastChar = D;
+                return D.getModelInstance();
+                //return loadCharacter(D, 'D');
 
             case 'E':
             case 'e':
-                return loadCharacter(E, 'E');
+                if(E == null){
+                    System.out.println("Creating character: " + c);
+                    E = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = E;
+                return E.getModelInstance();
+                //return loadCharacter(E, 'E');
 
             case 'F':
             case 'f':
-                return loadCharacter(F, 'F',2.5f);
+                if(F == null){
+                    System.out.println("Creating character: " + c);
+                    F = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.5f);
+                }
+                lastChar = F;
+                return F.getModelInstance();
+                //return loadCharacter(F, 'F',2.5f);
 
             case 'G':
             case 'g':
-                return loadCharacter(G, 'G');
+                if(G == null){
+                    System.out.println("Creating character: " + c);
+                    G = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = G;
+                return G.getModelInstance();
+                //return loadCharacter(G, 'G');
 
             case 'H':
             case 'h':
-                return loadCharacter(H, 'H');
+                if(H == null){
+                    System.out.println("Creating character: " + c);
+                    H = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = H;
+                return H.getModelInstance();
+                //return loadCharacter(H, 'H');
 
             case 'I':
             case 'i':
-                return loadCharacter(I, 'I', 1.5f);
+                if(I == null){
+                    System.out.println("Creating character: " + c);
+                    I = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.0f);
+                }
+                lastChar = I;
+                return I.getModelInstance();
+                //return loadCharacter(I, 'I', 1.5f);
 
             case 'J':
             case 'j':
-                return loadCharacter(J, 'J', 1.9f);
+                if(J == null){
+                    System.out.println("Creating character: " + c);
+                    J = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",1.9f);
+                }
+                lastChar = J;
+                return J.getModelInstance();
+//                return loadCharacter(J, 'J', 1.9f);
 
             case 'K':
             case 'k':
-                return loadCharacter(K, 'K');
+                if(K == null){
+                    System.out.println("Creating character: " + c);
+                    K = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = K;
+                return K.getModelInstance();
+                //return loadCharacter(K, 'K');
 
             case 'L':
             case 'l':
-                return loadCharacter(L, 'L', 2.6f);
+                if(L == null){
+                    System.out.println("Creating character: " + c);
+                    L = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                }
+                lastChar = L;
+                return L.getModelInstance();
+                //return loadCharacter(L, 'L', 2.6f);
 
             case 'M':
             case 'm':
-                return loadCharacter(M,  'M',3.5f);
+                if(M == null){
+                    System.out.println("Creating character: " + c);
+                    M = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.5f);
+                }
+                lastChar = M;
+                return M.getModelInstance();
+                //return loadCharacter(M,  'M',3.5f);
 
             case 'N':
             case 'n':
-                return loadCharacter(N, 'N');
+                if(N == null){
+                    System.out.println("Creating character: " + c);
+                    N = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = N;
+                return N.getModelInstance();
+                //return loadCharacter(N, 'N');
 
             case 'O':
             case 'o':
-                return loadCharacter(O,'O');
+                if(O == null){
+                    System.out.println("Creating character: " + c);
+                    O = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = O;
+                return O.getModelInstance();
+                //return loadCharacter(O,'O');
 
             case 'P':
             case 'p':
-                return loadCharacter(P, 'P', 2.8f);
+                if(P == null){
+                    System.out.println("Creating character: " + c);
+                    P = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.8f);
+                }
+                lastChar = P;
+                return P.getModelInstance();
+                //return loadCharacter(P, 'P', 2.8f);
 
             case 'Q':
             case 'q':
-                return loadCharacter(Q, 'Q');
+                if(Q == null){
+                    System.out.println("Creating character: " + c);
+                    Q = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Q;
+                return Q.getModelInstance();
+                //return loadCharacter(Q, 'Q');
 
             case 'R':
             case 'r':
-                return loadCharacter(R, 'R');
+                if(R == null){
+                    System.out.println("Creating character: " + c);
+                    R = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = R;
+                return R.getModelInstance();
+                //return loadCharacter(R, 'R');
 
             case 'S':
             case 's':
-                return loadCharacter(S,'S', 2.5f);
+                if(S == null){
+                    System.out.println("Creating character: " + c);
+                    S = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.5f);
+                }
+                lastChar = S;
+                return S.getModelInstance();
+                //return loadCharacter(S,'S', 2.5f);
 
             case 'T':
             case 't':
-                return loadCharacter(T, 'T', 2.8f);
+                if(T == null){
+                    System.out.println("Creating character: " + c);
+                    T = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.8f);
+                }
+                lastChar = T;
+                return T.getModelInstance();
+                //return loadCharacter(T, 'T', 2.8f);
 
             case 'U':
             case 'u':
-                return loadCharacter(U, 'U');
+                if(U == null){
+                    System.out.println("Creating character: " + c);
+                    U = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = U;
+                return U.getModelInstance();
+                //return loadCharacter(U, 'U');
 
             case 'V':
             case 'v':
-                return loadCharacter(V, 'V');
+                if(V == null){
+                    System.out.println("Creating character: " + c);
+                    V = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = V;
+                return V.getModelInstance();
+                //return loadCharacter(V, 'V');
 
             case 'W':
             case 'w':
-                return loadCharacter(W, 'W', 3.8f);
+                if(W == null){
+                    System.out.println("Creating character: " + c);
+                    W = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.8f);
+                }
+                lastChar = W;
+                return W.getModelInstance();
+                //return loadCharacter(W, 'W', 3.8f);
 
             case 'X':
             case 'x':
-                return loadCharacter(X, 'X');
+                if(X == null){
+                    System.out.println("Creating character: " + c);
+                    X = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = X;
+                return X.getModelInstance();
+                //return loadCharacter(X, 'X');
 
             case 'Y':
             case 'y':
-                return loadCharacter(Y, 'Y');
+                if(Y == null){
+                    System.out.println("Creating character: " + c);
+                    Y = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Y;
+                return Y.getModelInstance();
+                //return loadCharacter(Y, 'Y');
 
             case 'Z':
             case 'z':
-                return loadCharacter(Z, 'Z');
+                if(Z == null){
+                    System.out.println("Creating character: " + c);
+                    Z = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Z;
+                return Z.getModelInstance();
+                //return loadCharacter(Z, 'Z');
 
             case 'Å':
             case 'å':
-                return loadCharacter(Å, 'Å');
+                if(Å == null){
+                    System.out.println("Creating character: " + c);
+                    Å = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Å;
+                return Å.getModelInstance();
+                //return loadCharacter(Å, 'Å');
 
             case 'Ä':
             case 'ä':
-                return loadCharacter(Ä, 'Ä');
+                if(Ä == null){
+                    System.out.println("Creating character: " + c);
+                    Ä = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Ä;
+                return Ä.getModelInstance();
+                //return loadCharacter(Ä, 'Ä');
 
             case 'Ö':
             case 'ö':
-                return loadCharacter(Ö, 'Ö');
+                if(Ö == null){
+                    System.out.println("Creating character: " + c);
+                    Ö = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = Ö;
+                return Ö.getModelInstance();
+                //return loadCharacter(Ö, 'Ö');
 
             case '0':
-                return loadCharacter(ZERO,'0');
+                if(ZERO == null){
+                    System.out.println("Creating character: " + c);
+                    ZERO = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = ZERO;
+                return ZERO.getModelInstance();
+                //return loadCharacter(ZERO,'0');
 
             case '1':
-                return loadCharacter(ONE, '1', 2.8f);
+                if(ONE == null){
+                    System.out.println("Creating character: " + c);
+                    ONE = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.8f);
+                }
+                lastChar = ONE;
+                return ONE.getModelInstance();
+                //return loadCharacter(ONE, '1', 2.8f);
 
             case '2':
-                return loadCharacter(TWO, '2');
+                if(TWO == null){
+                    System.out.println("Creating character: " + c);
+                    TWO = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = TWO;
+                return TWO.getModelInstance();
+                //return loadCharacter(TWO, '2');
 
             case '3':
-                return loadCharacter(THREE, '3');
+                if(THREE == null){
+                    System.out.println("Creating character: " + c);
+                    THREE = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = THREE;
+                return THREE.getModelInstance();
+                //return loadCharacter(THREE, '3');
 
             case '4':
-                return loadCharacter(FOUR, '4');
+                if(FOUR == null){
+                    System.out.println("Creating character: " + c);
+                    FOUR = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = FOUR;
+                return FOUR.getModelInstance();
+                //return loadCharacter(FOUR, '4');
 
             case '5':
-                return loadCharacter(FIVE, '5');
+                if(FIVE == null){
+                    System.out.println("Creating character: " + c);
+                    FIVE = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = FIVE;
+                return FIVE.getModelInstance();
+                //return loadCharacter(FIVE, '5');
 
             case '6':
-                return loadCharacter(SIX, '6');
+                if(SIX == null){
+                    System.out.println("Creating character: " + c);
+                    SIX = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = SIX;
+                return SIX.getModelInstance();
+                //return loadCharacter(SIX, '6');
 
             case '7':
-                return loadCharacter(SEVEN, '7');
+                if(SEVEN == null){
+                    System.out.println("Creating character: " + c);
+                    SEVEN = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = SEVEN;
+                return SEVEN.getModelInstance();
+                //return loadCharacter(SEVEN, '7');
 
             case '8':
-                return loadCharacter(EIGHT, '8');
+                if(EIGHT == null){
+                    System.out.println("Creating character: " + c);
+                    EIGHT = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = EIGHT;
+                return EIGHT.getModelInstance();
+                //return loadCharacter(EIGHT, '8');
 
             case '9':
-                return loadCharacter(NINE, '9');
+                if(NINE == null){
+                    System.out.println("Creating character: " + c);
+                    NINE = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                }
+                lastChar = NINE;
+                return NINE.getModelInstance();
+                //return loadCharacter(NINE, '9');
 
             case ' ':
                 step += 3f * scale;
@@ -227,6 +460,7 @@ public class Alphabet implements Disposable{
 
     private ModelInstance loadCharacter(Character3D c, char l, float space) {
         if(c == null){
+            System.out.println("Creating character: " + l);
             c = new Character3D(l,Statics.ALPHA_PATH + l + ".g3dj", space);
             lastChar = c;
         }
@@ -247,7 +481,6 @@ public class Alphabet implements Disposable{
             letter = l;
             mod = create3DModel(path);
             mod.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
-
             disposables.add(mod);
         }
 

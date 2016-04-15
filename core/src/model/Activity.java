@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -28,9 +27,11 @@ public class Activity extends GFXObject{
     public float height;
     public Event event;
     public Date3d d3d;
+    Material material;
 
-    public Activity(Color c, Date3d d, Event e) {
+    public Activity(Color c, Date3d d, Event e, Material m) {
         super();
+        material = m;
         event = e;
         this.color = c;
         scale = 10f;
@@ -39,7 +40,7 @@ public class Activity extends GFXObject{
 
     public Model getModel(){
         if(model == null){
-            model = createActivityModel();
+            model = createActivityModel(material);
             disposables.add(model);
         }
         return model;
@@ -76,17 +77,16 @@ public class Activity extends GFXObject{
 //            ns += "\n" + ts[ts.length-1];
 //        }
 //        return ns;
-        String ns = "";
+        StringBuilder ns = new StringBuilder("");
         String[] ts = s.split(" ");
         for(int i=0;i<ts.length;i++){
-            //System.out.println("line: " + i + " ->" + ts[i] + "<-");
-            ns += ts[i] + "\n";
+            ns.append(ts[i] + "\n");
         }
         //System.out.println("text ->" + ns + "<-");
-        return ns;
+        return ns.toString();
     }
 
-    private Model createActivityModel() {
+    private Model createActivityModel(Material m) {
         ModelBuilder mb = new ModelBuilder();
 
         yOrigin = d3d.startHour;
@@ -94,15 +94,6 @@ public class Activity extends GFXObject{
         height = d3d.stopHour + (d3d.stopMin / 60f);
         height -= yOrigin;
         yOrigin += height/2f;
-        Material m = new Material();
-        //Creates diffuse texture
-
-       //TextTexture tt = new TextTexture();
-        //disposables.add(tt);
-        m.set(ColorAttribute.createDiffuse(color));
-        //Create Specular texture
-        m.set(ColorAttribute.createSpecular(Color.WHITE));
-        //yOrigin -= height /2;
         Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
 

@@ -1,5 +1,6 @@
 package controller;
 
+import com.badlogic.gdx.utils.Array;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -11,7 +12,10 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarList;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
 
@@ -73,25 +77,10 @@ public class GoogleCalendarDownload {
      */
     public static Credential authorize() throws IOException {
         // Load client secrets.
-        InputStream in = null;
-//        System.out.println(GoogleCalendarDownload.class.getResource("/").getPath());
-//
-//        try{
-//            in = GoogleCalendarDownload.class.getResourceAsStream("/client_secret.json");
-//            //int s = in.read();
-//        }
-//        catch(Exception e){
-//            System.out.println("FAILED!!!");
-//        }
-//        InputStreamReader isr = new InputStreamReader(in);
-
-        //System.out.println("->" + in. + "<-");
         String key = Statics.G_KEY;
         InputStream is = new ByteArrayInputStream( key.getBytes() );
         InputStreamReader isr2 = new InputStreamReader(is);
-        //GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, isr);
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,isr2);
-        //clientSecrets = GoogleClientSecrets.
 
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow =
@@ -113,54 +102,63 @@ public class GoogleCalendarDownload {
      * @throws IOException
      */
     public static com.google.api.services.calendar.Calendar
+
     getCalendarService() throws IOException {
+
         Credential credential = authorize();
         return new com.google.api.services.calendar.Calendar.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
+
     }
 
-    public static void main(String[] args) throws IOException {
-        //downloadGoogle();
+    public static Array<String> getCalenderNames() throws IOException {
+        com.google.api.services.calendar.Calendar service =
+                getCalendarService();
+        long t = System.currentTimeMillis();
+        Calendar.CalendarList calList = service.calendarList();
+        CalendarList cList = calList.list().execute();
+        Array<String> calendarsNames = new Array<String>(cList.getItems().size());
+        for (CalendarListEntry cle: cList.getItems()){
+            calendarsNames.add(cle.getId());
+        }
+        System.out.println("Fetching calender names took: " + (System.currentTimeMillis() - t));
+        return calendarsNames;
     }
 
-    public static List<Event> execute(long from, long to) throws IOException {
+    public static Array<Event> execute(Array<String> cNames, long from, long to) throws IOException {
         // Build a new authorized API client service.
         // Note: Do not confuse this class with the
         //   com.google.api.services.calendar.model.Calendar class.
+        long t = System.currentTimeMillis();
+
         com.google.api.services.calendar.Calendar service =
                 getCalendarService();
+        System.out.println("Authorization took: " + (System.currentTimeMillis() - t));
 
-        // List the next 10 events from the primary calendar.
-        //DateTime now = new DateTime( (System.currentTimeMillis() -10000000000L));
         fromDate = new DateTime( from);
         toDate = new DateTime(to);
-        //Date date = new Date(2015,1,1,1,1);// =
-        //TimeZone zone = TimeZone.getTimeZone("America/Los_Angeles");
-        //DateTime febmars = new DateTime(date);
-        //now  -= 100000;
-        Events events = service.events().list("primary")
-                //.setMaxResults(40)
-                .setTimeMin(fromDate)
-                .setTimeMax(toDate)
-                .setOrderBy("startTime")
-                .setSingleEvents(true)
-                .execute();
-        List<Event> items = events.getItems();
-        System.out.println("Fetched " + items.size());
-//        if (items.size() == 0) {
-//            System.out.println("No upcoming events found.");
-//        } else {
-//            System.out.println("Upcoming events");
-//            for (Event event : items) {
-//                DateTime start = event.getStart().getDateTime();
-//                if (start == null) {
-//                    start = event.getStart().getDate();
-//                }
-//                System.out.printf("%s (%s)\n", event.getSummary(), start);
-//            }
-//        }
-        return items;
+
+        Array<Event> eventArray = new Array<Event>();
+        long tt = 0;
+        for(int i=0;i<cNames.size;i++){
+            t = System.currentTimeMillis();
+            Events events = service.events().list(cNames.get(i))
+                    //.setMaxResul;ts(40)
+                    .setTimeMin(fromDate)
+                    .setTimeMax(toDate)
+                    .setOrderBy("startTime")
+                    .setSingleEvents(true)
+                    .execute();
+            for(Event e: events.getItems()){
+                eventArray.add(e);
+            }
+            t = System.currentTimeMillis() - t;
+            System.out.println(cNames.get(i) + " took: " + t);
+            tt+= t;
+        }
+        System.out.println("total for all calenders: " + tt);
+        return eventArray;
     }
 }

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -34,7 +35,6 @@ import com.google.api.services.calendar.model.Event;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import controller.CalendarController;
 import data.Statics;
@@ -69,6 +69,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Array<ModelInstance> firstShadedLayer;
 	private Array<ModelInstance> firstNonShadedLayer;
 	private Array<ModelInstance> secondShadedLayer;
+	private Array<ModelInstance> activityLayer;
+
 
 	int screenWidth;
 	int screenHeigth;
@@ -95,10 +97,19 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private long from;
 	private long to;
 	private Activity currentActivity;
+	private boolean downloadDone;
 	//private Array<ModelInstance> weekLayer;
 	//private Array<ModelInstance> dayLayer;
 	//private Array<ModelInstance> monthLayer;
 
+
+	public boolean isDownloadDone() {
+		return downloadDone;
+	}
+
+	public void setDownloadDone(boolean downloadDone) {
+		this.downloadDone = downloadDone;
+	}
 
 	private void createPostProcesses() {
 		ShaderLoader.BasePath = Statics.SHADER_BASE_PATH;
@@ -154,6 +165,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		firstShadedLayer = new Array<ModelInstance>();
 		firstNonShadedLayer = new Array<ModelInstance>();
 		secondShadedLayer = new Array<ModelInstance>();
+		activityLayer = new Array<ModelInstance>();
+
 //		weekLayer = new Array<ModelInstance>();
 //		dayLayer = new Array<ModelInstance>();
 //		monthLayer = new Array<ModelInstance>();
@@ -213,7 +226,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Create calendar and download events
 		calCont = new CalendarController(this);
 		calCont.initialDownload();
-		activities = new Array<Activity>(calCont.events.size());
+		activities = new Array<Activity>(calCont.events.size);
 		long time = System.currentTimeMillis();
 		currentWeek = findWeek(time);
 		//Date3d d = new Date3d(calCont.lastUpdate);
@@ -309,18 +322,20 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	}
 
-	private void createActivities(List<Event> events, Array<DatePillar> pillars) {
+	private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
+		Material m;
 		Color c = null;
 		float x = 0;
 		for(Event e: events){
 			//Get Color:
 			if(e.getColorId() == null){
-				c = Color.RED;
+				//If no color, take default color
+				m = GFXObject.translateColor(Statics.ACTIVITY_DEFAULT_COLOR);
 			}
 			else {
 				//System.out.println("color:" + e.getSummary() + " ->" + e.getColorId() + "<-");
-				c = GFXObject.translateColor(e.getColorId());
+				m = GFXObject.translateColor(e.getColorId());
 			}
 			//Get startTime
 			if(e.getStart().getDateTime() != null
@@ -328,13 +343,13 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Date3d d3d = new Date3d(e);
 				//System.out.println("Day: " + d3d.day);
 				x = d3d.matchXValue(pillars);
-				Activity a = new Activity(c, d3d,e);
+				Activity a = new Activity(c, d3d,e, m);
 				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
 				a.calculateBoundingBox();
 				//a.getModelInstance().transform.setTranslation(a.getPosition());
-				firstShadedLayer.add(a.getModelInstance());
+				activityLayer.add(a.getModelInstance());
 				//x += Statics.ACTIVITY_WIDTH + 1f;
 				//a.event = e;
 				activities.add(a);
@@ -428,6 +443,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		modelBatch.render(skybox.getModelInstance());
 		modelBatch.render(ground.getModelInstance(), environment);
 		modelBatch.render(firstShadedLayer, environment);
+		modelBatch.render(activityLayer, environment);
 		modelBatch.render(secondShadedLayer, environment);
 		modelBatch.end();
 
@@ -573,6 +589,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				calCont.update(from, to);
 				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
 				updateActivities = true;
+				clearedAndMoved = false;
 				currentActivity = ca;
 			}
 			else {
@@ -605,33 +622,40 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		}
 	}
 
+	boolean clearedAndMoved;
 	private void updateActivities(){
 		//Clearing
-		//Clear OpenGL objects from memory
-		System.out.println("Clearing acvities");
-		long time = System.currentTimeMillis();
-		Array<Disposable> dispose = new Array<Disposable>();
-		dispose.addAll(activities);
-		//dispose.addAll(datePillars);
-		for(Disposable d: dispose){
-			d.dispose();
+		if(!clearedAndMoved){
+			long time = System.currentTimeMillis();
+			datePillars.clear();
+			firstShadedLayer.clear();
+			createDatePillars(from, false);
+			System.out.println("Pillars creation took : " + (System.currentTimeMillis() - time));
+			clearedAndMoved = true;
 		}
-		activities.clear();
-		datePillars.clear();
-		firstShadedLayer.clear();
-		System.out.println("Clearing took: " + (System.currentTimeMillis() - time));
-		time = System.currentTimeMillis();
-		createDatePillars(from, false);
-		System.out.println("Pillars creation took : " + (System.currentTimeMillis() - time));
-		time = System.currentTimeMillis();
-		createActivities(calCont.events, datePillars);
-		System.out.println("Activities creation took : " + (System.currentTimeMillis() - time));
-		//Center camera
-		centerCameraOnDate(currentActivity.d3d.date);
-		//Set current week
-		currentWeek = findWeek(currentActivity.d3d.date);
-		cam.update();
-		updateActivities = false;
+
+		if(downloadDone){
+			//Clear OpenGL objects from memory
+			System.out.println("Clearing acvities");
+			long time2 = System.currentTimeMillis();
+			Array<Disposable> dispose = new Array<Disposable>();
+			dispose.addAll(activities);
+			for(Disposable d: dispose){
+				d.dispose();
+			}
+			activities.clear();
+			activityLayer.clear();
+			time2 = System.currentTimeMillis();
+			createActivities(calCont.events, datePillars);
+			System.out.println("Activities creation took : " + (System.currentTimeMillis() - time2));
+			//Center camera
+			centerCameraOnDate(currentActivity.d3d.date);
+			//Set current week
+			currentWeek = findWeek(currentActivity.d3d.date);
+			cam.update();
+			updateActivities = false;
+		}
+
 	}
 
 	private void centerCameraOnDate(long date) {

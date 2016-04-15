@@ -1,6 +1,7 @@
 package data;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.Calendar;
@@ -29,7 +30,9 @@ public class Statics {
     public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
     public static final float ACTIVITY_SPACING = 1f; // Space in between Calendar Activities
     public static final float ACTIVITY_TEXT_MODIFY_Z = 0.05f + ACTIVITY_DEPTH /2f;
-
+    public static final float ACTIVITY_TEXT_SCALE = 0.15f;
+    //If calendar activity has no color, then it will be this color. Look in GFXObject to get the color ids
+    public static final String ACTIVITY_DEFAULT_COLOR = "11";
     /*
     Day  & Date pillar settings
      */
@@ -56,7 +59,6 @@ public class Statics {
                 +  (ACTIVITY_WIDTH * 4) ,
         WEEK_BACKPLATE_HEIGHT/2f,
         DATEPILLAR_Z_ORIGIN -0.1f);
-
     public static final float WEEK_NUM_MODIFIER_X = Statics.WEEK_BACKPLATE_WIDTH /4f;
     public static final float WEEK_NUM_ORIGIN_Y = DATEPILLAR_HEIGHT + 4f;
     public static final float WEEK_NUM_ORIGIN_Z = DATEPILLAR_Z_ORIGIN;
@@ -69,12 +71,12 @@ public class Statics {
     /*
     CAMERA settings
     */
-    public static final float CAMERA_FOV = 75f;
+    public static final float CAMERA_FOV = 85f;
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
-    public static final float ACTIVITY_TEXT_SCALE = 0.1f;
-    public static float CAMERA_DISTANCE_FROM = -13f;
+
+    public static float CAMERA_DISTANCE_FROM = -16f;
     public static Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH / 2f,
             WEEK_BACKPLATE_HEIGHT,
             -CAMERA_DISTANCE_FROM);
@@ -97,4 +99,17 @@ public class Statics {
 
 
     public static Calendar calendar;
+    /*
+    Reusable materials
+     */
+    public static Material MatGreen;
+    public static Material MatPurple;
+    public static Material MatLightGreen;
+    public static Material MatLightRed;
+    public static Material MatYellow;
+    public static Material MatOrange;
+    public static Material MatTurquoise;
+    public static Material MatGray;
+    public static Material MatBlue;
+    public static Material MatRed;
 }
