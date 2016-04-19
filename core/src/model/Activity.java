@@ -104,9 +104,17 @@ public class Activity extends GFXObject{
     public String getDetails(){
         StringBuilder sb = new StringBuilder("Details:\n");
         sb.append(event.getSummary() + "\n");
-        sb.append("Start: " + event.getStart());
-        sb.append("\n");
-        sb.append("Stop: " + event.getEnd());
+
+        sb.append("\nStatus: " + event.getStatus() );
+        if(event.getDescription() != null){
+            sb.append("\nDescription: " + event.getDescription());
+        }
+        else {
+            sb.append("\nDesciption: - ");
+        }
+
+        sb.append("\nStart: " + event.getStart());
+        sb.append("\nStop: " + event.getEnd());
 
         return sb.toString();
     }

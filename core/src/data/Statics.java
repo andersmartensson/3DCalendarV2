@@ -112,4 +112,10 @@ public class Statics {
     public static Material MatGray;
     public static Material MatBlue;
     public static Material MatRed;
+    /*
+    * Download settings
+     */
+    public static boolean downloadPrimary = true;
+    public final static String SwitchToDownloadAll = "Switch to download all";
+    public final static String switchToDownloadPrimary = "Switch to download primary only";
 }

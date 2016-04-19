@@ -18,9 +18,12 @@ public class CalendarController {
     public long lastUpdate;
     MainView main;
     Array<String> calendarNames;
+    Array<String> primaryCalendar;
 
     public CalendarController(MainView m){
         main = m;
+        primaryCalendar = new Array<String>();
+        primaryCalendar.add("primary");
     }
 
     public void update(long from, long to){
@@ -89,11 +92,19 @@ public class CalendarController {
 
         public void run(){
             long time = System.currentTimeMillis();
-
-            try {
-                events = GoogleCalendarDownload.execute(calendarNames, from, to );
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(Statics.downloadPrimary){
+                try {
+                    events = GoogleCalendarDownload.execute(primaryCalendar, from, to );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    events = GoogleCalendarDownload.execute(calendarNames, from, to );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             main.setDownloadDone(true);
             System.out.println("Downloading took : " + (time - System.currentTimeMillis()));

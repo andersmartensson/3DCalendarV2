@@ -94,7 +94,7 @@ public class UI implements Disposable{
         optionsTable.setFillParent(true);
         optionsStage.addActor(optionsTable);
 
-        final TextButton toggleTheme = new TextButton("Switch theme (1)", skin);
+        final TextButton toggleTheme = new TextButton("Switch theme", skin);
         optionsTable.add(toggleTheme).minWidth(100f * density).minHeight(50f * density);
         toggleTheme.getLabel().setFontScale(2.0f * density, 2.0f * density);
         toggleTheme.addListener(new InputListener() {
@@ -104,6 +104,24 @@ public class UI implements Disposable{
                 return false;
             }
         });
+
+        final TextButton toggleDownload = new TextButton(Statics.SwitchToDownloadAll,skin);
+        optionsTable.add(toggleDownload).minWidth(100f * density).minHeight(50f * density);
+        toggleDownload.getLabel().setFontScale(2.0f * density, 2.0f * density);
+        toggleDownload.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                Statics.downloadPrimary = !Statics.downloadPrimary;
+                if(!Statics.downloadPrimary){
+                    toggleDownload.setText(Statics.switchToDownloadPrimary);
+                }
+                else {
+                    toggleDownload.setText(Statics.SwitchToDownloadAll);
+                }
+                return false;
+            }
+        });
+
         uiTable.row();
         Pixmap gray = new Pixmap(1, 1, Pixmap.Format.RGB565);
         gray.setColor(Statics.DETAILS_BACKGROUND_COLOR);
@@ -120,14 +138,6 @@ public class UI implements Disposable{
         detailsLabel = new Label("",skin);
 
         detailsTable.add(detailsLabel).align(Align.left);
-//        detailsLabel.setText("Details: \n " +
-//                "HEJ HEJ HEJ \n" +
-//                "HEJ HEJ HEJ");
-        //Create time Report
-
-        //Create edit
-
-
     }
 
     public void updateDetails(String text){
@@ -148,7 +158,6 @@ public class UI implements Disposable{
     public void drawUI() {
 //        Gdx.gl.glEnable(GL20.GL_BLEND);
 //        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        //updateTurnlabel();
         uiBatch.enableBlending();
         uiBatch.begin();
         uiStage.draw();
@@ -158,20 +167,6 @@ public class UI implements Disposable{
         }
         uiBatch.end();
     }
-
-//    private void updateTurnlabel() {
-//
-//        if (game.morris == null) {
-//            labelMessage.setText("");
-//        } else if (game.morris.gameOver) {
-//            labelMessage.setText("You win!");
-//        } else {
-//            String s = (game.morris.getTurn() == SavedState.RED_MOVES) ? "Red turn" : "Blue turn";
-//            s += (game.morris.turnType == SavedState.TurnType.REMOVE_BALL) ? " to remove" : "";
-//            labelMessage.setText(s);
-//        }
-//
-//    }
 
     public void dispose() {
         for(Disposable d: disposables){

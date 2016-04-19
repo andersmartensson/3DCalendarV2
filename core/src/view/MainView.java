@@ -578,6 +578,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			Activity ca = activities.get(result);
 			//Update text
 			ui.updateDetails(ca.getDetails());
+			//ca.get
 			System.out.println("Clicked: " + ca.toString());
 			//Check if same week, else update calender
 			//if(false){
