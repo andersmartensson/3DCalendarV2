@@ -91,8 +91,6 @@ public class GoogleCalendarDownload {
                         .build();
         Credential credential = new AuthorizationCodeInstalledApp(
                 flow, new LocalServerReceiver()).authorize("user");
-        System.out.println(
-                "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
         return credential;
     }
 
@@ -145,7 +143,6 @@ public class GoogleCalendarDownload {
         for(int i=0;i<cNames.size;i++){
             t = System.currentTimeMillis();
             Events events = service.events().list(cNames.get(i))
-                    //.setMaxResul;ts(40)
                     .setTimeMin(fromDate)
                     .setTimeMax(toDate)
                     .setOrderBy("startTime")
