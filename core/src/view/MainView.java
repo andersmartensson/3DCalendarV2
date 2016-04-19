@@ -71,7 +71,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private Array<ModelInstance> secondShadedLayer;
 	private Array<ModelInstance> activityLayer;
 
-
 	int screenWidth;
 	int screenHeigth;
 	int currentWeek;
@@ -96,12 +95,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private boolean updateActivities;
 	private long from;
 	private long to;
-	private Activity currentActivity;
+	public Activity currentActivity;
 	private boolean downloadDone;
-	//private Array<ModelInstance> weekLayer;
-	//private Array<ModelInstance> dayLayer;
-	//private Array<ModelInstance> monthLayer;
-
 
 	public boolean isDownloadDone() {
 		return downloadDone;
@@ -189,6 +184,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		disposables.add(ui);
 		ui.createUI(multiplexer, this);
 		multiplexer.addProcessor(ui.getUiStage());
+		multiplexer.addProcessor(ui.detailsStage);
+		multiplexer.addProcessor(ui.reportDialogStage);
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
@@ -574,36 +571,34 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Get clicked activity
 		int result = getActivity(screenX, screenY);
 		if(result != -1){
+			ui.detailsVisible = true;
 			System.out.println("=============================");
-			Activity ca = activities.get(result);
+			currentActivity = activities.get(result);
 			//Update text
-			ui.updateDetails(ca.getDetails());
-			//ca.get
-			System.out.println("Clicked: " + ca.toString());
+			ui.updateDetails(currentActivity.getDetails());
+			System.out.println("Clicked: " + currentActivity.toString());
 			//Check if same week, else update calender
-			//if(false){
-			if(currentWeek != findWeek(ca.d3d.date)){
-				//System.out.println("Not the same week: " + currentWeek + " Clicked act: " + findWeek(ca.d3d.date));
-				from = calCont.getAdjustedDay(ca.d3d.date);
+			if(currentWeek != findWeek(currentActivity.d3d.date)){
+				from = calCont.getAdjustedDay(currentActivity.d3d.date);
 				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
 				long time = System.currentTimeMillis();
 				calCont.update(from, to);
 				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
 				updateActivities = true;
 				clearedAndMoved = false;
-				currentActivity = ca;
 			}
 			else {
 				//Focus and move camera to activity
-				finalPosition = new Vector3(ca.position.x, ca.position.y, ca.position.z - Statics.CAMERA_DISTANCE_FROM);
+				finalPosition = new Vector3(currentActivity.position.x
+						, currentActivity.position.y
+						, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
 				cam.position.set(finalPosition);
 				cam.update();
 				//Fix pitch
 				fixPitch(finalPosition);
-
 				//Focus
-				cam.lookAt(ca.position);
-				camController.target = ca.position;
+				cam.lookAt(currentActivity.position);
+				camController.target = currentActivity.position;
 				cam.update();
 			}
 		}

@@ -61,8 +61,8 @@ public class Date3d implements Cloneable{
         this.date = date;
     }
 
-    public Date3d clone(boolean recalcualateDate){
-        if(recalcualateDate){
+    public Date3d clone(boolean recalculateDate){
+        if(recalculateDate){
             //Recalculate day, year and month
             return new Date3d(date, stopMin, startHour, startMin, stopHour);
         }
@@ -84,8 +84,49 @@ public class Date3d implements Cloneable{
         return "" + num;
     }
 
+    public String getStartTime() {
+        return startHour + ":" + startMin;
+    }
+
+    public String getStopTime() {
+        return stopHour + ":" + stopMin;
+    }
+
+    public String getDuration(){
+        int h, m;
+        m = stopHour * 60;
+        m += startMin;
+        m -= startHour * 60;
+        m -= startMin;
+        h = m % 60;
+        m -= h * 60;
+        return "" + h + "" + m;
+
+    }
+
+    /**
+     *
+     * @return String with the name of the day and month
+     */
+    public String getDateName(){
+        StringBuilder sb = new StringBuilder();
+        Calendar c = Statics.calendar;
+        c.setTime(new Date(date));
+        //Get day
+        sb.append(Day.values()[c.get(Calendar.DAY_OF_WEEK)].toString());
+        sb.append(" on the ");
+        sb.append(day);
+        sb.append(" of ");
+        sb.append(Month.values()[month].toString());
+        sb.append(" " + year);
+
+        return sb.toString();
+    }
+
+
+
     public enum Day{
-        Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday,  None
+        Zero, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, None
     }
 
     public enum Month{
@@ -111,7 +152,7 @@ public class Date3d implements Cloneable{
             dayOfWeek = Day.values()[c.get(Calendar.DAY_OF_WEEK)];
         }
         else{
-            dayOfWeek = Day.None;
+            dayOfWeek = Day.Zero;
         }
 
         parseStart(e.getStart().getDateTime().toString());
