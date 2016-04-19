@@ -45,6 +45,7 @@ public class UI implements Disposable{
     private Label reportDialogFromContents;
     private Label reportDialogToContents;
     private Label reportDialogDurationContents;
+    private TextButton reportDialogChangeButton;
 
     public Stage getOptionsStage() {
         return optionsStage;
@@ -135,6 +136,7 @@ public class UI implements Disposable{
 
         //Create details label
         Table detailsTable = new Table();
+        //detailsTable.setDebug(true);
         //Set background
         detailsTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(detailsBackground))));
         detailsTable.align(Align.bottomLeft);
@@ -165,6 +167,7 @@ public class UI implements Disposable{
 
         //reportDialogStage.setDebugAll(true);
         Table reportDialogTable = new Table();
+        //reportDialogTable.setDebug(true);
         reportDialogTable.align(Align.center);
         reportDialogTable.setFillParent(true);
         //reportDialogTable.debug();
@@ -214,18 +217,29 @@ public class UI implements Disposable{
         //Duration
         Label reportDialogDurationLabel = new Label("Duration: \n",skin);
         reportDialogTable.add(reportDialogDurationLabel).align(Align.topLeft);
-        reportDialogDurationContents = new Label("",skin);
-        reportDialogTable.add(reportDialogDurationContents).align(Align.topLeft);;
+//        reportDialogDurationContents = new Label("",skin);
+//        reportDialogTable.add(reportDialogDurationContents).align(Align.topLeft);;
+        //Duration button
+        reportDialogChangeButton = new TextButton("", skin);
+        reportDialogTable.add(reportDialogChangeButton).align(Align.topLeft);
+        reportDialogChangeButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        reportDialogChangeButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                System.out.println("Change Clicked");
+                return false;
+            }
+        });
         reportDialogTable.row();
 
-        //Buttons
+        /*
+        Buttons
+         */
 
-
-
-        //Ok button
-        TextButton reportOkButton = new TextButton("Ok", skin);
-        reportOkButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
-        reportOkButton.addListener(new InputListener() {
+        //Report button
+        TextButton reportReportButton = new TextButton("Report", skin);
+        reportReportButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        reportReportButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 reportDialogVisible = false;
@@ -233,7 +247,7 @@ public class UI implements Disposable{
                 return false;
             }
         });
-        reportDialogTable.add(reportOkButton).minWidth(100f * density).minHeight(50f * density);
+        reportDialogTable.add(reportReportButton).minWidth(100f * density).minHeight(50f * density);
         //Cancel button
         TextButton reportCancelButton = new TextButton("Cancel", skin);
         reportCancelButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
@@ -276,7 +290,7 @@ public class UI implements Disposable{
             //Get To
             reportDialogToContents.setText((main.currentActivity.d3d.getStopTime()));
             //Get Duration
-            reportDialogDurationContents.setText((main.currentActivity.d3d.getDuration()));
+            reportDialogChangeButton.setText((main.currentActivity.d3d.getDuration()));
         }
         else {
             System.out.println("Current activity was NULL!!!");

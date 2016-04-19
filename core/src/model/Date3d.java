@@ -93,15 +93,24 @@ public class Date3d implements Cloneable{
     }
 
     public String getDuration(){
-        int h, m;
+        int h=0, m=0;
         m = stopHour * 60;
         m += startMin;
         m -= startHour * 60;
         m -= startMin;
-        h = m % 60;
+        h = m / 60;
+        System.out.println("h: " + h + " 180 rest 60 = " + (180 / 60) );
         m -= h * 60;
-        return "" + h + "" + m;
+        System.out.println("m: " + m);
+        return "" + h + ":" + formatMin(m);
 
+    }
+
+    private String formatMin(int m) {
+        if(m /10 == 0){
+            return "0" + m;
+        }
+        return "" + m;
     }
 
     /**
@@ -119,7 +128,6 @@ public class Date3d implements Cloneable{
         sb.append(" of ");
         sb.append(Month.values()[month].toString());
         sb.append(" " + year);
-
         return sb.toString();
     }
 
