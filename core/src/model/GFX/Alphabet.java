@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.JsonReader;
-
 import data.Statics;
 
 public class Alphabet implements Disposable{
@@ -29,7 +28,7 @@ public class Alphabet implements Disposable{
         }
     }
 
-    static Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,Å,Ä,Ö;
+    static Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,SAA,SAAA,SO;
     static Character3D ZERO,ONE,TWO,THREE,FOUR,FIVE,SIX,SEVEN,EIGHT,NINE;
 
     public Alphabet(){
@@ -322,32 +321,32 @@ public class Alphabet implements Disposable{
 
             case 'Å':
             case 'å':
-                if(Å == null){
+                if(SAA == null){
                     System.out.println("Creating character: " + c);
-                    Å = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SAA = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
                 }
-                lastChar = Å;
-                return Å.getModelInstance();
+                lastChar = SAA;
+                return SAA.getModelInstance();
                 //return loadCharacter(Å, 'Å');
 
             case 'Ä':
             case 'ä':
-                if(Ä == null){
+                if(SAAA == null){
                     System.out.println("Creating character: " + c);
-                    Ä = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SAAA = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
                 }
-                lastChar = Ä;
-                return Ä.getModelInstance();
+                lastChar = SAAA;
+                return SAAA.getModelInstance();
                 //return loadCharacter(Ä, 'Ä');
 
             case 'Ö':
             case 'ö':
-                if(Ö == null){
+                if(SO == null){
                     System.out.println("Creating character: " + c);
-                    Ö = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SO = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
                 }
-                lastChar = Ö;
-                return Ö.getModelInstance();
+                lastChar = SO;
+                return SO.getModelInstance();
                 //return loadCharacter(Ö, 'Ö');
 
             case '0':
