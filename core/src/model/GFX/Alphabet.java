@@ -28,7 +28,7 @@ public class Alphabet implements Disposable{
         }
     }
 
-    static Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,SAA,SAAA,SO;
+    static Character3D A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W, X,Y,Z,SA,SAA,SO;
     static Character3D ZERO,ONE,TWO,THREE,FOUR,FIVE,SIX,SEVEN,EIGHT,NINE;
 
     public Alphabet(){
@@ -321,9 +321,9 @@ public class Alphabet implements Disposable{
 
             case 'Å':
             case 'å':
-                if(SAA == null){
+                if(SA == null){
                     System.out.println("Creating character: " + c);
-                    SAA = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SA = new Character3D(c,Statics.ALPHA_PATH + "SA" + ".g3dj",3.0f);
                 }
                 lastChar = SAA;
                 return SAA.getModelInstance();
@@ -331,19 +331,19 @@ public class Alphabet implements Disposable{
 
             case 'Ä':
             case 'ä':
-                if(SAAA == null){
+                if(SAA == null){
                     System.out.println("Creating character: " + c);
-                    SAAA = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SAA = new Character3D(c,Statics.ALPHA_PATH + "SAA" + ".g3dj",3.0f);
                 }
-                lastChar = SAAA;
-                return SAAA.getModelInstance();
+                lastChar = SAA;
+                return SAA.getModelInstance();
                 //return loadCharacter(Ä, 'Ä');
 
             case 'Ö':
             case 'ö':
                 if(SO == null){
                     System.out.println("Creating character: " + c);
-                    SO = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    SO = new Character3D(c,Statics.ALPHA_PATH + "SO" + ".g3dj",3.0f);
                 }
                 lastChar = SO;
                 return SO.getModelInstance();

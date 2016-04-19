@@ -56,6 +56,8 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+
+
     }
 }
 
@@ -96,6 +98,9 @@ project(":core") {
         compile 'com.google.api-client:google-api-client:1.20.0'
         compile 'com.google.oauth-client:google-oauth-client-jetty:1.20.0'
         compile 'com.google.apis:google-api-services-calendar:v3-rev125-1.20.0'
+
+        compile 'com.google.http-client:google-http-client-android:1.21.0'
+
     }
 }
 

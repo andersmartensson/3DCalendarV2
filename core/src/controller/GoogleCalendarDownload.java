@@ -1,5 +1,6 @@
 package controller;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -28,6 +29,8 @@ import java.util.List;
 
 import data.Statics;
 
+//import com.google.api.client.extensions.android.http;
+
 /**
  * Created by Anders on 2016-03-08.
  */
@@ -37,9 +40,10 @@ public class GoogleCalendarDownload {
             "Google Calendar API Java Quickstart";
 
     /** Directory to store user credentials for this application. */
+//    private static final java.io.File DATA_STORE_DIR = new java.io.File(
+//            System.getProperty("user.home"), ".credentials/calendar-java-quickstart.json");
     private static final java.io.File DATA_STORE_DIR = new java.io.File(
-            System.getProperty("user.home"), ".credentials/calendar-java-quickstart.json");
-
+            Gdx.files.getLocalStoragePath(), ".credentials/calendar-java-quickstart.json");
     /** Global instance of the {@link FileDataStoreFactory}. */
     private static FileDataStoreFactory DATA_STORE_FACTORY;
 
@@ -63,6 +67,9 @@ public class GoogleCalendarDownload {
     static {
         try {
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            //HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
+            //final String CREDENTIALS_DIRECTORY = ".oauth-credentials";
+            //File dataDirectory = new File(getContext().getFilesDir(), CREDENTIALS_DIRECTORY);
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
         } catch (Throwable t) {
             t.printStackTrace();
