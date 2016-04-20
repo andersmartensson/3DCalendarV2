@@ -32,10 +32,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.api.services.calendar.model.Event;
-
 import java.util.Calendar;
 import java.util.Date;
-
 import controller.CalendarController;
 import data.Statics;
 import model.Activity;
@@ -142,7 +140,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Gdx.gl.glDepthRangef(0f, 1f);
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
-
 		camIsMoving = false; //For camera interpolarisation.
 		disposables = new Array<Disposable>();
 		dynamicDisposables = new Array<Disposable>();
@@ -192,7 +189,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Create text
 		alphabet = new Alphabet();
 		disposables.add(alphabet);
-//Create Post Proccesing effects
+//Create Post Processing effects
 		createPostProcesses();
 		//=============Create models =================
 		//Create sun - Not visible but is going to be needed to get a position for the lens flare
@@ -220,6 +217,10 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		setLight();
 		//createWaterShader();
 		updateTheme();
+		//Try browser
+		System.out.println("OPEN BROWSER =============");
+		Gdx.net.openURI("www.google.com");
+		System.out.println("DONE OPENING BROWSER  ======");
 		//Create calendar and download events
 		calCont = new CalendarController(this);
 		calCont.initialDownload();

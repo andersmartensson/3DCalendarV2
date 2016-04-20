@@ -29,7 +29,6 @@ import java.util.List;
 
 import data.Statics;
 
-//import com.google.api.client.extensions.android.http;
 
 /**
  * Created by Anders on 2016-03-08.
@@ -115,7 +114,6 @@ public class GoogleCalendarDownload {
                 HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-
     }
 
     public static Array<String> getCalenderNames() throws IOException {
