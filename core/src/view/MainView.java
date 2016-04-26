@@ -32,8 +32,10 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.api.services.calendar.model.Event;
+
 import java.util.Calendar;
 import java.util.Date;
+
 import controller.CalendarController;
 import data.Statics;
 import model.Activity;
@@ -96,6 +98,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	public Activity currentActivity;
 	private boolean downloadDone;
 
+
+
 	public boolean isDownloadDone() {
 		return downloadDone;
 	}
@@ -140,7 +144,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Gdx.gl.glDepthRangef(0f, 1f);
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
-		camIsMoving = false; //For camera interpolarisation.
+		camIsMoving = false; //For camera interpolation.
 		disposables = new Array<Disposable>();
 		dynamicDisposables = new Array<Disposable>();
 		//Create text render
@@ -152,6 +156,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		appTime = 1.0f;
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeigth = Gdx.graphics.getHeight();
+
 
 //create render arrays:
 		firstShadedLayer = new Array<ModelInstance>();

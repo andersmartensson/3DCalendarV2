@@ -1,5 +1,7 @@
 package data;
 
+//import android.content.Context;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
@@ -118,4 +120,10 @@ public class Statics {
     public static boolean downloadPrimary = true;
     public final static String SwitchToDownloadAll = "Switch to download all";
     public final static String switchToDownloadPrimary = "Switch to download primary only";
+    //public static Context Andorid_Context;
+    //public static  AndroidContext;
+    /*
+    Android settings
+     */
+    //public static android.content.Context AndroidContext;
 }

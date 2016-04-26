@@ -79,7 +79,6 @@ project(":html") {
     apply plugin: "gwt"
     apply plugin: "war"
 
-
     dependencies {
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
@@ -101,6 +100,10 @@ project(":core") {
 
         compile 'com.google.http-client:google-http-client-android:1.21.0'
         compile 'com.google.api-client:google-api-client-android:1.21.0'
+
+        //Android context
+        //compile "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+
 
     }
 }
