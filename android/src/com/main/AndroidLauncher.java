@@ -25,6 +25,8 @@ public class AndroidLauncher extends AndroidApplication {
 	//private GoogleApiClient client;
 
 	private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+	private static final String PREF_ACCOUNT_NAME = "accountName";
+	static final int REQUEST_ACCOUNT_PICKER = 1000;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +58,18 @@ public class AndroidLauncher extends AndroidApplication {
 //			e.printStackTrace();
 //		}
 		try{
-			GoogleAccountCredential mCredential = GoogleAccountCredential.usingOAuth2(
+			String accountName = getPreferences(Context.MODE_PRIVATE)
+					.getString(PREF_ACCOUNT_NAME, null);
+
+			Statics.GoogleCredential = GoogleAccountCredential.usingOAuth2(
 					context, Arrays.asList(SCOPES))
 					.setBackOff(new ExponentialBackOff());
+			//startActivityForResult(Statics.GoogleCredential.newChooseAccountIntent(),REQUEST_ACCOUNT_PICKER);
+			Statics.GoogleCredential.newChooseAccountIntent();
+			Thread.sleep(500);
+			//Statics.GoogleCredential = GoogleAccountCredential.usingOAuth2()
 			//isGooglePlayServicesAvailable();
-			Statics.GoogleCredential = mCredential;
+			//Statics.GoogleCredential = mCredential;
 		}
 		catch (Exception e){
 			System.out.println("Failed getting credentials");

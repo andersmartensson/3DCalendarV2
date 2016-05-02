@@ -27,24 +27,18 @@ public class CalendarController {
     }
 
     public void update(long from, long to){
-        if(!MainView.isAndroid){
-            main.setDownloadDone(false);
-            //System.out.println();
-            UpdateThread updateThread = new UpdateThread(main, from,to);
-            updateThread.start();
-        }
-        else {
-            Statics.updateCalendar = true;
-        }
 
-
-    }
+        main.setDownloadDone(false);
+        //System.out.println();
+        UpdateThread updateThread = new UpdateThread(main, from,to);
+        updateThread.start();
+   }
     /**
      *      Downloads activities default weeks back, beginning
      *      with the first day of the current week.
      */
     public void initialDownload(){
-        if(!MainView.isAndroid){
+
             try {
                 calendarNames = GoogleCalendarDownload.getCalenderNames();
             } catch (IOException e) {
@@ -60,10 +54,6 @@ public class CalendarController {
                     e.printStackTrace();
                 }
             }
-        }
-        else {
-            Statics.updateCalendar = true;
-        }
 
     }
 

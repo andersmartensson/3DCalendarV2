@@ -20,6 +20,7 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,7 @@ public class GoogleCalendarDownload {
     private static FileDataStoreFactory DATA_STORE_FACTORY;
 
     /** Global instance of the JSON factory. */
-    private static final JsonFactory JSON_FACTORY =
+    private static JsonFactory JSON_FACTORY =
             JacksonFactory.getDefaultInstance();
 
     /** Global instance of the HTTP transport. */
@@ -62,7 +63,12 @@ public class GoogleCalendarDownload {
     public static DateTime fromDate;
     private static DateTime toDate;
 
-    static {
+    /**
+     * Creates an authorized Credential object.
+     * @return an authorized Credential object.
+     * @throws IOException
+     */
+    public static Credential authorize() throws IOException {
         try {
             //if(Statics.is)
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -74,14 +80,6 @@ public class GoogleCalendarDownload {
             t.printStackTrace();
             System.exit(1);
         }
-    }
-
-    /**
-     * Creates an authorized Credential object.
-     * @return an authorized Credential object.
-     * @throws IOException
-     */
-    public static Credential authorize() throws IOException {
         // Load client secrets.
         String key = Statics.G_KEY;
         InputStream is = new ByteArrayInputStream( key.getBytes() );
@@ -105,19 +103,65 @@ public class GoogleCalendarDownload {
      * @return an authorized Calendar client service
      * @throws IOException
      */
-    public static com.google.api.services.calendar.Calendar
+    public static Calendar getCalendarService() throws IOException {
+        if(!Statics.isAndroid){
+            Credential credential = authorize();
+            return new com.google.api.services.calendar.Calendar.Builder(
+                    HTTP_TRANSPORT, JSON_FACTORY, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        }
+        else {
+            HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
+            JSON_FACTORY = JacksonFactory.getDefaultInstance();
+            try{
+                Calendar cal = new Calendar.Builder(
+                        HTTP_TRANSPORT, JSON_FACTORY, Statics.GoogleCredential)
+                        .setApplicationName(APPLICATION_NAME)
+                        .build();
+//            Calendar cal = new com.google.api.services.calendar.Calendar.Builder(
+//                    HTTP_TRANSPORT, JSON_FACTORY, Statics.GoogleCredential)
+//                    .setApplicationName("Google Calendar API Android Quickstart")
+//                    .build();
+                System.out.println("Returning android service ======================");
+                return cal;
+            }
+            catch (Exception e){
+                System.out.println("Failed to get Android google service ================");
+                e.printStackTrace();
+                System.exit(0);
+            }
 
-    getCalendarService() throws IOException {
-        Credential credential = authorize();
-        return new com.google.api.services.calendar.Calendar.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+        }
+
+        return null;
+    }
+
+    private static Calendar getAndroidCalendarService() {
+
+        //Get Calendar service
+        Calendar c = null;
+        try {
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            //Fetch
+            c = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, Statics.GoogleCredential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }catch (Exception e){
+            System.out.println("Failed to create service from Google");
+            e.printStackTrace();
+            System.exit(0);
+        }
+        return c;
     }
 
     public static Array<String> getCalenderNames() throws IOException {
-        com.google.api.services.calendar.Calendar service =
-                getCalendarService();
+        com.google.api.services.calendar.Calendar service = getCalendarService();
+
         long t = System.currentTimeMillis();
         Calendar.CalendarList calList = service.calendarList();
         CalendarList cList = calList.list().execute();
@@ -136,13 +180,7 @@ public class GoogleCalendarDownload {
         long t = System.currentTimeMillis();
 
         com.google.api.services.calendar.Calendar service = null;
-        if(!Statics.isAndroid){
-            service = getCalendarService();
-
-        }
-        else {
-            service = getAndroidCalendarService();
-        }
+        service = getCalendarService();
         System.out.println("Authorization took: " + (System.currentTimeMillis() - t));
 
         fromDate = new DateTime( from);
@@ -170,21 +208,5 @@ public class GoogleCalendarDownload {
         return eventArray;
     }
 
-    private static Calendar getAndroidCalendarService() {
-        //Get Calendar service
-        Calendar c = null;
-        try {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            c = new com.google.api.services.calendar.Calendar.Builder(
-                    transport, jsonFactory, Statics.GoogleCredential)
-                    .setApplicationName("Google Calendar API Android Quickstart")
-                    .build();
-        }catch (Exception e){
-            System.out.println("Failed to create service from Google");
-            e.printStackTrace();
-            System.exit(0);
-        }
-        return c;
-    }
+
 }

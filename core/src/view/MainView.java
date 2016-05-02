@@ -247,12 +247,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//Date3d d = new Date3d(calCont.lastUpdate);
 
 		createDatePillars(calCont.lastUpdate, true);
-		if(!Statics.isAndroid){
-			createActivities(calCont.events, datePillars);
-		}
-		else {
-			createActivities(Statics.events, datePillars);
-		}
+		createActivities(calCont.events, datePillars);
+
 		System.out.println("CreatingDays and activities took " + (System.currentTimeMillis() - time));
 
 		//Center camera on current date
