@@ -27,10 +27,16 @@ public class CalendarController {
     }
 
     public void update(long from, long to){
-        main.setDownloadDone(false);
-        //System.out.println();
-        UpdateThread updateThread = new UpdateThread(main, from,to);
-        updateThread.start();
+        if(!MainView.isAndroid){
+            main.setDownloadDone(false);
+            //System.out.println();
+            UpdateThread updateThread = new UpdateThread(main, from,to);
+            updateThread.start();
+        }
+        else {
+            Statics.updateCalendar = true;
+        }
+
 
     }
     /**
@@ -38,21 +44,27 @@ public class CalendarController {
      *      with the first day of the current week.
      */
     public void initialDownload(){
-        try {
-            calendarNames = GoogleCalendarDownload.getCalenderNames();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        lastUpdate = getAdjustedDay(System.currentTimeMillis());
-        long to = lastUpdate + milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-        update(lastUpdate, to);
-        while(!main.isDownloadDone()){
+        if(!MainView.isAndroid){
             try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
+                calendarNames = GoogleCalendarDownload.getCalenderNames();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+            lastUpdate = getAdjustedDay(System.currentTimeMillis());
+            long to = lastUpdate + milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+            update(lastUpdate, to);
+            while(!main.isDownloadDone()){
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        else {
+            Statics.updateCalendar = true;
+        }
+
     }
 
     public long milliSecondsInADay() {

@@ -1,6 +1,5 @@
 package view;
 
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
@@ -32,10 +31,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.api.services.calendar.model.Event;
-
 import java.util.Calendar;
 import java.util.Date;
-
 import controller.CalendarController;
 import data.Statics;
 import model.Activity;
@@ -52,6 +49,7 @@ import postprocessing.ShaderLoader;
 import postprocessing.effects.Fxaa;
 import postprocessing.effects.Nfaa;
 import shaders.WaterShader;
+
 
 public class MainView extends InputAdapter implements ApplicationListener {
 
@@ -77,7 +75,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private ShaderProgram bgShader;
 	private float appTime;
 	private ModelInstance waterInstance;
-
 	private Vector3 position;
 	private Ground ground;
 	public int theme;
@@ -98,6 +95,9 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	public Activity currentActivity;
 	private boolean downloadDone;
 
+//	public MainView(android.content.Context context) {
+//
+//	}
 
 
 	public boolean isDownloadDone() {
@@ -130,6 +130,18 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //		spaceShipLens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		disposables.add(spaceShipLens);
 //		postProcessor.addEffect(spaceShipLens);
+	}
+
+//	DownloadController dc;
+	//public static boolean isAndroid;
+	public MainView(boolean isAndroid){
+		//this.isAndroid = isAndroid;
+		Statics.isAndroid = isAndroid;
+	}
+
+	public MainView(){
+		//isAndroid = false;
+		Statics.isAndroid = false;
 	}
 
 	@Override
@@ -223,19 +235,24 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//createWaterShader();
 		updateTheme();
 		//Try browser
-		System.out.println("OPEN BROWSER =============");
-		Gdx.net.openURI("www.google.com");
-		System.out.println("DONE OPENING BROWSER  ======");
+//		System.out.println("OPEN BROWSER =============");
+//		Gdx.net.openURI("www.google.com");
+//		System.out.println("DONE OPENING BROWSER  ======");
 		//Create calendar and download events
 		calCont = new CalendarController(this);
 		calCont.initialDownload();
-		activities = new Array<Activity>(calCont.events.size);
+		activities = new Array<Activity>();
 		long time = System.currentTimeMillis();
 		currentWeek = findWeek(time);
 		//Date3d d = new Date3d(calCont.lastUpdate);
 
 		createDatePillars(calCont.lastUpdate, true);
-		createActivities(calCont.events, datePillars);
+		if(!Statics.isAndroid){
+			createActivities(calCont.events, datePillars);
+		}
+		else {
+			createActivities(Statics.events, datePillars);
+		}
 		System.out.println("CreatingDays and activities took " + (System.currentTimeMillis() - time));
 
 		//Center camera on current date

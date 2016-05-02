@@ -2,9 +2,6 @@ package controller;
 
 //import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
@@ -32,46 +29,46 @@ public class CalendarDownload{
 //    }
 
 
-
-    public void connect(){
-        //LigGDX socket
-        //Socket socket = Gdx.net.newClientSocket(Protocol protocol, String host, int port, SocketHints hints);
-        Net.HttpResponseListener httpResponseListener = new Net.HttpResponseListener() {
-            @Override
-            public void handleHttpResponse(Net.HttpResponse httpResponse) {
-
-            }
-
-            @Override
-            public void failed(Throwable t) {
-
-            }
-
-            @Override
-            public void cancelled() {
-
-            }
-        };
-
-        //LibGdx http send request
-        HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url("http://www.google.de").build();
-        //Gdx.net.sendHttpRequest(httpRequest, httpResponseListener);
-
-        //LibGdx GET
-        HttpRequestBuilder requestBuilder2 = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest2 = requestBuilder.newRequest().method(Net.HttpMethods.GET).url("http://www.google.de").content("q=libgdx&example=example").build();
-        Gdx.net.sendHttpRequest(httpRequest2, httpResponseListener);
-        //Gdx.net.sendHttpRequest();
-
-
-        // Google Accounts
-//        credential = GoogleAccountCredential.usingOAuth2(Gdx.)
-////        credential =  GoogleAccountCredential.usingOAuth2(,
-////                , Collections.singleton(CalendarScopes.CALENDAR));
-
-
-    }
+//
+//    public void connect(){
+//        //LibGDX socket
+//        //Socket socket = Gdx.net.newClientSocket(Protocol protocol, String host, int port, SocketHints hints);
+//        Net.HttpResponseListener httpResponseListener = new Net.HttpResponseListener() {
+//            @Override
+//            public void handleHttpResponse(Net.HttpResponse httpResponse) {
+//
+//            }
+//
+//            @Override
+//            public void failed(Throwable t) {
+//
+//            }
+//
+//            @Override
+//            public void cancelled() {
+//
+//            }
+//        };
+//
+//        //LibGdx http send request
+//        HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
+//        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url("http://www.google.de").build();
+//        //Gdx.net.sendHttpRequest(httpRequest, httpResponseListener);
+//
+//        //LibGdx GET
+//        HttpRequestBuilder requestBuilder2 = new HttpRequestBuilder();
+//        Net.HttpRequest httpRequest2 = requestBuilder.newRequest().method(Net.HttpMethods.GET).url("http://www.google.de").content("q=libgdx&example=example").build();
+//        Gdx.net.sendHttpRequest(httpRequest2, httpResponseListener);
+//        //Gdx.net.sendHttpRequest();
+//
+//
+//        // Google Accounts
+////        credential = GoogleAccountCredential.usingOAuth2(Gdx.)
+//////        credential =  GoogleAccountCredential.usingOAuth2(,
+//////                , Collections.singleton(CalendarScopes.CALENDAR));
+//
+//
+//    }
 
     public static Credential authorize() throws IOException {
 

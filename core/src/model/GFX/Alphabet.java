@@ -64,7 +64,7 @@ public class Alphabet implements Disposable{
             case 'a':
                 if(A == null){
                     System.out.println("Creating character: " + c);
-                    A = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj", 3.1f);
+                    A = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj", 3.1f);
                 }
                 lastChar = A;
                 return A.getModelInstance();
@@ -73,7 +73,7 @@ public class Alphabet implements Disposable{
             case 'b':
                 if(B == null){
                     System.out.println("Creating character: " + c);
-                    B = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    B = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = B;
                 return B.getModelInstance();
@@ -83,7 +83,7 @@ public class Alphabet implements Disposable{
             case 'c':
                 if(C == null){
                     System.out.println("Creating character: " + c);
-                    C = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                    C = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.6f);
                 }
                 lastChar = C;
                 return C.getModelInstance();
@@ -93,7 +93,7 @@ public class Alphabet implements Disposable{
             case 'd':
                 if(D == null){
                     System.out.println("Creating character: " + c);
-                    D = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                    D = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.6f);
                 }
                 lastChar = D;
                 return D.getModelInstance();
@@ -103,7 +103,7 @@ public class Alphabet implements Disposable{
             case 'e':
                 if(E == null){
                     System.out.println("Creating character: " + c);
-                    E = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    E = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = E;
                 return E.getModelInstance();
@@ -113,7 +113,7 @@ public class Alphabet implements Disposable{
             case 'f':
                 if(F == null){
                     System.out.println("Creating character: " + c);
-                    F = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.5f);
+                    F = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.5f);
                 }
                 lastChar = F;
                 return F.getModelInstance();
@@ -123,7 +123,7 @@ public class Alphabet implements Disposable{
             case 'g':
                 if(G == null){
                     System.out.println("Creating character: " + c);
-                    G = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    G = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = G;
                 return G.getModelInstance();
@@ -133,7 +133,7 @@ public class Alphabet implements Disposable{
             case 'h':
                 if(H == null){
                     System.out.println("Creating character: " + c);
-                    H = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    H = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = H;
                 return H.getModelInstance();
@@ -143,7 +143,7 @@ public class Alphabet implements Disposable{
             case 'i':
                 if(I == null){
                     System.out.println("Creating character: " + c);
-                    I = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.0f);
+                    I = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.0f);
                 }
                 lastChar = I;
                 return I.getModelInstance();
@@ -153,7 +153,7 @@ public class Alphabet implements Disposable{
             case 'j':
                 if(J == null){
                     System.out.println("Creating character: " + c);
-                    J = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",1.9f);
+                    J = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",1.9f);
                 }
                 lastChar = J;
                 return J.getModelInstance();
@@ -163,7 +163,7 @@ public class Alphabet implements Disposable{
             case 'k':
                 if(K == null){
                     System.out.println("Creating character: " + c);
-                    K = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    K = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = K;
                 return K.getModelInstance();
@@ -173,7 +173,7 @@ public class Alphabet implements Disposable{
             case 'l':
                 if(L == null){
                     System.out.println("Creating character: " + c);
-                    L = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.6f);
+                    L = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.6f);
                 }
                 lastChar = L;
                 return L.getModelInstance();
@@ -183,7 +183,7 @@ public class Alphabet implements Disposable{
             case 'm':
                 if(M == null){
                     System.out.println("Creating character: " + c);
-                    M = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.5f);
+                    M = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.5f);
                 }
                 lastChar = M;
                 return M.getModelInstance();
@@ -193,7 +193,7 @@ public class Alphabet implements Disposable{
             case 'n':
                 if(N == null){
                     System.out.println("Creating character: " + c);
-                    N = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    N = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = N;
                 return N.getModelInstance();
@@ -203,7 +203,7 @@ public class Alphabet implements Disposable{
             case 'o':
                 if(O == null){
                     System.out.println("Creating character: " + c);
-                    O = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    O = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = O;
                 return O.getModelInstance();
@@ -213,7 +213,7 @@ public class Alphabet implements Disposable{
             case 'p':
                 if(P == null){
                     System.out.println("Creating character: " + c);
-                    P = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.8f);
+                    P = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.8f);
                 }
                 lastChar = P;
                 return P.getModelInstance();
@@ -223,7 +223,7 @@ public class Alphabet implements Disposable{
             case 'q':
                 if(Q == null){
                     System.out.println("Creating character: " + c);
-                    Q = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    Q = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = Q;
                 return Q.getModelInstance();
@@ -233,7 +233,7 @@ public class Alphabet implements Disposable{
             case 'r':
                 if(R == null){
                     System.out.println("Creating character: " + c);
-                    R = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    R = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = R;
                 return R.getModelInstance();
@@ -243,7 +243,7 @@ public class Alphabet implements Disposable{
             case 's':
                 if(S == null){
                     System.out.println("Creating character: " + c);
-                    S = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.5f);
+                    S = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.5f);
                 }
                 lastChar = S;
                 return S.getModelInstance();
@@ -253,7 +253,7 @@ public class Alphabet implements Disposable{
             case 't':
                 if(T == null){
                     System.out.println("Creating character: " + c);
-                    T = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",2.8f);
+                    T = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",2.8f);
                 }
                 lastChar = T;
                 return T.getModelInstance();
@@ -263,7 +263,7 @@ public class Alphabet implements Disposable{
             case 'u':
                 if(U == null){
                     System.out.println("Creating character: " + c);
-                    U = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    U = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = U;
                 return U.getModelInstance();
@@ -273,7 +273,7 @@ public class Alphabet implements Disposable{
             case 'v':
                 if(V == null){
                     System.out.println("Creating character: " + c);
-                    V = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    V = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = V;
                 return V.getModelInstance();
@@ -283,7 +283,7 @@ public class Alphabet implements Disposable{
             case 'w':
                 if(W == null){
                     System.out.println("Creating character: " + c);
-                    W = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.8f);
+                    W = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.8f);
                 }
                 lastChar = W;
                 return W.getModelInstance();
@@ -293,7 +293,7 @@ public class Alphabet implements Disposable{
             case 'x':
                 if(X == null){
                     System.out.println("Creating character: " + c);
-                    X = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    X = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = X;
                 return X.getModelInstance();
@@ -303,7 +303,7 @@ public class Alphabet implements Disposable{
             case 'y':
                 if(Y == null){
                     System.out.println("Creating character: " + c);
-                    Y = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    Y = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = Y;
                 return Y.getModelInstance();
@@ -313,7 +313,7 @@ public class Alphabet implements Disposable{
             case 'z':
                 if(Z == null){
                     System.out.println("Creating character: " + c);
-                    Z = new Character3D(c,Statics.ALPHA_PATH + c + ".g3dj",3.0f);
+                    Z = new Character3D(c,Statics.ALPHA_PATH + c.toUpperCase(c) + ".g3dj",3.0f);
                 }
                 lastChar = Z;
                 return Z.getModelInstance();
@@ -325,8 +325,8 @@ public class Alphabet implements Disposable{
                     System.out.println("Creating character: " + c);
                     SA = new Character3D(c,Statics.ALPHA_PATH + "SA" + ".g3dj",3.0f);
                 }
-                lastChar = SAA;
-                return SAA.getModelInstance();
+                lastChar = SA;
+                return SA.getModelInstance();
                 //return loadCharacter(Å, 'Å');
 
             case 'Ä':

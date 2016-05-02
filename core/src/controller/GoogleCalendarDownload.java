@@ -3,6 +3,7 @@ package controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -19,7 +20,6 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import data.Statics;
-
 
 /**
  * Created by Anders on 2016-03-08.
@@ -65,6 +64,7 @@ public class GoogleCalendarDownload {
 
     static {
         try {
+            //if(Statics.is)
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             //HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
             //final String CREDENTIALS_DIRECTORY = ".oauth-credentials";
@@ -108,7 +108,6 @@ public class GoogleCalendarDownload {
     public static com.google.api.services.calendar.Calendar
 
     getCalendarService() throws IOException {
-
         Credential credential = authorize();
         return new com.google.api.services.calendar.Calendar.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, credential)
@@ -136,14 +135,21 @@ public class GoogleCalendarDownload {
         //   com.google.api.services.calendar.model.Calendar class.
         long t = System.currentTimeMillis();
 
-        com.google.api.services.calendar.Calendar service =
-                getCalendarService();
+        com.google.api.services.calendar.Calendar service = null;
+        if(!Statics.isAndroid){
+            service = getCalendarService();
+
+        }
+        else {
+            service = getAndroidCalendarService();
+        }
         System.out.println("Authorization took: " + (System.currentTimeMillis() - t));
 
         fromDate = new DateTime( from);
         toDate = new DateTime(to);
 
         Array<Event> eventArray = new Array<Event>();
+        //eventArray.
         long tt = 0;
         for(int i=0;i<cNames.size;i++){
             t = System.currentTimeMillis();
@@ -162,5 +168,23 @@ public class GoogleCalendarDownload {
         }
         System.out.println("total for all calenders: " + tt);
         return eventArray;
+    }
+
+    private static Calendar getAndroidCalendarService() {
+        //Get Calendar service
+        Calendar c = null;
+        try {
+            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            c = new com.google.api.services.calendar.Calendar.Builder(
+                    transport, jsonFactory, Statics.GoogleCredential)
+                    .setApplicationName("Google Calendar API Android Quickstart")
+                    .build();
+        }catch (Exception e){
+            System.out.println("Failed to create service from Google");
+            e.printStackTrace();
+            System.exit(0);
+        }
+        return c;
     }
 }
