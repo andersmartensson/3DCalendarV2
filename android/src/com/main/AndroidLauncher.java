@@ -65,8 +65,9 @@ public class AndroidLauncher extends AndroidApplication {
 					context, Arrays.asList(SCOPES))
 					.setBackOff(new ExponentialBackOff());
 			//startActivityForResult(Statics.GoogleCredential.newChooseAccountIntent(),REQUEST_ACCOUNT_PICKER);
-			Statics.GoogleCredential.newChooseAccountIntent();
-			Thread.sleep(500);
+			//Statics.GoogleCredential.newChooseAccountIntent();
+
+			//Thread.sleep(500);
 			//Statics.GoogleCredential = GoogleAccountCredential.usingOAuth2()
 			//isGooglePlayServicesAvailable();
 			//Statics.GoogleCredential = mCredential;

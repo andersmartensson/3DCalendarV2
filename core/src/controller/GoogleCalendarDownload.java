@@ -112,6 +112,8 @@ public class GoogleCalendarDownload {
                     .build();
         }
         else {
+            //Statics.GoogleCredential.newChooseAccountIntent();
+            //Statics.GoogleCredential.
             HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
             JSON_FACTORY = JacksonFactory.getDefaultInstance();
             try{
@@ -131,7 +133,6 @@ public class GoogleCalendarDownload {
                 e.printStackTrace();
                 System.exit(0);
             }
-
         }
 
         return null;

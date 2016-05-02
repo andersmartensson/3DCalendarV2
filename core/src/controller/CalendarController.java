@@ -60,7 +60,9 @@ public class CalendarController {
     public long milliSecondsInADay() {
         return 24*60*60*1000;
     }
-
+    /*
+    Converts current date to the beginning of the week, of set weeks back
+     */
     public long getAdjustedDay(long date) {
         //Get current week
         //long currentTime =
