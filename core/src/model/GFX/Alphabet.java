@@ -325,8 +325,8 @@ public class Alphabet implements Disposable{
                     System.out.println("Creating character: " + c);
                     SA = new Character3D(c,Statics.ALPHA_PATH + "SA" + ".g3dj",3.0f);
                 }
-                lastChar = SAA;
-                return SAA.getModelInstance();
+                lastChar = SA;
+                return SA.getModelInstance();
                 //return loadCharacter(Å, 'Å');
 
             case 'Ä':
