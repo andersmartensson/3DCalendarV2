@@ -113,12 +113,14 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //		Bloom bloom = createBloom();
 //		if(Statics.RENDER_BLOOM)postProcessor.addEffect(bloom);
 //		disposables.add(bloom);
+
 		Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		disposables.add(fxaa);
 		postProcessor.addEffect(fxaa);
 		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		disposables.add(nfaa);
 		postProcessor.addEffect(nfaa);
+
 		//Create lens flare
 		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		createLensFlare();
