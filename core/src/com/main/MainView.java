@@ -51,7 +51,6 @@ public class MainView extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//Test
 		testRender(spriteBatch, skin, Color.RED, "HEJSAN", 100f, 100f);
-
         spriteBatch.begin();
 		spriteBatch.draw(img, 0, 0);
 		spriteBatch.draw(text, 100 ,100);

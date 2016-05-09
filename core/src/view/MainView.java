@@ -31,9 +31,12 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.google.api.services.calendar.model.Event;
+
 import java.util.Calendar;
 import java.util.Date;
+
 import controller.CalendarController;
+import controller.TouchController;
 import data.Statics;
 import model.Activity;
 import model.Date3d;
@@ -51,7 +54,7 @@ import postprocessing.effects.Nfaa;
 import shaders.WaterShader;
 
 
-public class MainView extends InputAdapter implements ApplicationListener {
+public class MainView extends InputAdapter implements ApplicationListener{
 
 	//Render stuff
 	Environment environment;
@@ -90,10 +93,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	private PostProcessor postProcessor;
 	private Alphabet alphabet;
 	private boolean updateActivities;
-	private long from;
-	private long to;
+	public long from;
+	public long to;
 	public Activity currentActivity;
 	private boolean downloadDone;
+	private Vector3 finalCameraPosition;
 
 	public boolean isDownloadDone() {
 		return downloadDone;
@@ -110,12 +114,14 @@ public class MainView extends InputAdapter implements ApplicationListener {
 //		Bloom bloom = createBloom();
 //		if(Statics.RENDER_BLOOM)postProcessor.addEffect(bloom);
 //		disposables.add(bloom);
-		Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		disposables.add(fxaa);
-		postProcessor.addEffect(fxaa);
-		Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		disposables.add(nfaa);
-		postProcessor.addEffect(nfaa);
+		if(!Statics.isAndroid){
+			Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			disposables.add(fxaa);
+			postProcessor.addEffect(fxaa);
+			Nfaa nfaa = new Nfaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			disposables.add(nfaa);
+			postProcessor.addEffect(nfaa);
+		}
 		//Create lens flare
 		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		createLensFlare();
@@ -181,6 +187,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		cam.near = Statics.CAM_NEAR;
 		cam.update();
 		camController = new CameraInputController(cam);
+		camController.translateUnits = Statics.CAMERA_CONTROL_TRANSLATE_UNITS;
+		//Set input
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		ui = new UI();
 		disposables.add(ui);
@@ -189,8 +197,64 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		multiplexer.addProcessor(ui.detailsStage);
 		multiplexer.addProcessor(ui.reportDialogStage);
 		multiplexer.addProcessor(this);
+
+		multiplexer.addProcessor(new TouchController(new TouchController.DirectionListener() {
+
+			@Override
+			public void flingLeft() {
+				System.out.println("Swipe left");
+				//Go one week backwards
+				from  -= calCont.milliSecondsInADay() * 7;
+				to -= calCont.milliSecondsInADay() * 7;
+				currentActivity = null;
+				calCont.update(from, to);
+				//System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
+				updateActivities = true;
+				clearedAndMoved = false;
+				//
+			}
+
+			@Override
+			public void flingRight() {
+				System.out.println("Swipe right");
+				//Go one week forward
+				from  += calCont.milliSecondsInADay() * 7;
+				to += calCont.milliSecondsInADay() * 7;
+				currentActivity = null;
+				calCont.update(from, to);
+				//System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
+				updateActivities = true;
+				clearedAndMoved = false;
+			}
+
+			@Override
+			public void flingUp() {
+				System.out.println("SWIPE UP");
+
+			}
+
+			@Override
+			public void flingDown() {
+				System.out.println("Swipe down");
+
+			}
+
+			@Override
+			public void dragLeft() {
+				System.out.println("drag left");
+
+			}
+
+			@Override
+			public void dragRight() {
+				System.out.println("drag right");
+			}
+
+
+		}));
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
+
 		//Create text
 		alphabet = new Alphabet();
 		disposables.add(alphabet);
@@ -205,7 +269,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		//firstNonShadedLayer.add(sun.getModelInstance());
 		disposables.add(sun);
 
-		//Create skybox sphere
+		//Create sky box sphere
 		skybox = new Skybox(Statics.SKYBOX_SIZE);
 		skybox.getModel();
 		disposables.add(skybox);
@@ -319,7 +383,91 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			bPlate.fixPosition(origin.x);
 			secondShadedLayer.add(bPlate.getModelInstance());
 		}
+	}
 
+//	@Override
+//	public boolean touchDown(float screenX, float screenY, int pointer, int button) {
+//		System.out.println("Touched!!!!!!!!!!!==========");
+//		//Get clicked activity
+//		int result = getActivity(screenX, screenY);
+//		if(result != -1){
+//			ui.detailsVisible = true;
+//			System.out.println("=============================");
+//			currentActivity = activities.get(result);
+//			//Update text
+//			ui.updateDetails(currentActivity.getDetails());
+//			System.out.println("Clicked: " + currentActivity.toString());
+//			//Check if same week, else update calender
+//			if(currentWeek != findWeek(currentActivity.d3d.date)){
+//				from = calCont.getAdjustedDay(currentActivity.d3d.date);
+//				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+//				long time = System.currentTimeMillis();
+//				calCont.update(from, to);
+//				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
+//				updateActivities = true;
+//				clearedAndMoved = false;
+//			}
+//			else {
+//				//Focus and move camera to activity
+//				finalPosition = new Vector3(currentActivity.position.x
+//						, currentActivity.position.y
+//						, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+//				cam.position.set(finalPosition);
+//				cam.update();
+//				//Fix pitch
+//				fixPitch(finalPosition);
+//				//Focus
+//				cam.lookAt(currentActivity.position);
+//				camController.target = currentActivity.position;
+//				cam.update();
+//			}
+//		}
+//		else {
+//			System.out.println("NO result!!!!!!!!");
+//		}
+//		return false;
+//	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+		//Get clicked activity
+		int result = getActivity(screenX, screenY);
+		if(result != -1){
+			ui.detailsVisible = true;
+			System.out.println("=============================");
+			currentActivity = activities.get(result);
+			//Update text
+			ui.updateDetails(currentActivity.getDetails());
+			System.out.println("Clicked: " + currentActivity.toString());
+			//Check if same week, else update calender
+			if(currentWeek != findWeek(currentActivity.d3d.date)){
+				from = calCont.getAdjustedDay(currentActivity.d3d.date);
+				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+				long time = System.currentTimeMillis();
+				calCont.update(from, to);
+				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
+				updateActivities = true;
+				clearedAndMoved = false;
+			}
+			else {
+				//Focus and move camera to activity
+				finalCameraPosition = new Vector3(currentActivity.position.x
+						, currentActivity.position.y
+						, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+				//cam.position.set(finalPosition);
+				//cam.update();
+				//Fix pitch - Done in updateCamera
+				//fixPitch(finalCameraPosition);
+				//Focus
+				cam.lookAt(currentActivity.position);
+				camController.target = currentActivity.position;
+				cam.update();
+				clearedAndMoved = true;
+				camIsMoving = true;
+			}
+		}
+		return false;
 	}
 
 	private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
@@ -427,8 +575,12 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
-		updateCamera();
-		if(updateActivities) updateActivities();
+		if(camIsMoving){
+			System.out.println("cmarea is moving!!!!!!!!===================================");
+			updateCamera();
+		}
+		if(updateActivities)
+			updateActivities();
 		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		postProcessor.capture();
@@ -446,64 +598,75 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		ui.drawUI();
 	}
 
-	private void handleInput() {
-		if(Gdx.input.isTouched()){
-
-		}
-	}
-
 	private void updateCamera() {
 		//CheckCameraPosition
 		float step = 0.5f;
+		float steps = 10f;
+		float error = 0.1f;
 		Vector3 v = cam.position;
-		if(camIsMoving){
-			if(finalPosition.x < v.x){
-				cam.position.x -= step;
+		//Update camera position
+		if(v.x != finalCameraPosition.x && v.y != finalCameraPosition.y && v.z != finalCameraPosition.z){
+			System.out.println("UPDATING CAMREA POSITION!!!!!!!!");
+			//move x
+			if(isClose(v.x, finalCameraPosition.x)){
+				v.x = finalCameraPosition.x;
 			}
-			else if (finalPosition.x > v.x){
-				cam.position.x += step;
+			else if(isBetween(v.x, finalCameraPosition.x, error)){
+				if(v.x < finalCameraPosition.x ){
+					v.x += finalCameraPosition.x - v.x / steps;
+				}
+				else {
+					v.x -= v.x - finalCameraPosition.x / steps;
+				}
 			}
-			if(finalPosition.y < v.y){
-				cam.position.y -= step;
+			//move y
+			if(isClose(v.y, finalCameraPosition.y)){
+				v.y = finalCameraPosition.y;
 			}
-			else if (finalPosition.y > v.y){
-				cam.position.y += step;
+			else if(isBetween(v.y, finalCameraPosition.y, error)){
+				if(v.y < finalCameraPosition.y ){
+					v.y += finalCameraPosition.y - v.y / steps;
+				}
+				else {
+					v.y -= v.y - finalCameraPosition.y / steps;
+				}
+			}
+			//move z
+			if(isClose(v.z, finalCameraPosition.z)){
+				v.z = finalCameraPosition.z;
+			}
+			else if(isBetween(v.z, finalCameraPosition.z, error)){
+				if(v.z < finalCameraPosition.z ){
+					v.z += finalCameraPosition.z - v.z / steps;
+				}
+				else {
+					v.z -= v.z - finalCameraPosition.z / steps;
+				}
 			}
 
-			if(finalPosition.z < v.z){
-				cam.position.z -= step;
-			}
-			else if (finalPosition.z > v.z){
-				cam.position.z += step;
-			}
-			cam.update();
 		}
-		if(!cameraNotInFinalPosition()){
+		else {
+			System.out.println("UPDATING CAMREA POSITION DONE!============!!!!!!!!");
+
 			camIsMoving = false;
+			cam.position.set(finalCameraPosition);
+			Vector3 camLookAt = new Vector3(finalCameraPosition.x, finalPosition.y,0);
+			cam.lookAt(camLookAt);
+			camController.target = camLookAt.cpy();
+			cam.update();
+			//Fix pitch
+			fixPitch(finalCameraPosition);
 		}
-//		//Check x
+		//update camera look at
+		//cam.l
+
+
 
 	}
 
-//	public void updatePosition(Camera cam){
-//		//time += 1;
-//		float step = 0.1f;
-//		float error = 0.001f;
-//
-//		Vector3 v = new Vector3();
-//		cam.transform.getTranslation(v);
-//		if(isBetween(v.x, position.x, error)){
-//			v.x += (v.x < position.x) ? step : -step;
-//		}
-//		if(isBetween(v.y, position.y, error)){
-//			v.y += (v.y < position.y) ? step : -step;
-//		}
-//		if(isBetween(v.z, position.z, error)){
-//			v.z += (v.z < position.z) ? step : -step;
-//		}
-//
-//		modelInstance.transform.setTranslation(v);
-//	}
+	private boolean isClose(float x, float x1) {
+		return isBetween(x,x1,Statics.CAMERA_IS_CLOSE_DISTANCE);
+	}
 
 	private boolean isBetween(float current, float destination, float error) {
 		if(current > destination + error){
@@ -515,21 +678,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		return false;
 	}
 
-	private void fixFloat(Vector3 position) {
-		position.x = ((int) position.x * 10) / 10f;
-		position.y = ((int) position.y * 10) / 10f;
-		position.z = ((int) position.z * 10) / 10f;
-	}
-
-	private boolean cameraNotInFinalPosition() {
-		Vector3 v = cam.position;
-		if(v.x != finalPosition.x
-				&& v.y != finalPosition.y
-				&& v.z != finalPosition.z){
-			return false;
-		}
-		return true;
-	}
 
 	@Override
 	public void pause() {
@@ -564,45 +712,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				Statics.ACTIVITY_DEPTH /2 );
 	}
 
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		//Get clicked activity
-		int result = getActivity(screenX, screenY);
-		if(result != -1){
-			ui.detailsVisible = true;
-			System.out.println("=============================");
-			currentActivity = activities.get(result);
-			//Update text
-			ui.updateDetails(currentActivity.getDetails());
-			System.out.println("Clicked: " + currentActivity.toString());
-			//Check if same week, else update calender
-			if(currentWeek != findWeek(currentActivity.d3d.date)){
-				from = calCont.getAdjustedDay(currentActivity.d3d.date);
-				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-				long time = System.currentTimeMillis();
-				calCont.update(from, to);
-				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
-				updateActivities = true;
-				clearedAndMoved = false;
-			}
-			else {
-				//Focus and move camera to activity
-				finalPosition = new Vector3(currentActivity.position.x
-						, currentActivity.position.y
-						, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
-				cam.position.set(finalPosition);
-				cam.update();
-				//Fix pitch
-				fixPitch(finalPosition);
-				//Focus
-				cam.lookAt(currentActivity.position);
-				camController.target = currentActivity.position;
-				cam.update();
-			}
-		}
-		return false;
-	}
-
 	/*
 	* Rotates camera so it's level with horizon
 	 */
@@ -618,6 +727,8 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 	boolean clearedAndMoved;
 	private void updateActivities(){
+		camIsMoving = true;
+
 		//Clearing
 		if(!clearedAndMoved){
 			long time = System.currentTimeMillis();
@@ -643,9 +754,21 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			createActivities(calCont.events, datePillars);
 			System.out.println("Activities creation took : " + (System.currentTimeMillis() - time2));
 			//Center camera
-			centerCameraOnDate(currentActivity.d3d.date);
+			if(currentActivity!= null){
+				centerCameraOnDate(currentActivity.d3d.date);
+				currentWeek = findWeek(currentActivity.d3d.date);
+
+			}
+			else {
+				//Reset camera
+				double cDate = (from + to) / 2;
+
+				centerCameraOnDate((long) cDate);
+				//set current week
+				currentWeek = findWeek((long) cDate);
+
+			}
 			//Set current week
-			currentWeek = findWeek(currentActivity.d3d.date);
 			cam.update();
 			updateActivities = false;
 		}
@@ -657,15 +780,21 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
 		fixPitch(camPos.cpy());
 		cam.update();
-		cam.position.set(camPos);
-		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,0);
+		finalCameraPosition = camPos;
+//		cam.position.set(camPos);
+//		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,0);
+//		cam.lookAt(camLookAt);
+//		camController.target = camLookAt.cpy();
+//		cam.update();
+
+		Vector3 camLookAt = new Vector3(finalCameraPosition.x, finalPosition.y,0);
 		cam.lookAt(camLookAt);
 		camController.target = camLookAt.cpy();
 		cam.update();
 
 	}
 
-	public int getActivity (int screenX, int screenY) {
+	public int getActivity (float screenX, float screenY) {
 		position = new Vector3();
 		Ray ray = cam.getPickRay(screenX, screenY);
 		int result = -1;
@@ -717,4 +846,5 @@ public class MainView extends InputAdapter implements ApplicationListener {
 			environment.add(dirLight);
 		}
 	}
+
 }

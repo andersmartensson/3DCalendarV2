@@ -29,7 +29,13 @@ public class CalendarController {
     public void update(long from, long to){
 
         main.setDownloadDone(false);
-        //System.out.println();
+        Date fromDate = new Date(from), toDate = new Date(to);
+        Calendar c = Statics.calendar;
+        c.setTime(fromDate);
+        System.out.println("updating from: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+        c.setTime(toDate);
+        System.out.println("updating to: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+
         UpdateThread updateThread = new UpdateThread(main, from,to);
         updateThread.start();
    }
@@ -39,21 +45,24 @@ public class CalendarController {
      */
     public void initialDownload(){
 
+        try {
+            calendarNames = GoogleCalendarDownload.getCalenderNames();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        lastUpdate = getAdjustedDay(System.currentTimeMillis());
+        long to = lastUpdate + milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+        update(lastUpdate, to);
+        //Set from and to in main
+        main.from = lastUpdate;
+        main.to = to;
+        while(!main.isDownloadDone()){
             try {
-                calendarNames = GoogleCalendarDownload.getCalenderNames();
-            } catch (IOException e) {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            lastUpdate = getAdjustedDay(System.currentTimeMillis());
-            long to = lastUpdate + milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-            update(lastUpdate, to);
-            while(!main.isDownloadDone()){
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+        }
 
     }
 

@@ -78,6 +78,8 @@ public class Statics {
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
+    public static final float CAMERA_CONTROL_TRANSLATE_UNITS =  100f; //How fast the camera pans and zooms
+    public static final float CAMERA_IS_CLOSE_DISTANCE = 0.1f;
 
     public static float CAMERA_DISTANCE_FROM = -16f;
     public static Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH / 2f,
@@ -126,6 +128,8 @@ public class Statics {
      */
     public static GoogleAccountCredential GoogleCredential;
     public static boolean isAndroid;
+    //Speed where it changes from drag to fling
+    public static float TOUCH_DRAG_SPEED = 500;
 
     /*
     Android settings
