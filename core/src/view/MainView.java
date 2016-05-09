@@ -95,11 +95,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 	public Activity currentActivity;
 	private boolean downloadDone;
 
-//	public MainView(android.content.Context context) {
-//
-//	}
-
-
 	public boolean isDownloadDone() {
 		return downloadDone;
 	}
@@ -163,8 +158,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		spriteBatch = new SpriteBatch();
 		disposables.add(spriteBatch);
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
-		//Create save manager
-		//saveManager = new SaveManager();
 		appTime = 1.0f;
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeigth = Gdx.graphics.getHeight();
