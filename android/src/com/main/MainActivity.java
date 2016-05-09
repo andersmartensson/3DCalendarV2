@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -106,62 +105,35 @@ public class MainActivity extends Activity
                         .setBackOff(new ExponentialBackOff());
         }
 
-        /**
-         * Attempt to call the API, after verifying that all the preconditions are
-         * satisfied. The preconditions are: Google Play Services installed, an
-         * account was selected and the device currently has online access. If any
-         * of the preconditions are not satisfied, the app will prompt the user as
-         * appropriate.
-         */
         private void getResultsFromApi() {
+                mOutputText.append("\nGetting Result from API");
             if(mCredential.getSelectedAccountName() == null){
-                Log.i("account", "Choosing acount!====================");
+                    mOutputText.append("\n Selected account name was null, go to choose acount");
                 chooseAccount();
             }
             else {
-                Log.i("requestTask", "Launching requestTask thread");
+                //Log.i("requestTask", "Launching requestTask thread");
+                    mOutputText.append("\nCreating new fetch task");
                 new MakeRequestTask(mCredential).execute();
             }
         }
 
-        /**
-         * Attempts to set the account used with the API credentials. If an account
-         * name was previously saved it will use that one; otherwise an account
-         * picker dialog will be shown to the user. Note that the setting the
-         * account to use with the credentials object requires the app to have the
-         * GET_ACCOUNTS permission, which is requested here if it is not already
-         * present. The AfterPermissionGranted annotation indicates that this
-         * function will be rerun automatically whenever the GET_ACCOUNTS permission
-         * is granted.
-         */
         private void chooseAccount() {
-
-
             startActivityForResult(
                             mCredential.newChooseAccountIntent(),
                             REQUEST_ACCOUNT_PICKER);
-
         }
 
-        /**
-         * Called when an activity launched here (specifically, AccountPicker
-         * and authorization) exits, giving you the requestCode you started it with,
-         * the resultCode it returned, and any additional data from it.
-         * @param requestCode code indicating which activity result is incoming.
-         * @param resultCode code indicating the result of the incoming
-         *     activity result.
-         * @param data Intent (containing result data) returned by incoming
-         *     activity result.
-         */
         @Override
         protected void onActivityResult(
                 int requestCode, int resultCode, Intent data) {
                 super.onActivityResult(requestCode, resultCode, data);
+                mOutputText.append("\nChecking status!!!!!");
                 switch(requestCode) {
                         case REQUEST_GOOGLE_PLAY_SERVICES:
                                 if (resultCode != RESULT_OK) {
-                                        mOutputText.setText(
-                                                "This app requires Google Play Services. Please install " +
+                                        mOutputText.append(
+                                                "\nThis app requires Google Play Services. Please install " +
                                                         "Google Play Services on your device and relaunch this app.");
                                 } else {
                                         getResultsFromApi();
@@ -170,21 +142,36 @@ public class MainActivity extends Activity
                         case REQUEST_ACCOUNT_PICKER:
                                 if (resultCode == RESULT_OK && data != null &&
                                         data.getExtras() != null) {
+                                        mOutputText.append("\nRequesting Account picker!!!!!!!!!!");
                                         String accountName =
                                                 data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                                         if (accountName != null) {
+                                                mOutputText.append("\nAccount name NOT null!!!!!!!!! Name is: " + accountName);
+
                                                 SharedPreferences settings =
                                                         getPreferences(Context.MODE_PRIVATE);
                                                 SharedPreferences.Editor editor = settings.edit();
                                                 editor.putString(PREF_ACCOUNT_NAME, accountName);
                                                 editor.apply();
+                                                mOutputText.append("\nName again is: " + accountName);
+
+                                                //mCredential.
+
                                                 mCredential.setSelectedAccountName(accountName);
+                                                mOutputText.append("\naccount name is: " + mCredential.getSelectedAccountName());
+                                                mOutputText.append("\nGetting results!!!!!!!!!!");
+
                                                 getResultsFromApi();
+                                        }
+                                        else {
+                                                mOutputText.append("\nAccount name null!!!!!!!!!!");
                                         }
                                 }
                                 break;
                         case REQUEST_AUTHORIZATION:
                                 if (resultCode == RESULT_OK) {
+                                        mOutputText.append("\nResult code OK!!!!!!!");
+                                        //mOutputText.setText("");
                                         getResultsFromApi();
                                 }
                                 break;

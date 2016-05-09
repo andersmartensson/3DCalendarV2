@@ -16,6 +16,7 @@ allprojects {
     apply plugin: "idea"
 
     version = '1.0'
+
     ext {
         appName = "3DCalendar"
         gdxVersion = '1.9.2'
@@ -24,6 +25,7 @@ allprojects {
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
     }
+
 
     repositories {
         mavenCentral()
@@ -46,6 +48,7 @@ project(":desktop") {
 project(":android") {
     apply plugin: "android"
 
+
     configurations { natives }
 
     dependencies {
@@ -54,7 +57,7 @@ project(":android") {
         compile "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
 
 //START
-        compile fileTree(dir: 'libs', include: ['*.jar'])
+        //compile fileTree(dir: 'libs', include: ['*.jar'])
         //compile 'com.google.android.gms:play-services-games:8.4.0'
         compile 'com.android.support:appcompat-v7:23.2.1'
         compile 'com.google.android.gms:play-services-identity:8.4.0'
