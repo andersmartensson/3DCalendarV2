@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.model.Event;
 
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by anders on 2015-11-26.
@@ -130,7 +130,10 @@ public class Statics {
     public static boolean updateCalendar;
     public static Array<Event> events;
     public static GoogleAccountCredential GoogleCredential;
+
     public static boolean isAndroid;
+    public static List<String> AndroidReturnData;
+    public static boolean AndroidPrintout;
     //public static Context Andorid_Context;
     //public static  AndroidContext;
     /*

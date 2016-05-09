@@ -78,33 +78,22 @@ public class AndroidLauncher extends AndroidApplication {
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        /*
-            Step 2
-        */
-        //Choose account
+
+        getResultsFromApi();
+        initialize(new MainView(true), config);
+	}
+
+    private void getResultsFromApi() {
         if(Statics.GoogleCredential.getSelectedAccountName() == null){
             Log.i("account", "Choosing acount!====================");
             chooseAccount();
         }
         else {
             Log.i("requestTask", "Launching requestTask thread");
+            Log.i("requestTask", "Launching requestTask thread");
             new MakeRequestTask(Statics.GoogleCredential).execute();
         }
-		//initialize(new MainView(true), config);
-        while(true){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Log.i("Wait","Waited!!!!!!!!");
-            if(returnData != null){
-                for(String s: returnData){
-                    System.out.println("OUT: " +s);
-                }
-            }
-        }
-	}
+    }
 
     private void chooseAccount() {
         startActivityForResult(
@@ -149,17 +138,7 @@ public class AndroidLauncher extends AndroidApplication {
         }
     }
 
-    private void getResultsFromApi() {
-        if(Statics.GoogleCredential.getSelectedAccountName() == null){
-            Log.i("account", "Choosing acount!====================");
-            chooseAccount();
-        }
-        else {
-            Log.i("requestTask", "Launching requestTask thread");
-            Log.i("requestTask", "Launching requestTask thread");
-            new MakeRequestTask(Statics.GoogleCredential).execute();
-        }
-    }
+
 
     /**
      * An asynchronous task that handles the Google Calendar API call.
@@ -220,7 +199,7 @@ public class AndroidLauncher extends AndroidApplication {
                 eventStrings.add(
                         String.format("%s (%s)", event.getSummary(), start));
             }
-            returnData = eventStrings;
+            Statics.AndroidReturnData = eventStrings;
             return eventStrings;
         }
 

@@ -24,6 +24,15 @@ public class MainView extends ApplicationAdapter {
 	Skin skin;
 	Pixmap bg;
 	Texture text;
+
+	public MainView(boolean android){
+		Statics.isAndroid = android;
+	}
+
+	public MainView(){
+		Statics.isAndroid = false;
+	}
+
 	@Override
 	public void create () {
 		spriteBatch = new SpriteBatch();
@@ -42,7 +51,15 @@ public class MainView extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//Test
 		testRender(spriteBatch, skin, Color.RED, "HEJSAN", 100f, 100f);
-		spriteBatch.begin();
+        if(!Statics.AndroidPrintout && Statics.AndroidReturnData != null){
+            System.out.println("  RETURN DATA===========  ");
+            for(String s: Statics.AndroidReturnData){
+                System.out.println(s);
+            }
+            Statics.AndroidPrintout = true;
+        }
+
+        spriteBatch.begin();
 		spriteBatch.draw(img, 0, 0);
 		spriteBatch.draw(text, 100 ,100);
 		spriteBatch.end();
