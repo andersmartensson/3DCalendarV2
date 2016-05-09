@@ -222,10 +222,6 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		setLight();
 		//createWaterShader();
 		updateTheme();
-		//Try browser
-//		System.out.println("OPEN BROWSER =============");
-//		Gdx.net.openURI("www.google.com");
-//		System.out.println("DONE OPENING BROWSER  ======");
 		//Create calendar and download events
 		calCont = new CalendarController(this);
 		calCont.initialDownload();
@@ -241,7 +237,7 @@ public class MainView extends InputAdapter implements ApplicationListener {
 
 		//Center camera on current date
 		centerCameraOnDate(System.currentTimeMillis());
-
+		//Test Text generator
 		//firstShadedLayer.addAll(alphabet.load3DText("WWW123 WEKW PLEW",new Vector3(0,30f,0),1f));
 	}
 
@@ -338,24 +334,19 @@ public class MainView extends InputAdapter implements ApplicationListener {
 				m = GFXObject.translateColor(Statics.ACTIVITY_DEFAULT_COLOR);
 			}
 			else {
-				//System.out.println("color:" + e.getSummary() + " ->" + e.getColorId() + "<-");
 				m = GFXObject.translateColor(e.getColorId());
 			}
 			//Get startTime
 			if(e.getStart().getDateTime() != null
 					&& e.getEnd().getDateTime() != null){
 				Date3d d3d = new Date3d(e);
-				//System.out.println("Day: " + d3d.day);
 				x = d3d.matchXValue(pillars);
 				Activity a = new Activity(c, d3d,e, m);
 				a.setModelInstance(new ModelInstance(a.getModel()));
 				//Match it to corresponding datePillar
 				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
 				a.calculateBoundingBox();
-				//a.getModelInstance().transform.setTranslation(a.getPosition());
 				activityLayer.add(a.getModelInstance());
-				//x += Statics.ACTIVITY_WIDTH + 1f;
-				//a.event = e;
 				activities.add(a);
 				//Add text
 				firstShadedLayer.addAll(a.generateSummaryText(alphabet));

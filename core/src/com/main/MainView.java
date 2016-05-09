@@ -51,13 +51,6 @@ public class MainView extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		//Test
 		testRender(spriteBatch, skin, Color.RED, "HEJSAN", 100f, 100f);
-        if(!Statics.AndroidPrintout && Statics.AndroidReturnData != null){
-            System.out.println("  RETURN DATA===========  ");
-            for(String s: Statics.AndroidReturnData){
-                System.out.println(s);
-            }
-            Statics.AndroidPrintout = true;
-        }
 
         spriteBatch.begin();
 		spriteBatch.draw(img, 0, 0);
