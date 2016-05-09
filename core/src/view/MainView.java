@@ -464,8 +464,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 				camController.target = currentActivity.position;
 				cam.update();
 				clearedAndMoved = true;
-				camIsMoving = true;
 			}
+			camIsMoving = true;
 		}
 		return false;
 	}
@@ -576,7 +576,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	public void render (){
 		appTime += 1 %1000000;
 		if(camIsMoving){
-			System.out.println("cmarea is moving!!!!!!!!===================================");
+			System.out.println("camera is moving!!!!!!!!===================================");
 			updateCamera();
 		}
 		if(updateActivities)
@@ -600,18 +600,19 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
 	private void updateCamera() {
 		//CheckCameraPosition
-		float step = 0.5f;
-		float steps = 10f;
+		//float step = 0.2f;
+		float steps = 60f;
 		float error = 0.1f;
-		Vector3 v = cam.position;
+		Vector3 v = cam.position.cpy();
 		//Update camera position
 		if(v.x != finalCameraPosition.x && v.y != finalCameraPosition.y && v.z != finalCameraPosition.z){
-			System.out.println("UPDATING CAMREA POSITION!!!!!!!!");
+			System.out.println("UPDATING CAMERA POSITION!!!!!!!!");
 			//move x
 			if(isClose(v.x, finalCameraPosition.x)){
+				System.out.println("X was close");
 				v.x = finalCameraPosition.x;
 			}
-			else if(isBetween(v.x, finalCameraPosition.x, error)){
+			else {
 				if(v.x < finalCameraPosition.x ){
 					v.x += finalCameraPosition.x - v.x / steps;
 				}
@@ -621,9 +622,10 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			}
 			//move y
 			if(isClose(v.y, finalCameraPosition.y)){
+				System.out.println("Y was close");
 				v.y = finalCameraPosition.y;
 			}
-			else if(isBetween(v.y, finalCameraPosition.y, error)){
+			else {
 				if(v.y < finalCameraPosition.y ){
 					v.y += finalCameraPosition.y - v.y / steps;
 				}
@@ -633,9 +635,10 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			}
 			//move z
 			if(isClose(v.z, finalCameraPosition.z)){
+				System.out.println("Z was close");
 				v.z = finalCameraPosition.z;
 			}
-			else if(isBetween(v.z, finalCameraPosition.z, error)){
+			else {
 				if(v.z < finalCameraPosition.z ){
 					v.z += finalCameraPosition.z - v.z / steps;
 				}
@@ -644,18 +647,22 @@ public class MainView extends InputAdapter implements ApplicationListener{
 				}
 			}
 
+			cam.position.set(v.cpy());
+			//cam.position.set(finalCameraPosition.cpy());
 		}
 		else {
-			System.out.println("UPDATING CAMREA POSITION DONE!============!!!!!!!!");
-
+			System.out.println("DONE w Camera!============!!!!!!!!");
 			camIsMoving = false;
-			cam.position.set(finalCameraPosition);
-			Vector3 camLookAt = new Vector3(finalCameraPosition.x, finalPosition.y,0);
+			cam.position.set(finalCameraPosition.cpy());
+
+			//cam.update();
+			//Fix pitch
+			fixPitch(finalCameraPosition);
+
+			Vector3 camLookAt = new Vector3(finalCameraPosition.x, finalCameraPosition.y,finalCameraPosition.z + Statics.CAMERA_DISTANCE_FROM);
 			cam.lookAt(camLookAt);
 			camController.target = camLookAt.cpy();
 			cam.update();
-			//Fix pitch
-			fixPitch(finalCameraPosition);
 		}
 		//update camera look at
 		//cam.l
@@ -669,13 +676,27 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	}
 
 	private boolean isBetween(float current, float destination, float error) {
-		if(current > destination + error){
-			return true;
+		System.out.println("current: " + current + " dest: " + destination);
+		if(current > destination ){
+			if(error <= current - destination){
+				System.out.println("error: " + error + " <= c -d : " + (current - destination));
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		else if(current < destination - error){
-			return true;
+		else {
+			if(error <= destination - current){
+				System.out.println("error: " + error + " <=  d -c : " + (destination - current));
+
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		return false;
+
 	}
 
 
@@ -727,8 +748,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
 	boolean clearedAndMoved;
 	private void updateActivities(){
-		camIsMoving = true;
-
 		//Clearing
 		if(!clearedAndMoved){
 			long time = System.currentTimeMillis();
@@ -757,16 +776,13 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			if(currentActivity!= null){
 				centerCameraOnDate(currentActivity.d3d.date);
 				currentWeek = findWeek(currentActivity.d3d.date);
-
 			}
 			else {
 				//Reset camera
 				double cDate = (from + to) / 2;
-
 				centerCameraOnDate((long) cDate);
 				//set current week
 				currentWeek = findWeek((long) cDate);
-
 			}
 			//Set current week
 			cam.update();
