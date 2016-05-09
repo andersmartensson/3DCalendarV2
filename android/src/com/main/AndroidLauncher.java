@@ -31,13 +31,6 @@ import java.util.List;
 
 import data.Statics;
 
-//===============
-//import android.support.annotation.NonNull;
-//import com.google.android.gms.common.ConnectionResult;
-//import com.google.android.gms.common.GoogleApiAvailability;
-
-//import pub.devrel.easypermissions.AfterPermissionGranted;
-//import pub.devrel.easypermissions.EasyPermissions;
 
 public class AndroidLauncher extends AndroidApplication {
 	private static Context context;
@@ -80,7 +73,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 
         getResultsFromApi();
-        initialize(new MainView(true), config);
+        initialize(new view.MainView(true), config);
 	}
 
     private void getResultsFromApi() {

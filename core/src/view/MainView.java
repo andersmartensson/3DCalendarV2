@@ -169,16 +169,11 @@ public class MainView extends InputAdapter implements ApplicationListener {
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeigth = Gdx.graphics.getHeight();
 
-
 //create render arrays:
 		firstShadedLayer = new Array<ModelInstance>();
 		firstNonShadedLayer = new Array<ModelInstance>();
 		secondShadedLayer = new Array<ModelInstance>();
 		activityLayer = new Array<ModelInstance>();
-
-//		weekLayer = new Array<ModelInstance>();
-//		dayLayer = new Array<ModelInstance>();
-//		monthLayer = new Array<ModelInstance>();
 
 //create environment
 		environment = new Environment();
