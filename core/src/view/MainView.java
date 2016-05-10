@@ -30,9 +30,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
+
 import java.util.Calendar;
 import java.util.Date;
+
 import controller.CalendarController;
 import controller.TouchController;
 import data.Statics;
@@ -43,6 +47,7 @@ import model.GFX.BackPlate;
 import model.GFX.DatePillar;
 import model.GFX.GFXObject;
 import model.GFX.Ground;
+import model.GFX.InsertEvent;
 import model.GFX.Skybox;
 import model.GFX.Sun;
 import postprocessing.PostProcessor;
@@ -95,8 +100,9 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	public Activity currentActivity;
 	private boolean downloadDone;
 	private Vector3 finalCameraPosition;
+    private InsertEvent insertEvent;
 
-	public boolean isDownloadDone() {
+    public boolean isDownloadDone() {
 		return downloadDone;
 	}
 
@@ -197,12 +203,12 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		multiplexer.addProcessor(this);
 		multiplexer.addProcessor(new TouchController(new TouchController.DirectionListener() {
 
-			@Override
-			public void flingLeft() {
-                if(Statics.isAndroid){
+            @Override
+            public void flingLeft() {
+                if (Statics.isAndroid) {
                     System.out.println("Swipe left");
                     //Go one week backwards
-                    from  -= calCont.milliSecondsInADay() * 7;
+                    from -= calCont.milliSecondsInADay() * 7;
                     to -= calCont.milliSecondsInADay() * 7;
                     currentActivity = null;
                     calCont.update(from, to);
@@ -210,14 +216,14 @@ public class MainView extends InputAdapter implements ApplicationListener{
                     updateActivities = true;
                     clearedAndMoved = false;
                 }
-			}
+            }
 
-			@Override
-			public void flingRight() {
-                if(Statics.isAndroid){
+            @Override
+            public void flingRight() {
+                if (Statics.isAndroid) {
                     System.out.println("Swipe right");
                     //Go one week forward
-                    from  += calCont.milliSecondsInADay() * 7;
+                    from += calCont.milliSecondsInADay() * 7;
                     to += calCont.milliSecondsInADay() * 7;
                     currentActivity = null;
                     calCont.update(from, to);
@@ -227,34 +233,36 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 }
             }
 
-			@Override
-			public void flingUp() {
-				System.out.println("SWIPE UP");
+            @Override
+            public void flingUp() {
+                System.out.println("SWIPE UP");
 
-			}
+            }
 
-			@Override
-			public void flingDown() {
-				System.out.println("Swipe down");
+            @Override
+            public void flingDown() {
+                System.out.println("Swipe down");
 
-			}
+            }
 
-			@Override
-			public void dragLeft() {
-				System.out.println("drag left");
+            @Override
+            public void dragLeft() {
+                System.out.println("drag left");
 
-			}
+            }
 
-			@Override
-			public void dragRight() {
-				System.out.println("drag right");
-			}
+            @Override
+            public void dragRight() {
+                System.out.println("drag right");
+            }
 
 
-		}));
+        }));
 		multiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(multiplexer);
-
+        //Create InsertEvent model
+        insertEvent = new InsertEvent();
+        //insertEvent.getModel();
 		//Create text
 		alphabet = new Alphabet();
 		disposables.add(alphabet);
@@ -325,6 +333,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			DatePillar dt = new DatePillar(d.clone(true));
 			d = dt.d3d;
 			dt.setModelInstance(new ModelInstance(dt.getModel()));
+            dt.calculateBoundingBox();
+
 			origin.x += step;
 			//If is end of week then add step and back plate
 			if(i % 7 == 0){
@@ -559,6 +569,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		postProcessor.render();
 		ui.drawUI();
 	}
+
     /*
     Called if a week is changed
      */
@@ -640,8 +651,49 @@ public class MainView extends InputAdapter implements ApplicationListener{
             }
             camIsMoving = true;
         }
+        else {
+            //Check if we hit the InsertEvent
+            if(insertEventModelInstance != null && insertEvent.checkHit(screenX,screenY,cam)){
+                System.out.println("HIT insert event");
+                //Insert event
+                Event e = new Event().setSummary("TEST UPLOAD")
+                        .setLocation("800 Howard St., San Francisco, CA 94103")
+                        .setDescription("TEST TEST TEST.");
+
+                DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date);
+                EventDateTime start = new EventDateTime()
+                        .setDateTime(startDateTime)
+                        .setTimeZone("Stockholm");
+                e.setStart(start);
+
+                DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60);
+                EventDateTime end = new EventDateTime()
+                        .setDateTime(endDateTime)
+                        .setTimeZone("Stockholm");
+                e.setEnd(end);
+
+                calCont.InsertEvent(e);
+            }
+            //Check if we hit a date pillar
+            result = getDatePillar(screenX,screenY);
+            if(result != -1){
+                //remove old one
+
+                System.out.println("DatePillar result = " + result);
+                //Place insertEvent model there.
+                if(insertEventModelInstance == null){
+                    insertEventModelInstance = new ModelInstance(insertEvent.getModel());
+                    insertEvent.modelInstance = insertEventModelInstance;
+                }
+                insertEventModelInstance.transform.setTranslation(datePillars.get(result).getPosition());
+                insertEvent.datePillar = datePillars.get(result);
+                firstShadedLayer.add(insertEventModelInstance);
+            }
+
+        }
         return false;
     }
+    ModelInstance insertEventModelInstance;
 
     float oldCameraPosition;
     int animateWeekSwitchTimer;
@@ -691,7 +743,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
             currentActivity = findAndReplaceCurrentActivity(currentActivity, activities);
             updateActivities = false;
         }
-
     }
 
     private void moveActivitiesPillarsText(boolean right) {
@@ -878,27 +929,45 @@ public class MainView extends InputAdapter implements ApplicationListener{
 //		cam.lookAt(camLookAt);
 //		camController.target = camLookAt.cpy();
 //		cam.update();
-
 	}
 
 	public int getActivity (float screenX, float screenY) {
-		position = new Vector3();
-		Ray ray = cam.getPickRay(screenX, screenY);
-		int result = -1;
-		float distance = -1;
-		for (int i = 0; i < activities.size; ++i) {
-			Activity a = activities.get(i);
-			a.getModelInstance().transform.getTranslation(position);
-			position.add(a.center);
-			float dist2 = ray.origin.dst2(position);
-			if (distance >= 0f && dist2 > distance) continue;
-			if (Intersector.intersectRayBoundsFast(ray,position,a.dimensions)){
-				result = i;
-				distance = dist2;
-			}
-		}
-		return result;
-	}
+        position = new Vector3();
+        Ray ray = cam.getPickRay(screenX, screenY);
+        int result = -1;
+        float distance = -1;
+        for (int i = 0; i < activities.size; ++i) {
+            Activity a = activities.get(i);
+            a.getModelInstance().transform.getTranslation(position);
+            position.add(a.center);
+            float dist2 = ray.origin.dst2(position);
+            if (distance >= 0f && dist2 > distance) continue;
+            if (Intersector.intersectRayBoundsFast(ray,position,a.dimensions)){
+                result = i;
+                distance = dist2;
+            }
+        }
+        return result;
+    }
+
+    public int getDatePillar (float screenX, float screenY) {
+        position = new Vector3();
+        Ray ray = cam.getPickRay(screenX, screenY);
+        int result = -1;
+        float distance = -1;
+        for (int i = 0; i < datePillars.size; ++i) {
+            DatePillar d = datePillars.get(i);
+            d.getModelInstance().transform.getTranslation(position);
+            position.add(d.center);
+            float dist2 = ray.origin.dst2(position);
+            if (distance >= 0f && dist2 > distance) continue;
+            if (Intersector.intersectRayBoundsFast(ray,position,d.dimensions)){
+                result = i;
+                distance = dist2;
+            }
+        }
+        return result;
+    }
 
 	public void toggleTheme() {
 		theme = (theme == 0) ? 1 : 0;

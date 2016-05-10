@@ -37,7 +37,6 @@ public abstract class GFXObject implements Disposable{
     }
 
     public void initGFXOBject(){
-
         calculateBoundingBox();
     }
 
@@ -63,7 +62,7 @@ public abstract class GFXObject implements Disposable{
     }
 
     /**
-     * Should genererate a cloud texture from a shader
+     * Should generate a cloud texture from a shader
      * @return  For now return white texture
      */
     protected Texture createCloudTexture() {
@@ -86,7 +85,6 @@ public abstract class GFXObject implements Disposable{
         }
         disposables.clear();
         disposables = null;
-
     }
 
     public float getScale() {

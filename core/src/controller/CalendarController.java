@@ -26,6 +26,13 @@ public class CalendarController {
         primaryCalendar.add("primary");
     }
 
+    public void InsertEvent(Event e){
+        InsertThread it = new InsertThread(e);
+        it.start();
+
+        //Update calendar when done
+    }
+
     public void update(long from, long to){
 
         main.setDownloadDone(false);
@@ -36,7 +43,7 @@ public class CalendarController {
         c.setTime(toDate);
         System.out.println("updating to: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
 
-        UpdateThread updateThread = new UpdateThread(main, from,to);
+        DownloadThread updateThread = new DownloadThread(main, from,to);
         updateThread.start();
    }
     /**
@@ -93,11 +100,12 @@ public class CalendarController {
         return date;
     }
 
-    private class UpdateThread extends Thread{
+    private class DownloadThread extends Thread{
         MainView main;
         long from;
         long to;
-        public UpdateThread(MainView m, long f, long t) {
+
+        public DownloadThread(MainView m, long f, long t) {
             main = m;
             from = f;
             to = t;
@@ -124,6 +132,27 @@ public class CalendarController {
 
         }
 
+    }
+
+
+
+    private class InsertThread extends Thread{
+
+        private Event event;
+
+        public InsertThread(Event e){
+            event = e;
+        }
+
+        public void run(){
+            System.out.println("Starting insert....");
+            try {
+                GoogleCalendarDownload.uploadEvent(event);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Done inserting.");
+        }
     }
 
 }

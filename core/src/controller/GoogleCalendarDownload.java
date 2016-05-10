@@ -62,6 +62,7 @@ public class GoogleCalendarDownload {
             Arrays.asList(CalendarScopes.CALENDAR_READONLY);
     public static DateTime fromDate;
     private static DateTime toDate;
+    private static Events events;
 
     /**
      * Creates an authorized Credential object.
@@ -180,8 +181,7 @@ public class GoogleCalendarDownload {
         //   com.google.api.services.calendar.model.Calendar class.
         long t = System.currentTimeMillis();
 
-        com.google.api.services.calendar.Calendar service = null;
-        service = getCalendarService();
+        com.google.api.services.calendar.Calendar service  = getCalendarService();
         System.out.println("Authorization took: " + (System.currentTimeMillis() - t));
 
         fromDate = new DateTime( from);
@@ -192,7 +192,7 @@ public class GoogleCalendarDownload {
         long tt = 0;
         for(int i=0;i<cNames.size;i++){
             t = System.currentTimeMillis();
-            Events events = service.events().list(cNames.get(i))
+            events = service.events().list(cNames.get(i))
                     .setTimeMin(fromDate)
                     .setTimeMax(toDate)
                     .setOrderBy("startTime")
@@ -206,8 +206,19 @@ public class GoogleCalendarDownload {
             tt+= t;
         }
         System.out.println("total for all calenders: " + tt);
+        //events.
         return eventArray;
     }
+
+    public static void uploadEvent(Event e) throws IOException {
+        com.google.api.services.calendar.Calendar service  = getCalendarService();
+        //events.insert();
+        String calendarId = "primary";
+
+        service.events().insert(calendarId, e).execute();
+    }
+
+
 
 
 }

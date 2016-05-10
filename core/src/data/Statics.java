@@ -24,6 +24,18 @@ public class Statics {
      */
     public final static String G_KEY = "{\"installed\":{\"client_id\":\"53035057420-se1v5o64qkd72cmcqi1je5i9vopdeoo7.apps.googleusercontent.com\",\"project_id\":\"weighty-card-124409\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://accounts.google.com/o/oauth2/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"2FpOI5-XUiu6FfTNhJKEb_Uo\",\"redirect_uris\":[\"urn:ietf:wg:oauth:2.0:oob\",\"http://localhost\"]}}";
     /*
+    Insert Events
+     */
+    public static final Color INSERT_EVENT_BG_COLOR = Color.YELLOW;
+    public static final Color INSERT_EVENT_PLU_COLOR = Color.BLACK;
+    public static final float INSERT_EVENT_BG_HEIGHT = 4f;
+    public static final float INSERT_EVENT_BG_WIDTH = INSERT_EVENT_BG_HEIGHT;
+    public static final int INSERT_EVENT_BG_DIVISIONS = 10;
+    public static final float INSERT_EVENT_BG_DEPTH = 0.5f;
+
+
+
+    /*
     Activity Settings(Events)
      */
     public static final float ACTIVITY_WIDTH = 3.0f;

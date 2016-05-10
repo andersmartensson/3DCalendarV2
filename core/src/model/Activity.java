@@ -61,7 +61,6 @@ public class Activity extends GFXObject{
     private String autoNewLine(String s, float scale) {
         //See if current text exceeds current activity width
         return checkLine(s, scale);
-
     }
 
     private String checkLine(String s, float scale) {
