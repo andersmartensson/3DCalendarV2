@@ -63,7 +63,6 @@ public class Alphabet implements Disposable{
         for(Character c: s.toCharArray()){
             ModelInstance mi = null;
             if(times){
-
                 mi = getTimesChar(c);
             }
             else {
@@ -81,7 +80,7 @@ public class Alphabet implements Disposable{
                     step += lastChar.spacing * scale;
                 }
                 else {
-                    step += 3f * scale;
+                    step += 3.3f * scale;
                 }
             }
         }

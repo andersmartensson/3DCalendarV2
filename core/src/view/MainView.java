@@ -576,7 +576,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 camIsMoving = false;
                 cam.position.set(currentActivity.position.x
                         , currentActivity.position.y
-                        , currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+                        //, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+                        ,cam.position.z);
                 //Fix pitch
                 fixPitch(finalCameraPosition);
                 //Fix focus
@@ -617,8 +618,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
                 updateActivities = true;
                 clearedAndMoved = false;
-                //Can't move camera since current activity position is not available yet.
-
+                //Save old camera position to be able to determine how far to move models
+                oldCameraPosition = cam.position.cpy().x;
                 //Reset animateWeekSwitchTimer
                 animateWeekSwitchTimer = 0;
                 //Set direction
@@ -641,28 +642,22 @@ public class MainView extends InputAdapter implements ApplicationListener{
         }
         return false;
     }
+
+    float oldCameraPosition;
     int animateWeekSwitchTimer;
     boolean animateRight;
+
     private void updateActivities(){
         //Clearing
         if(!clearedAndMoved){
-            if(false){
-            //if(animateWeekSwitchTimer < Statics.WEEK_SWITCH_ANIMATE_TIME){
+            if(animateWeekSwitchTimer < Statics.WEEK_SWITCH_ANIMATE_TIME){
                 if(animateRight){
                     //move activities and date pillars right
-                    for(DatePillar d:datePillars){
-                        d.position.set(d.position.x + Statics.WEEK_ANIMATE_MOVE
-                        ,d.position.y
-                        ,d.position.z);
-                    }
+                    moveActivitiesPillarsText(true);
                 }
                 else {
                     //move activities and date pillars left
-                    for(DatePillar d:datePillars){
-                        d.position.set(d.position.x - Statics.WEEK_ANIMATE_MOVE
-                                ,d.position.y
-                                ,d.position.z);
-                    }
+                    moveActivitiesPillarsText(false);
                 }
                 animateWeekSwitchTimer ++;
             }
@@ -675,7 +670,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 clearedAndMoved = true;
             }
         }
-        if(downloadDone){
+        if(clearedAndMoved && downloadDone){
             //Clear OpenGL objects from memory
             System.out.println("Clearing acvities");
             long time2 = System.currentTimeMillis();
@@ -697,6 +692,35 @@ public class MainView extends InputAdapter implements ApplicationListener{
             updateActivities = false;
         }
 
+    }
+
+    private void moveActivitiesPillarsText(boolean right) {
+        //Determine how far to move
+        float xMove = 0;
+        if(currentActivity != null){
+            xMove = Math.abs(cam.position.x - currentActivity.position.x);
+        }
+        //Else it's a swipe, which means its one week wide
+        else {
+            xMove = Statics.WEEK_BACKPLATE_WIDTH;
+        }
+        xMove = xMove / Statics.WEEK_SWITCH_ANIMATE_TIME;
+        xMove = (right) ? xMove : -xMove;
+        //float xMove = (right) ? Statics.WEEK_ANIMATE_MOVE : -Statics.WEEK_ANIMATE_MOVE;
+        for(ModelInstance mi :firstShadedLayer){
+            Vector3 v3 = new Vector3();
+            v3 = mi.transform.getTranslation(v3);
+            mi.transform.setTranslation(v3.x + xMove
+                    ,v3.y
+                    ,v3.z);
+        }
+        for(ModelInstance mi: activityLayer){
+            Vector3 v3 = new Vector3();
+            v3 = mi.transform.getTranslation(v3);
+            mi.transform.setTranslation(v3.x + xMove
+                    ,v3.y
+                    ,v3.z);
+        }
     }
 
     private void smoothCameraMovement(Vector3 v) {

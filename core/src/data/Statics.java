@@ -82,7 +82,7 @@ public class Statics {
     public static final float CAMERA_IS_CLOSE_DISTANCE = 0.01f;
 
     public static final float CAMERA_DISTANCE_FROM = -16f;
-    public static final Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH / 2f,
+    public static final Vector3 CAM_START_POSITION = new Vector3(WEEK_BACKPLATE_WIDTH * NUM_OF_WEEKS_BEFORE_AND_AFTER + (WEEK_BACKPLATE_WIDTH / 2f),
             WEEK_BACKPLATE_HEIGHT,
             -CAMERA_DISTANCE_FROM);
     public static final Vector3 CAM_FOCUS_POSITION = new Vector3(CAM_START_POSITION.x,CAM_START_POSITION.y,0);
@@ -102,8 +102,8 @@ public class Statics {
     Alphabet
      */
     public static final String  ALPHA_PATH = "models/alphabet/" ;
-    public static final int WEEK_SWITCH_ANIMATE_TIME = 30;
-    public static final float WEEK_ANIMATE_MOVE = 1f;
+    public static final int WEEK_SWITCH_ANIMATE_TIME = 10;
+    public static final float WEEK_ANIMATE_MOVE = 10f;
     public static final String ALPHA_PATH_ARIAL = "models/alphabet/arial.g3db";
 
 
