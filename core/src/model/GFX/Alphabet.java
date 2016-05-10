@@ -1,20 +1,26 @@
 package model.GFX;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.UBJsonReader;
+
 import data.Statics;
 
 public class Alphabet implements Disposable{
     private final Array<Disposable> disposables;
+    private Model model;
+    private AssetManager assets;
     private float step;
     private float scale;
     private Character3D lastChar;
@@ -33,9 +39,21 @@ public class Alphabet implements Disposable{
 
     public Alphabet(){
         disposables = new Array<Disposable>();
+//        assets = new AssetManager();
+//        assets.getLoader(Model.class);
+//        assets.load(Statics.ALPHA_PATH_ARIAL, Model.class);
+//       model = assets.get(Statics.ALPHA_PATH_ARIAL,Model.class);
+        model = create3DModel(Statics.ALPHA_PATH_ARIAL, true);
+        disposables.add(model);
+        System.out.println("Printing model size: " + model.nodes.size);
+        for(Node n: model.nodes){
+            System.out.println(n.id + "");
+        }
+
     }
 
-    public Array<ModelInstance> load3DText(String s, Vector3 o, float scale){
+    public Array<ModelInstance> load3DText(String s, Vector3 o, float scale, boolean times){
+
         Array<ModelInstance> chars = new Array<ModelInstance>(s.length());
         this.origin = o;
         originX = o.x;
@@ -43,22 +61,56 @@ public class Alphabet implements Disposable{
         step  = 0;
         this.scale = scale;
         for(Character c: s.toCharArray()){
-            ModelInstance mi = getChar(c);
+            ModelInstance mi = null;
+            if(times){
+
+                mi = getTimesChar(c);
+            }
+            else {
+                mi = getArialChar("" + c);
+            }
             if(mi != null){
                 mi.transform.setTranslation(origin.x + step,
                         origin.y,
                         origin.z);
                 //Set the correct spacing between letters
                 //Scale
-                mi.transform.scale(scale,scale,scale);
+                mi.transform.scale(scale, scale, scale);
                 chars.add(mi);
-                step += lastChar.spacing * scale;
+                if(times){
+                    step += lastChar.spacing * scale;
+                }
+                else {
+                    step += 3f * scale;
+                }
             }
         }
         return chars;
     }
 
-    private ModelInstance getChar(Character c) {
+    private ModelInstance getArialChar(String c) {
+        if(c.toUpperCase().contentEquals("Ä")){
+            c = "AA";
+        }else if(c.toUpperCase().contentEquals("Å")){
+            c = "AAA";
+        }else if(c.toUpperCase().contentEquals("Ö")){
+            c = "OO";
+        }else if(c.contentEquals("\n")){
+            //Create new line
+            origin.y -= 3f * scale;
+            //reset X
+            step = 0;
+            return null;
+        }
+        //System.out.println("Creating model instance for " + c);
+        String s = "_" +c.toUpperCase();
+        //s = "shape39_part1";
+        ModelInstance mi = new ModelInstance(model,s);
+        //if(mi == null) System.out.println("NULL!!!!=========");
+        return mi;
+    }
+
+    private ModelInstance getTimesChar(Character c) {
         switch (c){
             case 'A':
             case 'a':
@@ -478,7 +530,7 @@ public class Alphabet implements Disposable{
             //System.out.println("new character " + l);
             this.spacing = spacing;
             letter = l;
-            mod = create3DModel(path);
+            mod = create3DModel(path, false);
             mod.materials.get(0).set(ColorAttribute.createDiffuse(Color.BLACK));
             disposables.add(mod);
         }
@@ -488,9 +540,15 @@ public class Alphabet implements Disposable{
         }
     }
 
-    public Model create3DModel(String modelPath){
+    public Model create3DModel(String modelPath, boolean binary){
         //Load
-        ModelLoader modelLoader = new G3dModelLoader(new JsonReader());
+        ModelLoader modelLoader = null;
+        if(!binary){
+            modelLoader = new G3dModelLoader(new JsonReader());
+        }
+        else {
+            modelLoader = new G3dModelLoader(new UBJsonReader());
+        }
         return  modelLoader.loadModel(Gdx.files.internal(modelPath));
     }
 

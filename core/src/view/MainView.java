@@ -345,7 +345,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 					, new Vector3(origin.x
 					, Statics.MONTH_ORIGIN_Y
 					, Statics.MONTH_ORIGIN_Z)
-					, 1f));
+					, 1f,
+                    false));
 			}
 
 			//Type date
@@ -353,7 +354,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 					, new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
 					, Statics.DATEPILLAR_HEIGHT + 1f
 					, Statics.DATEPILLAR_Z_ORIGIN)
-					, 0.5f));
+					, 0.5f
+                    ,false));
 			d.date += calCont.milliSecondsInADay();
 		}
 	}
@@ -369,7 +371,9 @@ public class MainView extends InputAdapter implements ApplicationListener{
 						, new Vector3(origin.x + Statics.WEEK_NUM_MODIFIER_X
 						, Statics.WEEK_NUM_ORIGIN_Y
 						, Statics.WEEK_NUM_ORIGIN_Z)
-						, Statics.WEEK_NUMBER_SCALE));
+						, Statics.WEEK_NUMBER_SCALE
+                        ,false)
+                );
 
 		//add extra step
 		origin.x += step;
@@ -426,7 +430,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 //		}
 //		return false;
 //	}
-
 
 	private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
@@ -589,8 +592,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
                     double cDate = (from + to) / 2;
                     currentWeek = findWeek((long) cDate);
                 }
-
-
             }
             cam.update();
         }

@@ -32,7 +32,7 @@ public class Statics {
     public static final float ACTIVITY_TEXTURE_WIDTH_MODIFIER = 100f;
     public static final float ACTIVITY_TEXTURE_HEIGHT_MODIFIER = 100f;
     public static final float ACTIVITY_SPACING = 1f; // Space in between Calendar Activities
-    public static final float ACTIVITY_TEXT_MODIFY_Z = 0.05f + ACTIVITY_DEPTH /2f;
+    public static final float ACTIVITY_TEXT_MODIFY_Z = 0.08f + ACTIVITY_DEPTH /2f; // This adjust how far out the description text is
     public static final float ACTIVITY_TEXT_SCALE = 0.15f;
     //If calendar activity has no color, then it will be this color. Look in GFXObject to get the color ids
     public static final String ACTIVITY_DEFAULT_COLOR = "11";
@@ -104,6 +104,7 @@ public class Statics {
     public static final String  ALPHA_PATH = "models/alphabet/" ;
     public static final int WEEK_SWITCH_ANIMATE_TIME = 30;
     public static final float WEEK_ANIMATE_MOVE = 1f;
+    public static final String ALPHA_PATH_ARIAL = "models/alphabet/arial.g3db";
 
 
     public static Calendar calendar;

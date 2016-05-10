@@ -53,7 +53,7 @@ public class Activity extends GFXObject{
         String s = event.getSummary();
         //System.out.println("TEXT TO BE GENERATED:\n->" + event.getSummary() + "<-");
         s = autoNewLine(s, Statics.ACTIVITY_TEXT_SCALE);
-        return a.load3DText(s, v, Statics.ACTIVITY_TEXT_SCALE);
+        return a.load3DText(s, v, Statics.ACTIVITY_TEXT_SCALE,false);
     }
     /*
     Checks where it needs to create a new line
