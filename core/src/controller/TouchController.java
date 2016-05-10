@@ -34,7 +34,6 @@ public class TouchController extends GestureDetector {
         public boolean fling(float velocityX, float velocityY, int button) {
 
             if(Math.abs(velocityX)>Math.abs(velocityY)){
-
                 //If at dragging speed
                 if(Math.abs(velocityX) < Statics.TOUCH_DRAG_SPEED){
                     if(velocityX>0){
