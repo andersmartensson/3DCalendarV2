@@ -88,8 +88,17 @@ public class Date3d implements Cloneable{
         return startHour + ":" + startMin;
     }
 
+    public String getStartTime(boolean leadingZero) {
+        //return startHour + ":" +
+        return getDateString(startHour, leadingZero) + ":" + getDateString(startMin, leadingZero);
+    }
+
     public String getStopTime() {
         return stopHour + ":" + stopMin;
+    }
+
+    public String getStopTime(boolean leadingZero) {
+        return getDateString(stopHour, leadingZero) + ":" + getDateString(stopMin, leadingZero);
     }
 
     public String getDuration(){
@@ -131,6 +140,69 @@ public class Date3d implements Cloneable{
         return sb.toString();
     }
 
+    public boolean parseStartTime(String text) {
+
+        return parseTime(text, true);
+    }
+
+    public boolean parseStopTime(String text){
+        return parseTime(text, false);
+    }
+
+    private boolean parseTime(String s, boolean start) {
+        String[] as = s.split(":");
+//        System.out.println("Parse Time:(" + as.length);
+//        for(String st:as){
+//            System.out.println(st);
+//        }
+        if(!checkValidityOfTime(as)){
+            return false;
+        }
+        if(start){
+            if(as.length == 1){
+                startHour = Integer.parseInt(as[0]);
+                startMin = 0;
+            }
+            else {
+                startHour = Integer.parseInt(as[0]);
+                startMin = Integer.parseInt(as[1]);
+            }
+        }
+        else {
+            if(as.length == 1){
+                stopHour = Integer.parseInt(as[0]);
+                stopMin = 0;
+            }
+            else {
+                stopHour = Integer.parseInt(as[0]);
+                stopMin = Integer.parseInt(as[1]);
+            }
+
+        }
+        return true;
+    }
+
+    private boolean checkValidityOfTime(String[] as) {
+        int sTH = Integer.parseInt(as[0]);
+        if(sTH < 0 && sTH >= 24 ){
+            return false;
+        }
+        if(as.length > 1){
+            int sTM = Integer.parseInt(as[1]);
+               if(sTM <0 && sTM >= 60) {
+                   return false;
+               }
+        }
+        return true;
+    }
+
+    public String getMonth(boolean b) {
+        return getDateString(month, b);
+    }
+
+    public Object getDay(boolean b) {
+        return getDateString(day, b);
+    }
 
 
     public enum Day{

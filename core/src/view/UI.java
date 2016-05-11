@@ -1,6 +1,7 @@
 package view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,8 +18,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 
 import data.Statics;
+import model.Date3d;
 
 /**
  * Created by Datacom on 2015-12-03.
@@ -144,7 +149,7 @@ public class UI implements Disposable{
         detailsLabel = new Label("",skin);
         detailsTable.add(detailsLabel).align(Align.left);
         detailsTable.row();
-        final TextButton reportButton = new TextButton("Report", skin);
+        final TextButton reportButton = new TextButton("Edit", skin);
         detailsTable.add(reportButton).minWidth(100f * density).minHeight(50f * density);
         reportButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
         reportButton.addListener(new InputListener() {
@@ -180,10 +185,21 @@ public class UI implements Disposable{
         reportDialogTable.row();
 
         //Details(getSummary() ) text
-        Label reportDialogDetailsLabel = new Label("Details: \n",skin);
+        Label reportDialogDetailsLabel = new Label("Summary: \n",skin);
         reportDialogTable.add(reportDialogDetailsLabel).align(Align.topLeft);
         reportDialogDetailsContents = new Label("",skin);
-        reportDialogTable.add(reportDialogDetailsContents).align(Align.topLeft);;
+        reportDialogTable.add(reportDialogDetailsContents).align(Align.topLeft);
+        //Edit button
+        TextButton editSummary = new TextButton("Edit Summary", skin);
+        editSummary.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                EditSummary es = new EditSummary();
+                Gdx.input.getTextInput(es, "Edit Summary:","","");
+                return false;
+            }
+        });
+        reportDialogTable.add(editSummary);
         reportDialogTable.row();
 
         //Description
@@ -205,13 +221,35 @@ public class UI implements Disposable{
         reportDialogTable.add(reportDialogFromLabel).align(Align.topLeft);
         reportDialogFromContents = new Label("",skin);
         reportDialogTable.add(reportDialogFromContents).align(Align.topLeft);;
+        //Edit button
+        TextButton editFrom = new TextButton("Edit From", skin);
+        editFrom.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                EditFrom ef = new EditFrom();
+                Gdx.input.getTextInput(ef, "From:", "", "");
+                return false;
+            }
+        });
+        reportDialogTable.add(editFrom);
         reportDialogTable.row();
 
         //To
         Label reportDialogToLabel = new Label("To: \n",skin);
         reportDialogTable.add(reportDialogToLabel).align(Align.topLeft);
         reportDialogToContents = new Label("",skin);
-        reportDialogTable.add(reportDialogToContents).align(Align.topLeft);;
+        reportDialogTable.add(reportDialogToContents).align(Align.topLeft);
+        //Edit button
+        TextButton editTo = new TextButton("Edit To", skin);
+        editTo.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                EditTo eT = new EditTo();
+                Gdx.input.getTextInput(eT, "From:","","");
+                return false;
+            }
+        });
+        reportDialogTable.add(editTo);
         reportDialogTable.row();
 
         //Duration
@@ -237,17 +275,18 @@ public class UI implements Disposable{
          */
 
         //Report button
-        TextButton reportReportButton = new TextButton("Report", skin);
-        reportReportButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
-        reportReportButton.addListener(new InputListener() {
+        TextButton reportOkButton = new TextButton("Ok", skin);
+        reportOkButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        reportOkButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 reportDialogVisible = false;
+                //Update events
                 System.out.println("Ok Clicked");
                 return false;
             }
         });
-        reportDialogTable.add(reportReportButton).minWidth(100f * density).minHeight(50f * density);
+        reportDialogTable.add(reportOkButton).minWidth(100f * density).minHeight(50f * density);
         //Cancel button
         TextButton reportCancelButton = new TextButton("Cancel", skin);
         reportCancelButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
@@ -327,4 +366,83 @@ public class UI implements Disposable{
         uiStage.getViewport().update(1024, 576, true);
     }
 
+
+    public class EditSummary implements Input.TextInputListener {
+        @Override
+        public void input (String text) {
+            main.currentActivity.event.setSummary(text);
+            reportDialogDetailsContents.setText(main.currentActivity.event.getSummary()
+                    + "\n" + main.currentActivity.d3d.getDateName());
+
+            updateEvent(main.currentActivity.event);
+        }
+
+        @Override
+        public void canceled () {
+        }
+    }
+
+    private void updateEvent(Event event) {
+
+        main.calCont.updateEvent(event);
+
+    }
+
+    public  class EditFrom implements Input.TextInputListener {
+        @Override
+        public void input (String text) {
+            if(main.currentActivity.d3d.parseStartTime(text)){
+                EventDateTime edt = new EventDateTime().setDateTime(createStartTime(main.currentActivity.d3d));//.setTimeZone("Europe/Stockholm");
+                main.currentActivity.event.setStart(edt);
+                reportDialogFromContents.setText((main.currentActivity.d3d.getStartTime()));
+
+                updateEvent(main.currentActivity.event);
+            }
+            else {
+                System.out.println("ERROR PARSING TIME");
+            }
+        }
+
+        @Override
+        public void canceled () {
+        }
+    }
+
+    public  class EditTo implements Input.TextInputListener {
+        @Override
+        public void input (String text) {
+            if(main.currentActivity.d3d.parseStopTime(text)){
+                EventDateTime edt = new EventDateTime().setDateTime(createStopTime(main.currentActivity.d3d));//.setTimeZone("Europe/Stockholm");
+                main.currentActivity.event.setEnd(edt);
+                reportDialogToContents.setText((main.currentActivity.d3d.getStopTime()));
+
+                updateEvent(main.currentActivity.event);
+            }
+            else {
+                System.out.println("ERROR PARSING TIME");
+            }
+        }
+
+        @Override
+        public void canceled () {
+        }
+    }
+
+    private DateTime createStopTime(Date3d d3d) {
+        return createDateTime(d3d, false);
+    }
+
+    private DateTime createStartTime(Date3d d3d){
+        return createDateTime(d3d, true);
+    }
+    private DateTime createDateTime(Date3d d3d, boolean start) {
+        //Create date in the following format ->2015-05-28T17:00:00+02:00<-
+        String time = (start) ? d3d.getStartTime(true) : d3d.getStopTime(true);
+        String date = "" + d3d.year
+                + "-" + d3d.getMonth(true)
+                + "-" + d3d.getDay(true)
+                + "T" + time
+                + ":00.000+02:00";
+        return new DateTime(date);
+    }
 }

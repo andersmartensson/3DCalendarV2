@@ -89,10 +89,10 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	//private Vector3 finalPosition;
 	private boolean camIsMoving;
 	private Array<DatePillar> datePillars;
-	private CalendarController calCont;
+	public CalendarController calCont;
 	private PostProcessor postProcessor;
 	private Alphabet alphabet;
-	private boolean updateActivities;
+	public boolean updateActivities;
 	public long from;
 	public long to;
 	public Activity currentActivity;
@@ -546,9 +546,11 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
+		//For smoothing camera movement
 		if(camIsMoving){
 			updateCamera();
 		}
+
 		if(updateActivities){
             updateActivities();
         }
@@ -615,20 +617,18 @@ public class MainView extends InputAdapter implements ApplicationListener{
         int result = getActivity(screenX, screenY);
         if(result != -1){
             ui.detailsVisible = true;
-            System.out.println("=============================");
             currentActivity = activities.get(result);
             //Update text
             ui.updateDetails(currentActivity.getDetails());
             System.out.println("Clicked: " + currentActivity.toString());
-            //Check if same week, else update calender
+            //Check if same week, if so; update calendar
             if(currentWeek != findWeek(currentActivity.d3d.date)){
                 from = calCont.getAdjustedDay(currentActivity.d3d.date);
+				//Calculate to
                 to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-                long time = System.currentTimeMillis();
-                calCont.update(from, to);
-                System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
-                updateActivities = true;
-                clearedAndMoved = false;
+                //Update calendar
+				updateCalendar(to,from);
+
                 //Save old camera position to be able to determine how far to move models
                 oldCameraPosition = cam.position.cpy().x;
                 //Reset animateWeekSwitchTimer
@@ -693,13 +693,20 @@ public class MainView extends InputAdapter implements ApplicationListener{
         }
         return false;
     }
-    ModelInstance insertEventModelInstance;
+
+	public void updateCalendar(long to, long from) {
+		calCont.update(from, to);
+		updateActivities = true;
+		clearedAndMoved = false;
+	}
+
+	ModelInstance insertEventModelInstance;
 
     float oldCameraPosition;
     int animateWeekSwitchTimer;
     boolean animateRight;
 
-    private void updateActivities(){
+    public void updateActivities(){
         //Clearing
         if(!clearedAndMoved){
             if(animateWeekSwitchTimer < Statics.WEEK_SWITCH_ANIMATE_TIME){

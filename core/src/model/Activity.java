@@ -90,8 +90,9 @@ public class Activity extends GFXObject{
 
         yOrigin = d3d.startHour;
         yOrigin += d3d.startMin / 60f;
+        yOrigin -= 1f;
         height = d3d.stopHour + (d3d.stopMin / 60f);
-        height -= yOrigin;
+        height -= yOrigin +1f;
         yOrigin += height/2f;
         Model mod = mb.createBox(Statics.ACTIVITY_WIDTH, height,Statics.ACTIVITY_DEPTH, m
                 , VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);

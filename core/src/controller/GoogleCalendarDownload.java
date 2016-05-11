@@ -20,7 +20,6 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +35,7 @@ import data.Statics;
 public class GoogleCalendarDownload {
 
     private static final String APPLICATION_NAME =
-            "Google Calendar API Java Quickstart";
+            "3D Calendar";
 
     /** Directory to store user credentials for this application. */
 //    private static final java.io.File DATA_STORE_DIR = new java.io.File(
@@ -62,7 +61,7 @@ public class GoogleCalendarDownload {
             Arrays.asList(CalendarScopes.CALENDAR);
     public static DateTime fromDate;
     private static DateTime toDate;
-    private static Events events;
+    public static Events events;
 
     /**
      * Creates an authorized Credential object.
@@ -211,14 +210,24 @@ public class GoogleCalendarDownload {
     }
 
     public static void uploadEvent(Event e) throws IOException {
+        long t = System.currentTimeMillis();
+
         com.google.api.services.calendar.Calendar service  = getCalendarService();
         //events.insert();
         String calendarId = "primary";
 
         service.events().insert(calendarId, e).execute();
+        System.out.println("Upload event took: " + (System.currentTimeMillis() - t));
     }
 
 
+    public static void updateEvent(Event event) throws IOException {
+        long t = System.currentTimeMillis();
 
+        com.google.api.services.calendar.Calendar service  = getCalendarService();
+        String calendarId = "primary";
+        service.events().update(calendarId,event.getId(),event).execute();
+        System.out.println("Update event took: " + (System.currentTimeMillis() - t));
 
+    }
 }

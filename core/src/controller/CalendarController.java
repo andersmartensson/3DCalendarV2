@@ -100,6 +100,36 @@ public class CalendarController {
         return date;
     }
 
+    public void updateEvent(Event event) {
+
+        Thread t = new UpdateEventThread(event);
+        t.start();
+        //Update calender when done.
+        //t.join();
+        main.updateCalendar(main.from,main.to);
+    }
+
+    private class UpdateEventAndUpdateCalendar extends Thread{
+
+    }
+
+    private class UpdateEventThread extends Thread{
+        Event event;
+        public UpdateEventThread(Event e){
+            event = e;
+        }
+
+        public void run(){
+            try {
+                GoogleCalendarDownload.updateEvent(event);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //When done, update the calendar to reflect the changes
+            update(main.from,main.to);
+        }
+    }
+
     private class DownloadThread extends Thread{
         MainView main;
         long from;
@@ -154,5 +184,7 @@ public class CalendarController {
             System.out.println("Done inserting.");
         }
     }
+
+
 
 }
