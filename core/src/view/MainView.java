@@ -663,13 +663,13 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date);
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
-                        .setTimeZone("Stockholm");
+                        .setTimeZone("Europe/Stockholm");
                 e.setStart(start);
 
                 DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60);
                 EventDateTime end = new EventDateTime()
                         .setDateTime(endDateTime)
-                        .setTimeZone("Stockholm");
+                        .setTimeZone("Europe/Stockholm");
                 e.setEnd(end);
 
                 calCont.InsertEvent(e);

@@ -59,7 +59,7 @@ public class GoogleCalendarDownload {
      * at ~/.credentials/calendar-java-quickstart.json
      */
     private static final List<String> SCOPES =
-            Arrays.asList(CalendarScopes.CALENDAR_READONLY);
+            Arrays.asList(CalendarScopes.CALENDAR);
     public static DateTime fromDate;
     private static DateTime toDate;
     private static Events events;
