@@ -33,10 +33,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
-
 import java.util.Calendar;
 import java.util.Date;
-
 import controller.CalendarController;
 import controller.TouchController;
 import data.Statics;
@@ -117,6 +115,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 //		Bloom bloom = createBloom();
 //		if(Statics.RENDER_BLOOM)postProcessor.addEffect(bloom);
 //		disposables.add(bloom);
+
 		if(!Statics.isAndroid){
 			Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 			disposables.add(fxaa);
@@ -125,6 +124,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			disposables.add(nfaa);
 			postProcessor.addEffect(nfaa);
 		}
+
 		//Create lens flare
 		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 //		createLensFlare();
