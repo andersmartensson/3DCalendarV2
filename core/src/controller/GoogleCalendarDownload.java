@@ -20,6 +20,7 @@ import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,11 +71,7 @@ public class GoogleCalendarDownload {
      */
     public static Credential authorize() throws IOException {
         try {
-            //if(Statics.is)
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            //HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
-            //final String CREDENTIALS_DIRECTORY = ".oauth-credentials";
-            //File dataDirectory = new File(getContext().getFilesDir(), CREDENTIALS_DIRECTORY);
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
         } catch (Throwable t) {
             t.printStackTrace();
@@ -121,18 +118,18 @@ public class GoogleCalendarDownload {
                         HTTP_TRANSPORT, JSON_FACTORY, Statics.GoogleCredential)
                         .setApplicationName(APPLICATION_NAME)
                         .build();
-//            Calendar cal = new com.google.api.services.calendar.Calendar.Builder(
-//                    HTTP_TRANSPORT, JSON_FACTORY, Statics.GoogleCredential)
-//                    .setApplicationName("Google Calendar API Android Quickstart")
-//                    .build();
+
                 System.out.println("Returning android service ======================");
                 return cal;
             }
-            catch (Exception e){
+            catch (Exception e) {
                 System.out.println("Failed to get Android google service ================");
                 e.printStackTrace();
                 System.exit(0);
             }
+//            }catch (UserRecoverableAuthIOException e){
+//
+//            }
         }
 
         return null;
@@ -162,15 +159,17 @@ public class GoogleCalendarDownload {
 
     public static Array<String> getCalenderNames() throws IOException {
         com.google.api.services.calendar.Calendar service = getCalendarService();
+        Array<String> calendarsNames = new Array<String>();
 
-        long t = System.currentTimeMillis();
-        Calendar.CalendarList calList = service.calendarList();
-        CalendarList cList = calList.list().execute();
-        Array<String> calendarsNames = new Array<String>(cList.getItems().size());
-        for (CalendarListEntry cle: cList.getItems()){
-            calendarsNames.add(cle.getId());
-        }
-        System.out.println("Fetching calender names took: " + (System.currentTimeMillis() - t));
+            long t = System.currentTimeMillis();
+            Calendar.CalendarList calList = service.calendarList();
+            CalendarList cList = calList.list().execute();
+
+            for (CalendarListEntry cle: cList.getItems()){
+                calendarsNames.add(cle.getId());
+            }
+            System.out.println("Fetching calender names took: " + (System.currentTimeMillis() - t));
+
         return calendarsNames;
     }
 

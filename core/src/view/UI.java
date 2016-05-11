@@ -44,11 +44,13 @@ public class UI implements Disposable{
 
     private boolean reportDialogVisible;
     public Stage reportDialogStage;
-    private Label reportDialogDetailsContents;
+    private Label reportDialogSummaryContents;
     private Label reportDialogDescriptionContents;
     private Label reportDialogStatusContents;
     private Label reportDialogFromContents;
     private Label reportDialogToContents;
+    private Label reportDialogDateContents;
+
     private Label reportDialogDurationContents;
     private TextButton reportDialogChangeButton;
 
@@ -187,8 +189,8 @@ public class UI implements Disposable{
         //Details(getSummary() ) text
         Label reportDialogDetailsLabel = new Label("Summary: \n",skin);
         reportDialogTable.add(reportDialogDetailsLabel).align(Align.topLeft);
-        reportDialogDetailsContents = new Label("",skin);
-        reportDialogTable.add(reportDialogDetailsContents).align(Align.topLeft);
+        reportDialogSummaryContents = new Label("",skin);
+        reportDialogTable.add(reportDialogSummaryContents).align(Align.topLeft);
         //Edit button
         TextButton editSummary = new TextButton("Edit Summary", skin);
         editSummary.addListener(new InputListener() {
@@ -199,15 +201,35 @@ public class UI implements Disposable{
                 return false;
             }
         });
-        reportDialogTable.add(editSummary);
+        reportDialogTable.add(editSummary).align(Align.left);
         reportDialogTable.row();
 
-        //Description
-        Label reportDialogDescriptionLabel = new Label("Description: \n",skin);
-        reportDialogTable.add(reportDialogDescriptionLabel).align(Align.topLeft);;
-        reportDialogDescriptionContents = new Label("", skin);
-        reportDialogTable.add(reportDialogDescriptionContents).align(Align.topLeft);;
+        //Date
+        Label reportDialogDateLabel = new Label("Date: ", skin);
+        reportDialogTable.add(reportDialogDateLabel).align(Align.topLeft);
+        reportDialogDateContents = new Label("",skin);
+        reportDialogTable.add(reportDialogDateContents).align(Align.topLeft);
+        //Edit button
+        TextButton editDate = new TextButton("Edit Date   ", skin);
+        editDate.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                EditDate ed = new EditDate();
+                Gdx.input.getTextInput(ed, "Edit Date:", "", "year-month-day");
+                return false;
+            }
+        });
+        reportDialogTable.add(editDate).align(Align.left);
         reportDialogTable.row();
+
+
+//        //Details
+//        Label reportDialogDescriptionLabel = new Label("Description:",skin);
+//        reportDialogTable.add(reportDialogDescriptionLabel).align(Align.topLeft);;
+//        reportDialogDescriptionContents = new Label("", skin);
+//        reportDialogTable.add(reportDialogDescriptionContents).align(Align.topLeft);;
+//        reportDialogTable.row();
+
 
         //Status
         Label reportDialogStatusLabel = new Label("Status: \n",skin);
@@ -227,11 +249,11 @@ public class UI implements Disposable{
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 EditFrom ef = new EditFrom();
-                Gdx.input.getTextInput(ef, "From:", "", "");
+                Gdx.input.getTextInput(ef, "From:", "", "hour:min");
                 return false;
             }
         });
-        reportDialogTable.add(editFrom);
+        reportDialogTable.add(editFrom).align(Align.left);
         reportDialogTable.row();
 
         //To
@@ -240,16 +262,16 @@ public class UI implements Disposable{
         reportDialogToContents = new Label("",skin);
         reportDialogTable.add(reportDialogToContents).align(Align.topLeft);
         //Edit button
-        TextButton editTo = new TextButton("Edit To", skin);
+        TextButton editTo = new TextButton("Edit To  ", skin);
         editTo.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 EditTo eT = new EditTo();
-                Gdx.input.getTextInput(eT, "From:","","");
+                Gdx.input.getTextInput(eT, "From:","","hour:min");
                 return false;
             }
         });
-        reportDialogTable.add(editTo);
+        reportDialogTable.add(editTo).align(Align.left);
         reportDialogTable.row();
 
         //Duration
@@ -318,10 +340,11 @@ public class UI implements Disposable{
     private void updateReportDialogText(){
         if(main.currentActivity != null){
             //Get details(Summary)
-            reportDialogDetailsContents.setText(main.currentActivity.event.getSummary()
-                    + "\n" + main.currentActivity.d3d.getDateName());
+            reportDialogSummaryContents.setText(main.currentActivity.event.getSummary());
+            //Get Date
+            reportDialogDateContents.setText(main.currentActivity.d3d.getDateName());
             //Get Description
-            reportDialogDescriptionContents.setText(main.currentActivity.event.getDescription());
+            //reportDialogDescriptionContents.setText(main.currentActivity.event.getDescription());
             //Get Status
             reportDialogStatusContents.setText(main.currentActivity.event.getStatus());
             //Get From
@@ -371,7 +394,7 @@ public class UI implements Disposable{
         @Override
         public void input (String text) {
             main.currentActivity.event.setSummary(text);
-            reportDialogDetailsContents.setText(main.currentActivity.event.getSummary()
+            reportDialogSummaryContents.setText(main.currentActivity.event.getSummary()
                     + "\n" + main.currentActivity.d3d.getDateName());
 
             updateEvent(main.currentActivity.event);
@@ -383,9 +406,7 @@ public class UI implements Disposable{
     }
 
     private void updateEvent(Event event) {
-
         main.calCont.updateEvent(event);
-
     }
 
     public  class EditFrom implements Input.TextInputListener {
@@ -428,6 +449,27 @@ public class UI implements Disposable{
         }
     }
 
+    private class EditDate implements Input.TextInputListener{
+        @Override
+        public void input (String text) {
+//            if(main.currentActivity.d3d.parseStopTime(text)){
+//                EventDateTime edt = new EventDateTime().setDateTime(createStopTime(main.currentActivity.d3d));//.setTimeZone("Europe/Stockholm");
+//                main.currentActivity.event.setEnd(edt);
+//                reportDialogToContents.setText((main.currentActivity.d3d.getStopTime()));
+//
+//                updateEvent(main.currentActivity.event);
+//            }
+//            else {
+//                System.out.println("ERROR PARSING TIME");
+//            }
+
+        }
+
+        @Override
+        public void canceled () {
+        }
+    }
+
     private DateTime createStopTime(Date3d d3d) {
         return createDateTime(d3d, false);
     }
@@ -445,4 +487,6 @@ public class UI implements Disposable{
                 + ":00.000+02:00";
         return new DateTime(date);
     }
+
+
 }

@@ -747,7 +747,9 @@ public class MainView extends InputAdapter implements ApplicationListener{
             //cam.update();
 
             //Find and replace current Activity
-            currentActivity = findAndReplaceCurrentActivity(currentActivity, activities);
+			if(currentActivity !=null){
+				currentActivity = findAndReplaceCurrentActivity(currentActivity, activities);
+			}
             updateActivities = false;
         }
     }
@@ -910,9 +912,11 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
 
 
-    private Activity findAndReplaceCurrentActivity(Activity currentActivity, Array<Activity> activities) {
-        for(Activity a: activities){
-            if(currentActivity.d3d.date == a.d3d.date){
+    private Activity findAndReplaceCurrentActivity(Activity ca, Array<Activity> activities) {
+		System.out.println("ca date: " + ca.d3d.date);
+		for(Activity a: activities){
+			System.out.println("a date: "  + a.d3d.date);
+			if(ca.d3d.date == a.d3d.date){
                 return a;
             }
         }

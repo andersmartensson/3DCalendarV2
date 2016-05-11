@@ -1,18 +1,15 @@
 package controller;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.calendar.model.Event;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
 import data.Statics;
 import view.MainView;
 
-/**
- * Created by Anders on 2016-04-07.
- */
 public class CalendarController {
     public Array<Event> events;
     public long lastUpdate;
@@ -43,8 +40,8 @@ public class CalendarController {
         c.setTime(toDate);
         System.out.println("updating to: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
 
-        DownloadThread updateThread = new DownloadThread(main, from,to);
-        updateThread.start();
+        DownloadThread downloadThread = new DownloadThread(main, from,to);
+        downloadThread.start();
    }
     /**
      *      Downloads activities default weeks back, beginning
@@ -106,7 +103,7 @@ public class CalendarController {
         t.start();
         //Update calender when done.
         //t.join();
-        main.updateCalendar(main.from,main.to);
+        main.updateCalendar(main.from, main.to);
     }
 
     private class UpdateEventAndUpdateCalendar extends Thread{
@@ -146,7 +143,13 @@ public class CalendarController {
             if(Statics.downloadPrimary){
                 try {
                     events = GoogleCalendarDownload.execute(primaryCalendar, from, to );
-                } catch (IOException e) {
+                } catch ( UserRecoverableAuthIOException er) {
+                    System.out.println("USER RECOVER EXCEPTION");
+                    er.printStackTrace();
+                    Gdx.app.exit();
+                    System.exit(0);
+                }
+                catch (IOException e){
                     e.printStackTrace();
                 }
             }
