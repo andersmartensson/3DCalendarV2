@@ -458,7 +458,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 cam.position.set(currentActivity.position.x
                         , currentActivity.position.y
                         //, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
-                        ,cam.position.z);
+                        , cam.position.z);
                 //Fix pitch
                 fixPitch(finalCameraPosition);
                 //Fix focus
@@ -481,6 +481,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        System.out.println("=======\nMouse x: " + screenX + " y: " + screenY);
         //Get clicked activity
         int result = getActivity(screenX, screenY);
         if(result != -1){
@@ -523,7 +524,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
             //Check if we hit the InsertEvent
             if(insertEventModelInstance != null && insertEvent.checkHit(screenX,screenY,cam)){
 				//Insert event
-                DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date);
+                DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date - calCont.milliSecondsInADay());
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
                         .setTimeZone("Europe/Stockholm");
@@ -531,20 +532,21 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 Event e = new Event().setSummary("TEST UPLOAD NEW " + start.toString() )
 						.setLocation("")
 						.setDescription("TEST TEST TEST.");
-
 				e.setStart(start);
 
-                DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60);
+                DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60 - calCont.milliSecondsInADay());
                 EventDateTime end = new EventDateTime()
                         .setDateTime(endDateTime)
                         .setTimeZone("Europe/Stockholm");
                 e.setEnd(end);
-
                 calCont.InsertEvent(e);
+
+
+
             }
             //Check if we hit a date pillar
             result = getDatePillar(screenX,screenY);
-            if(result != -1){
+            if(result  >= 0){
                 //remove old one
 
                 System.out.println("DatePillar result = " + result);
@@ -553,16 +555,78 @@ public class MainView extends InputAdapter implements ApplicationListener{
                     insertEventModelInstance = new ModelInstance(insertEvent.getModel());
                     insertEvent.modelInstance = insertEventModelInstance;
                 }
-                insertEventModelInstance.transform.setTranslation(datePillars.get(result).getPosition());
+                //float h =
+                Vector3 pos = datePillars.get(result).getPosition();
+                pos.y = checkWhereWeHitPillar(pos, screenX, screenY);
+                insertEventModelInstance.transform.setTranslation(pos);
                 insertEvent.datePillar = datePillars.get(result);
                 firstShadedLayer.add(insertEventModelInstance);
+                System.out.println("Hit date : " + new DateTime(insertEvent.datePillar.d3d.date).toString());
+                //Check where we hit
+                System.out.println("=======\nMouse y: " + screenY);
+
             }
 
         }
         return false;
     }
 
-	public void updateCalendar(long to, long from) {
+    private float checkWhereWeHitPillar( Vector3 pos, float mX , float mY) {
+
+////        Vector3 origin = pos.cpy();
+////        Vector3 top = origin.cpy();
+////        top.y = Statics.DATEPILLAR_HEIGHT + Statics.DATEPILLAR_Y_ORIGIN;
+////        //Project pillar coords
+////        cam.project(origin);
+////        cam.project(top);
+////        System.out.println("Top y: " + top.y + " Bottom y: " + origin.y + " Length: " + (top.y - origin.y));
+////
+////
+////        Vector3 fPos = new Vector3();
+////        fPos.x = pos.x;
+////        //Pillars stretch from 12 to 36
+////        float mouseR = mY -top.y;
+////
+////        float h = origin.y - top.y;
+////
+////        float ratio = mouseR / h;
+////
+////        float pH = 24 * ratio;
+////
+////        System.out.println("Hour: " + pH + " ratio: " + ratio);
+//
+//        //Remove decimals and make sure it's not out of range
+//        int finalHour = 0;
+//        if(pH > 24 ){
+//            finalHour = 24;
+//        }
+//        else if(pH < 1 ){
+//            finalHour = 1;
+//        }
+//        else {
+//            finalHour = (int) pH;
+//        }
+//        return (float) finalHour;
+        position = new Vector3();
+        Ray ray = cam.getPickRay(screenX, screenY);
+        int result = -1;
+        float distance = -1;
+        for (int i = 0; i < datePillars.size; i++) {
+            DatePillar d = datePillars.get(i);
+            d.getModelInstance().transform.getTranslation(position);
+            position.add(d.center);
+            //position.a
+            float dist2 = ray.origin.dst2(position);
+            if (distance >= 0f && dist2 > distance) continue;
+            if (Intersector.intersectRayBoundsFast(ray,position,d.dimensions)){
+                result = i;
+                distance = dist2;
+            }
+        }
+        return result;
+    }
+
+    public void updateCalendar(long to, long from) {
 		calCont.update(from, to);
 		updateActivities = true;
 		clearedAndMoved = false;
@@ -612,8 +676,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
             createActivities(calCont.events, datePillars);
             System.out.println("Activities creation took : " + (System.currentTimeMillis() - time2));
             //Set current week
-            //cam.update();
-
             //Find and replace current Activity
 			if(currentActivity !=null){
 				currentActivity = findAndReplaceCurrentActivity(currentActivity, activities);
@@ -793,21 +855,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
     private void getCameraFocusOnDate(long date) {
 		Date3d d = new Date3d(date);
-		//Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalPosition.y,finalPosition.z);
         Vector3 camPos = new Vector3(d.matchXValue(datePillars),finalCameraPosition.y,finalCameraPosition.z);
-//        fixPitch(camPos.cpy());
-//		cam.update();
 		finalCameraPosition = camPos;
-//		cam.position.set(camPos);
-//		Vector3 camLookAt = new Vector3(camPos.x, finalPosition.y,0);
-//		cam.lookAt(camLookAt);
-//		camController.target = camLookAt.cpy();
-//		cam.update();
-
-//		Vector3 camLookAt = new Vector3(finalCameraPosition.x, finalPosition.y,0);
-//		cam.lookAt(camLookAt);
-//		camController.target = camLookAt.cpy();
-//		cam.update();
 	}
 
 	public int getActivity (float screenX, float screenY) {
@@ -838,6 +887,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
             DatePillar d = datePillars.get(i);
             d.getModelInstance().transform.getTranslation(position);
             position.add(d.center);
+            //position.a
             float dist2 = ray.origin.dst2(position);
             if (distance >= 0f && dist2 > distance) continue;
             if (Intersector.intersectRayBoundsFast(ray,position,d.dimensions)){

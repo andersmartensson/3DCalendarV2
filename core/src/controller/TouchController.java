@@ -59,7 +59,7 @@ public class TouchController extends GestureDetector {
                 }
             }
             //return super.fling(velocityX, velocityY, button);
-            return true;
+            return false;
         }
 
 
