@@ -11,12 +11,9 @@ import android.util.Log;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.google.android.gms.auth.GoogleAuthException;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.calendar.CalendarScopes;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,10 +23,10 @@ import data.Statics;
 public class AndroidLauncher extends AndroidApplication {
 	private static Context context;
 
+    //private static final List<String> SCOPES =
+      //      Arrays.asList(CalendarScopes.CALENDAR);
     private static final List<String> SCOPES =
-            Arrays.asList(CalendarScopes.CALENDAR);
-//    private static final List<String> SCOPES =
-//            Arrays.asList(CalendarScopes.CALENDAR_READONLY);
+            Arrays.asList(CalendarScopes.CALENDAR_READONLY);
     //private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
 	private static final String PREF_ACCOUNT_NAME = "accountName";
 	static final int REQUEST_ACCOUNT_PICKER = 1000;
@@ -104,18 +101,21 @@ public class AndroidLauncher extends AndroidApplication {
         if(Statics.GoogleCredential.getSelectedAccountName() == null){
             chooseAccount();
         }
-        try {
-            System.out.println("Get Token: " + Statics.GoogleCredential.getToken());
-        } catch (UserRecoverableAuthIOException e) {
-            System.out.println("USerRecoverable Exception");
-            startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (GoogleAuthException e) {
-            System.out.println("Authentication Exception");
-            startActivityForResult(getIntent(), REQUEST_AUTHORIZATION);
-            e.printStackTrace();
-        }
+//        try {
+//            //String s = Statics.GoogleCredential.getToken();
+//            System.out.println("Token: " + s);
+//        } catch (UserRecoverableAuthIOException e) {
+//            System.out.println("UserRecoverable Exception");
+//            startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (GoogleAuthException e) {
+//            System.out.println("Authentication Exception");
+//            startActivityForResult(getIntent(), REQUEST_AUTHORIZATION);
+//            e.printStackTrace();
+//        }
+//        startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+
         initialize(new view.MainView(true), config);
 	}
 

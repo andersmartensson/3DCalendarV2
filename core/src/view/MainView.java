@@ -15,17 +15,11 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
@@ -33,8 +27,10 @@ import com.badlogic.gdx.utils.Disposable;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+
 import java.util.Calendar;
 import java.util.Date;
+
 import controller.CalendarController;
 import controller.TouchController;
 import data.Statics;
@@ -52,7 +48,6 @@ import postprocessing.PostProcessor;
 import postprocessing.ShaderLoader;
 import postprocessing.effects.Fxaa;
 import postprocessing.effects.Nfaa;
-import shaders.WaterShader;
 
 public class MainView extends InputAdapter implements ApplicationListener{
 
@@ -112,9 +107,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		ShaderLoader.BasePath = Statics.SHADER_BASE_PATH;
 		postProcessor = new PostProcessor( true, false, true );
 		disposables.add(postProcessor);
-//		Bloom bloom = createBloom();
-//		if(Statics.RENDER_BLOOM)postProcessor.addEffect(bloom);
-//		disposables.add(bloom);
 
 		if(!Statics.isAndroid){
 			Fxaa fxaa = new Fxaa(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -124,26 +116,14 @@ public class MainView extends InputAdapter implements ApplicationListener{
 			disposables.add(nfaa);
 			postProcessor.addEffect(nfaa);
 		}
-
-		//Create lens flare
-		//lens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//		createLensFlare();
-//		disposables.add(lens);
-//		postProcessor.addEffect(lens);
-//		//create spaceship lens
-//		spaceShipLens = new LensFlare(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//		disposables.add(spaceShipLens);
-//		postProcessor.addEffect(spaceShipLens);
 	}
 
 	//public static boolean isAndroid;
 	public MainView(boolean isAndroid){
-		//this.isAndroid = isAndroid;
 		Statics.isAndroid = isAndroid;
 	}
 
 	public MainView(){
-		//isAndroid = false;
 		Statics.isAndroid = false;
 	}
 
@@ -398,49 +378,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		}
 	}
 
-//	@Override
-//	public boolean touchDown(float screenX, float screenY, int pointer, int button) {
-//		System.out.println("Touched!!!!!!!!!!!==========");
-//		//Get clicked activity
-//		int result = getActivity(screenX, screenY);
-//		if(result != -1){
-//			ui.detailsVisible = true;
-//			System.out.println("=============================");
-//			currentActivity = activities.get(result);
-//			//Update text
-//			ui.updateDetails(currentActivity.getDetails());
-//			System.out.println("Clicked: " + currentActivity.toString());
-//			//Check if same week, else update calender
-//			if(currentWeek != findWeek(currentActivity.d3d.date)){
-//				from = calCont.getAdjustedDay(currentActivity.d3d.date);
-//				to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-//				long time = System.currentTimeMillis();
-//				calCont.update(from, to);
-//				System.out.println("Calendar update took: " + (System.currentTimeMillis() - time));
-//				updateActivities = true;
-//				clearedAndMoved = false;
-//			}
-//			else {
-//				//Focus and move camera to activity
-//				finalPosition = new Vector3(currentActivity.position.x
-//						, currentActivity.position.y
-//						, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
-//				cam.position.set(finalPosition);
-//				cam.update();
-//				//Fix pitch
-//				fixPitch(finalPosition);
-//				//Focus
-//				cam.lookAt(currentActivity.position);
-//				camController.target = currentActivity.position;
-//				cam.update();
-//			}
-//		}
-//		else {
-//			System.out.println("NO result!!!!!!!!");
-//		}
-//		return false;
-//	}
-
 	private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
 		//Create Activity test
 		Material m;
@@ -473,75 +410,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		}
 	}
 
-	Renderable renderable;
-	Shader waterShader;
-	RenderContext renderContext;
-	ShaderProgram waterShaderProgram;
-
-	private void createWaterShader(){
-		ShaderProgram.pedantic = false;
-		final String VERT = Gdx.files.internal("shaders/sea_vert.glsl").readString();
-		final String FRAG = Gdx.files.internal("shaders/sea_frag.glsl").readString();
-		bgShader = new ShaderProgram(VERT, FRAG);
-		/**
-		 * This renders directly
-		 */
-		//NodePart blockPart = water.getModel().nodes.get(0).parts.get(0);
-		NodePart blockPart = skybox.getModel().nodes.get(0).parts.get(0);
-		renderable = new Renderable();
-		blockPart.setRenderable(renderable);
-		renderable.environment = environment;
-		renderable.worldTransform.idt();
-		renderContext = new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.WEIGHTED, 1));
-		waterShader = new WaterShader();
-		waterShader.init();
-
-//		//Set values
-//		bgShader.begin();
-//		bgShader.setUniformf("resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//		bgShader.setUniformf("time", appTime);
-//		bgShader.setUniformf("mouse",new Vector2(Gdx.Input.getX(), Gdx.Input.getY()));
-//		bgShader.end();
-	}
-
-	private void updateWaterShader(){
-		bgShader.begin();
-		bgShader.setUniformf("time", appTime);
-		bgShader.setUniformf("mouse", new Vector2(Gdx.input.getX(), Gdx.input.getY()));
-		bgShader.end();
-	}
-
-	private void renderWaterShader(){
-		/**
-		 * This render directly
-		 */
-		renderContext.begin();
-		waterShader.begin(cam, renderContext);
-		waterShader.render(renderable);
-		waterShader.end();
-		renderContext.end();
-
-		/**
-		 * This renders to texture
-		 */
-//		waterBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-//		waterShaderProgram.begin();
-//		waterShaderProgram.setUniformf("resolution", Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-//		waterShaderProgram.setUniformf("time", (float) gameTime);
-//		waterShaderProgram.setUniformMatrix(u_projTrans, cam.combined);
-//		waterShaderProgram.end();
-//
-//		batch.setShader(waterShaderProgram);
-//		waterBuffer.begin();
-//		batch.begin();
-//		batch.draw(fboRegion, 0, 0);
-//		batch.end();
-//		Material m = new Material();
-//		m.set(TextureAttribute.createDiffuse(waterBuffer.getColorBufferTexture()));
-//		water.getModel().materials.insert(0, m);
-//		waterInstance = new ModelInstance(water.getModel());
-
-	}
 
 	@Override
 	public void render (){
@@ -654,17 +522,17 @@ public class MainView extends InputAdapter implements ApplicationListener{
         else {
             //Check if we hit the InsertEvent
             if(insertEventModelInstance != null && insertEvent.checkHit(screenX,screenY,cam)){
-                System.out.println("HIT insert event");
-                //Insert event
-                Event e = new Event().setSummary("TEST UPLOAD")
-                        .setLocation("800 Howard St., San Francisco, CA 94103")
-                        .setDescription("TEST TEST TEST.");
-
+				//Insert event
                 DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date);
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
                         .setTimeZone("Europe/Stockholm");
-                e.setStart(start);
+                System.out.println("Uploading new event on the " + start.toString());
+                Event e = new Event().setSummary("TEST UPLOAD NEW " + start.toString() )
+						.setLocation("")
+						.setDescription("TEST TEST TEST.");
+
+				e.setStart(start);
 
                 DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60);
                 EventDateTime end = new EventDateTime()
@@ -947,7 +815,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
         Ray ray = cam.getPickRay(screenX, screenY);
         int result = -1;
         float distance = -1;
-        for (int i = 0; i < activities.size; ++i) {
+        for (int i = 0; i < activities.size; i++) {
             Activity a = activities.get(i);
             a.getModelInstance().transform.getTranslation(position);
             position.add(a.center);
@@ -966,7 +834,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
         Ray ray = cam.getPickRay(screenX, screenY);
         int result = -1;
         float distance = -1;
-        for (int i = 0; i < datePillars.size; ++i) {
+        for (int i = 0; i < datePillars.size; i++) {
             DatePillar d = datePillars.get(i);
             d.getModelInstance().transform.getTranslation(position);
             position.add(d.center);

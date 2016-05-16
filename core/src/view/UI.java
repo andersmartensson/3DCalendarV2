@@ -361,8 +361,6 @@ public class UI implements Disposable{
 
 
     public void drawUI() {
-//        Gdx.gl.glEnable(GL20.GL_BLEND);
-//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         uiBatch.enableBlending();
         uiBatch.begin();
         uiStage.draw();
