@@ -8,7 +8,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Calendar";
 		config.width = 1920;
-		config.height = 1280;
+		config.height = 1080;
 		//config.width = 2160;
 		//config.height = (int)( 2160 / (16/9));
 		config.foregroundFPS = 30;

@@ -86,7 +86,7 @@ public class Statics {
     /*
     CAMERA settings
     */
-    public static final float CAMERA_FOV = 85f;
+    public static final float CAMERA_FOV = 75f;
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
     public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);

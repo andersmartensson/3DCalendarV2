@@ -148,7 +148,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		theme = Gdx.app.getPreferences("My Preferences").getInteger("theme", 0);
 		appTime = 1.0f;
 		screenWidth = Gdx.graphics.getWidth();
-		screenHeigth = Gdx.graphics.getHeight();
+        System.out.println("W: " + Gdx.graphics.getWidth() + " H: " + Gdx.graphics.getHeight());
+        screenHeigth = Gdx.graphics.getHeight();
 
 //create render arrays:
 		firstShadedLayer = new Array<ModelInstance>();
@@ -298,58 +299,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		return c.get(Calendar.WEEK_OF_YEAR);
 	}
 
-	private void createDatePillars(long from, boolean initial) {
-		//Date should start on a monday
-		datePillars = new Array<DatePillar>();
-		//Draw pillars
-		Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
-				Statics.DATEPILLAR_Y_ORIGIN,
-				Statics.DATEPILLAR_Z_ORIGIN);
-		float step = Statics.ACTIVITY_WIDTH + Statics.ACTIVITY_SPACING;
-		//Create datePillar
-		Date3d d = new Date3d(from);
-
-		for(int i=0;i<Statics.NUM_OF_DAYS_TO_DRAW;i++){
-			DatePillar dt = new DatePillar(d.clone(true));
-			d = dt.d3d;
-			dt.setModelInstance(new ModelInstance(dt.getModel()));
-            dt.calculateBoundingBox();
-
-			origin.x += step;
-			//If is end of week then add step and back plate
-			if(i % 7 == 0){
-				insertWeek(origin, step, d, initial);
-			}
-
-			Vector3 tv = origin.cpy();
-			//tv.x += step;
-			dt.setPosition(tv);
-			firstShadedLayer.add(dt.getModelInstance());
-			datePillars.add(dt);
-			//Insert Month
-			//Check if it is the first week of a month or
-			// if this is the first instance
-			if(i == 0 || d.day ==1 ){
-				//Type out month as well.
-			firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month].name()
-					, new Vector3(origin.x
-					, Statics.MONTH_ORIGIN_Y
-					, Statics.MONTH_ORIGIN_Z)
-					, 1f,
-                    false));
-			}
-
-			//Type date
-			firstShadedLayer.addAll(alphabet.load3DText(dt.d3d.getDayString()
-					, new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
-					, Statics.DATEPILLAR_HEIGHT + 1f
-					, Statics.DATEPILLAR_Z_ORIGIN)
-					, 0.5f
-                    ,false));
-			d.date += calCont.milliSecondsInADay();
-		}
-	}
-
 	private void insertWeek(Vector3 origin, float step, Date3d d, boolean initial) {
 		Calendar c = Statics.calendar;
 		//Type out week number
@@ -357,13 +306,13 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		c.setTime(new Date(d.date));
 		//weekLayer.addAll(
 		firstShadedLayer.addAll(
-				alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
-						, new Vector3(origin.x + Statics.WEEK_NUM_MODIFIER_X
-						, Statics.WEEK_NUM_ORIGIN_Y
-						, Statics.WEEK_NUM_ORIGIN_Z)
-						, Statics.WEEK_NUMBER_SCALE
-                        ,false)
-                );
+                alphabet.load3DText("WEEK " + c.get(Calendar.WEEK_OF_YEAR)
+                        , new Vector3(origin.x + Statics.WEEK_NUM_MODIFIER_X
+                        , Statics.WEEK_NUM_ORIGIN_Y
+                        , Statics.WEEK_NUM_ORIGIN_Z)
+                        , Statics.WEEK_NUMBER_SCALE
+                        , false)
+        );
 
 		//add extra step
 		origin.x += step;
@@ -378,37 +327,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		}
 	}
 
-	private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
-		//Create Activity test
-		Material m;
-		Color c = null;
-		float x = 0;
-		for(Event e: events){
-			//Get Color:
-			if(e.getColorId() == null){
-				//If no color, take default color
-				m = GFXObject.translateColor(Statics.ACTIVITY_DEFAULT_COLOR);
-			}
-			else {
-				m = GFXObject.translateColor(e.getColorId());
-			}
-			//Get startTime
-			if(e.getStart().getDateTime() != null
-					&& e.getEnd().getDateTime() != null){
-				Date3d d3d = new Date3d(e);
-				x = d3d.matchXValue(pillars);
-				Activity a = new Activity(c, d3d,e, m);
-				a.setModelInstance(new ModelInstance(a.getModel()));
-				//Match it to corresponding datePillar
-				a.setPosition(new Vector3(x, a.getYOrigin(), 0));
-				a.calculateBoundingBox();
-				activityLayer.add(a.getModelInstance());
-				activities.add(a);
-				//Add text
-				firstShadedLayer.addAll(a.generateSummaryText(alphabet));
-			}
-		}
-	}
+
 
 
 	@Override
@@ -555,75 +474,138 @@ public class MainView extends InputAdapter implements ApplicationListener{
                     insertEventModelInstance = new ModelInstance(insertEvent.getModel());
                     insertEvent.modelInstance = insertEventModelInstance;
                 }
-                //float h =
-                Vector3 pos = datePillars.get(result).getPosition();
+
+                Vector3 pos = new Vector3();
+                datePillars.get(result).getModelInstance().transform.getTranslation(pos);
                 pos.y = checkWhereWeHitPillar(pos, screenX, screenY);
                 insertEventModelInstance.transform.setTranslation(pos);
                 insertEvent.datePillar = datePillars.get(result);
                 firstShadedLayer.add(insertEventModelInstance);
-                System.out.println("Hit date : " + new DateTime(insertEvent.datePillar.d3d.date).toString());
+                System.out.println("Hit date: " + new DateTime(insertEvent.datePillar.d3d.date).toString());
                 //Check where we hit
                 System.out.println("=======\nMouse y: " + screenY);
-
             }
-
         }
         return false;
     }
 
     private float checkWhereWeHitPillar( Vector3 pos, float mX , float mY) {
 
-////        Vector3 origin = pos.cpy();
-////        Vector3 top = origin.cpy();
-////        top.y = Statics.DATEPILLAR_HEIGHT + Statics.DATEPILLAR_Y_ORIGIN;
-////        //Project pillar coords
-////        cam.project(origin);
-////        cam.project(top);
-////        System.out.println("Top y: " + top.y + " Bottom y: " + origin.y + " Length: " + (top.y - origin.y));
-////
-////
-////        Vector3 fPos = new Vector3();
-////        fPos.x = pos.x;
-////        //Pillars stretch from 12 to 36
-////        float mouseR = mY -top.y;
-////
-////        float h = origin.y - top.y;
-////
-////        float ratio = mouseR / h;
-////
-////        float pH = 24 * ratio;
-////
-////        System.out.println("Hour: " + pH + " ratio: " + ratio);
-//
-//        //Remove decimals and make sure it's not out of range
-//        int finalHour = 0;
-//        if(pH > 24 ){
-//            finalHour = 24;
-//        }
-//        else if(pH < 1 ){
-//            finalHour = 1;
-//        }
-//        else {
-//            finalHour = (int) pH;
-//        }
-//        return (float) finalHour;
-        position = new Vector3();
-        Ray ray = cam.getPickRay(screenX, screenY);
-        int result = -1;
-        float distance = -1;
-        for (int i = 0; i < datePillars.size; i++) {
-            DatePillar d = datePillars.get(i);
-            d.getModelInstance().transform.getTranslation(position);
-            position.add(d.center);
-            //position.a
-            float dist2 = ray.origin.dst2(position);
-            if (distance >= 0f && dist2 > distance) continue;
-            if (Intersector.intersectRayBoundsFast(ray,position,d.dimensions)){
-                result = i;
-                distance = dist2;
+        Vector3 pillarBottom = pos.cpy();
+        pillarBottom.z = 0;
+        cam.project(pillarBottom);
+        Vector3 pTop = pos.cpy();
+        pTop.z = 0;
+        pTop.y += Statics.DATEPILLAR_HEIGHT;
+        cam.project(pTop);
+        System.out.println(" top y : " + pTop.y);
+        float pHeight = pTop.y - pillarBottom.y;
+        //reverse mouse
+        mY = Gdx.graphics.getHeight() - mY;
+        float time = (mY -pillarBottom.y);
+        float gH = 24f / Gdx.graphics.getHeight();
+        pHeight = 24f / pHeight;
+        time *= pHeight;
+        return fixHour(time);
+    }
+    /*
+    Fixes the weird coordinate system of cam projection to hours
+     */
+    private float fixHour(float time) {
+        time += 12;
+        if(time > 24){
+            return 24f;
+        }
+        else  if( time < 0){
+            return 0f;
+        }
+        else{
+            return (float)((int) time);
+        }
+
+    }
+
+    private void createDatePillars(long from, boolean initial) {
+        //Date should start on a monday
+        datePillars = new Array<DatePillar>();
+        //Draw pillars
+        Vector3 origin = new Vector3(Statics.DATEPILLAR_X_ORIGN,
+                Statics.DATEPILLAR_Y_ORIGIN,
+                Statics.DATEPILLAR_Z_ORIGIN);
+        float step = Statics.ACTIVITY_WIDTH + Statics.ACTIVITY_SPACING;
+        //Create datePillar
+        Date3d d = new Date3d(from);
+
+        for(int i=0;i<Statics.NUM_OF_DAYS_TO_DRAW;i++){
+            DatePillar dt = new DatePillar(d.clone(true));
+            d = dt.d3d;
+            dt.setModelInstance(new ModelInstance(dt.getModel()));
+            dt.calculateBoundingBox();
+
+            origin.x += step;
+            //If is end of week then add step and back plate
+            if(i % 7 == 0){
+                insertWeek(origin, step, d, initial);
+            }
+
+            Vector3 tv = origin.cpy();
+            dt.setPosition(tv);
+            firstShadedLayer.add(dt.getModelInstance());
+            datePillars.add(dt);
+            //Insert Month
+            //Check if it is the first week of a month or
+            // if this is the first instance
+            if(i == 0 || d.day ==1 ){
+                //Type out month as well.
+                firstShadedLayer.addAll(alphabet.load3DText(Date3d.Month.values()[d.month].name()
+                        , new Vector3(origin.x
+                                , Statics.MONTH_ORIGIN_Y
+                                , Statics.MONTH_ORIGIN_Z)
+                        , 1f,
+                        false));
+            }
+
+            //Type date
+            firstShadedLayer.addAll(alphabet.load3DText(dt.d3d.getDayString()
+                    , new Vector3(origin.x + Statics.DATEPILLAR_DATE_NUM_MOD
+                    , Statics.DATEPILLAR_HEIGHT + 1f
+                    , Statics.DATEPILLAR_Z_ORIGIN)
+                    , 0.5f
+                    ,false));
+            d.date += calCont.milliSecondsInADay();
+        }
+    }
+
+    private void createActivities(Array<Event> events, Array<DatePillar> pillars) {
+        //Create Activity test
+        Material m;
+        Color c = null;
+        float x = 0;
+        for(Event e: events){
+            //Get Color:
+            if(e.getColorId() == null){
+                //If no color, take default color
+                m = GFXObject.translateColor(Statics.ACTIVITY_DEFAULT_COLOR);
+            }
+            else {
+                m = GFXObject.translateColor(e.getColorId());
+            }
+            //Get startTime
+            if(e.getStart().getDateTime() != null
+                    && e.getEnd().getDateTime() != null){
+                Date3d d3d = new Date3d(e);
+                x = d3d.matchXValue(pillars);
+                Activity a = new Activity(c, d3d,e, m);
+                a.setModelInstance(new ModelInstance(a.getModel()));
+                //Match it to corresponding datePillar
+                a.setPosition(new Vector3(x, a.getYOrigin(), 0));
+                a.calculateBoundingBox();
+                activityLayer.add(a.getModelInstance());
+                activities.add(a);
+                //Add text
+                firstShadedLayer.addAll(a.generateSummaryText(alphabet));
             }
         }
-        return result;
     }
 
     public void updateCalendar(long to, long from) {
