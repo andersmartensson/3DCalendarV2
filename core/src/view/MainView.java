@@ -327,9 +327,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		}
 	}
 
-
-
-
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
@@ -400,7 +397,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        System.out.println("=======\nMouse x: " + screenX + " y: " + screenY);
         //Get clicked activity
         int result = getActivity(screenX, screenY);
         if(result != -1){
@@ -408,15 +404,13 @@ public class MainView extends InputAdapter implements ApplicationListener{
             currentActivity = activities.get(result);
             //Update text
             ui.updateDetails(currentActivity.getDetails());
-            System.out.println("Clicked: " + currentActivity.toString());
             //Check if same week, if so; update calendar
             if(currentWeek != findWeek(currentActivity.d3d.date)){
                 from = calCont.getAdjustedDay(currentActivity.d3d.date);
 				//Calculate to
                 to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
                 //Update calendar
-				updateCalendar(to,from);
-
+				updateCalendar(to,from, true);
                 //Save old camera position to be able to determine how far to move models
                 oldCameraPosition = cam.position.cpy().x;
                 //Reset animateWeekSwitchTimer
@@ -443,38 +437,33 @@ public class MainView extends InputAdapter implements ApplicationListener{
             //Check if we hit the InsertEvent
             if(insertEventModelInstance != null && insertEvent.checkHit(screenX,screenY,cam)){
 				//Insert event
-                DateTime startDateTime = new DateTime(insertEvent.datePillar.d3d.date - calCont.milliSecondsInADay());
+				long time = getHourAndDateFromInsertEvent(insertEvent);
+				DateTime startDateTime = new DateTime(time);
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
                         .setTimeZone("Europe/Stockholm");
-                System.out.println("Uploading new event on the " + start.toString());
                 Event e = new Event().setSummary("TEST UPLOAD NEW " + start.toString() )
 						.setLocation("")
 						.setDescription("TEST TEST TEST.");
 				e.setStart(start);
 
-                DateTime endDateTime = new DateTime(insertEvent.datePillar.d3d.date + 60000*60 - calCont.milliSecondsInADay());
+                DateTime endDateTime = new DateTime(time +calCont.milliSecondsInAnHour());
                 EventDateTime end = new EventDateTime()
                         .setDateTime(endDateTime)
                         .setTimeZone("Europe/Stockholm");
                 e.setEnd(end);
                 calCont.InsertEvent(e);
-
-
-
             }
             //Check if we hit a date pillar
             result = getDatePillar(screenX,screenY);
             if(result  >= 0){
                 //remove old one
-
                 System.out.println("DatePillar result = " + result);
                 //Place insertEvent model there.
                 if(insertEventModelInstance == null){
                     insertEventModelInstance = new ModelInstance(insertEvent.getModel());
                     insertEvent.modelInstance = insertEventModelInstance;
                 }
-
                 Vector3 pos = new Vector3();
                 datePillars.get(result).getModelInstance().transform.getTranslation(pos);
                 pos.y = checkWhereWeHitPillar(pos, screenX, screenY);
@@ -489,7 +478,21 @@ public class MainView extends InputAdapter implements ApplicationListener{
         return false;
     }
 
-    private float checkWhereWeHitPillar( Vector3 pos, float mX , float mY) {
+	private long getHourAndDateFromInsertEvent(InsertEvent insertEvent) {
+		long time = insertEvent.datePillar.d3d.date;
+		//Subtract a day
+		time -= calCont.milliSecondsInADay();
+		//Add the number of hours indicated by the insertSign
+        Vector3 timeP = insertEvent.getModelInstance().transform.getTranslation(new Vector3());
+        time += + calCont.milliSecondsInAnHour()* (long) (timeP.y - 8) ;
+		//Subtract Y Origin
+		//time -= Statics.DATEPILLAR_Y_ORIGIN * calCont.milliSecondsInAnHour();
+        //Subtract time zone( 2 hours)
+        //time += calCont.milliSecondsInAnHour() * 8;
+		return time;
+	}
+
+	private float checkWhereWeHitPillar( Vector3 pos, float mX , float mY) {
 
         Vector3 pillarBottom = pos.cpy();
         pillarBottom.z = 0;
@@ -522,7 +525,6 @@ public class MainView extends InputAdapter implements ApplicationListener{
         else{
             return (float)((int) time);
         }
-
     }
 
     private void createDatePillars(long from, boolean initial) {
@@ -608,10 +610,13 @@ public class MainView extends InputAdapter implements ApplicationListener{
         }
     }
 
-    public void updateCalendar(long to, long from) {
+
+    public void updateCalendar(long to, long from, boolean animiateMovement) {
+        updateActivities = true;
+        clearedAndMoved = false;
+        //downloadDone = false;
+        if(!animiateMovement) animateWeekSwitchTimer = Statics.WEEK_SWITCH_ANIMATE_TIME;
 		calCont.update(from, to);
-		updateActivities = true;
-		clearedAndMoved = false;
 	}
 
 	ModelInstance insertEventModelInstance;
@@ -624,6 +629,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
         //Clearing
         if(!clearedAndMoved){
             if(animateWeekSwitchTimer < Statics.WEEK_SWITCH_ANIMATE_TIME){
+                System.out.println("Animating");
                 if(animateRight){
                     //move activities and date pillars right
                     moveActivitiesPillarsText(true);
@@ -645,7 +651,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
         }
         if(clearedAndMoved && downloadDone){
             //Clear OpenGL objects from memory
-            System.out.println("Clearing acvities");
+            System.out.println("Clearing activities");
             long time2 = System.currentTimeMillis();
             Array<Disposable> dispose = new Array<Disposable>();
             dispose.addAll(activities);
@@ -655,8 +661,9 @@ public class MainView extends InputAdapter implements ApplicationListener{
             activities.clear();
             activityLayer.clear();
             time2 = System.currentTimeMillis();
+            System.out.println("Number of events from controller: " + calCont.events.size);
             createActivities(calCont.events, datePillars);
-            System.out.println("Activities creation took : " + (System.currentTimeMillis() - time2));
+            System.out.println("Activities creation took : " + (System.currentTimeMillis() - time2) + " for " + activities.size + " events ");
             //Set current week
             //Find and replace current Activity
 			if(currentActivity !=null){
@@ -820,7 +827,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		}
 	}
 
-	boolean clearedAndMoved;
+	public boolean clearedAndMoved;
 
 
 

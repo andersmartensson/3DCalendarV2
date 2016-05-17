@@ -22,33 +22,11 @@ public class CalendarController {
         primaryCalendar = new Array<String>();
         primaryCalendar.add("primary");
     }
-
-    public void InsertEvent(Event e){
-        InsertThread it = new InsertThread(e);
-        it.start();
-
-        //Update calendar when done
-    }
-
-    public void update(long from, long to){
-
-        main.setDownloadDone(false);
-        Date fromDate = new Date(from), toDate = new Date(to);
-        Calendar c = Statics.calendar;
-        c.setTime(fromDate);
-        System.out.println("updating from: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
-        c.setTime(toDate);
-        System.out.println("updating to: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
-
-        DownloadThread downloadThread = new DownloadThread(main, from,to);
-        downloadThread.start();
-   }
     /**
      *      Downloads activities default weeks back, beginning
      *      with the first day of the current week.
      */
     public void initialDownload(){
-
         try {
             calendarNames = GoogleCalendarDownload.getCalenderNames();
         } catch (IOException e) {
@@ -67,18 +45,16 @@ public class CalendarController {
                 e.printStackTrace();
             }
         }
-
     }
 
     public long milliSecondsInADay() {
-        return 24*60*60*1000;
+        return 24*milliSecondsInAnHour();
     }
     /*
     Converts current date to the beginning of the week, of set weeks back
      */
     public long getAdjustedDay(long date) {
         //Get current week
-        //long currentTime =
         //Convert to monday:
         Calendar c = Statics.calendar;
         c.setTime(new Date(date));
@@ -92,22 +68,56 @@ public class CalendarController {
         //Step four weeks back to get previous month
         date -= milliSecondsInADay() * Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER * 7;
         c.setTime(new Date(date));
-
         System.out.println("currentTime is " + c.get(Calendar.DAY_OF_MONTH));
         return date;
     }
 
-    public void updateEvent(Event event) {
 
+
+    public void InsertEvent(Event e){
+        InsertThread it = new InsertThread(e);
+        it.start();
+    }
+
+    private class InsertThread extends Thread{
+        private Event event;
+        public InsertThread(Event e){
+            event = e;
+        }
+
+        public void run(){
+            System.out.println("Starting insert....");
+            try {
+                GoogleCalendarDownload.uploadEvent(event);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Done inserting.");
+            //When done, update the calendar to reflect the changes
+            main.updateActivities = true;
+            main.clearedAndMoved = false;
+            main.setDownloadDone(false);
+            download(main.from, main.to);
+        }
+    }
+
+    public void update(long from, long to){
+        main.setDownloadDone(false);
+        Date fromDate = new Date(from), toDate = new Date(to);
+        Calendar c = Statics.calendar;
+        c.setTime(fromDate);
+        System.out.println("updating from: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+        c.setTime(toDate);
+        System.out.println("updating to: " + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.MONTH) + "/" + c.get(Calendar.YEAR));
+        DownloadThread downloadThread = new DownloadThread(main, from,to);
+        downloadThread.start();
+    }
+
+    public void updateEvent(Event event) {
         Thread t = new UpdateEventThread(event);
         t.start();
         //Update calender when done.
-        //t.join();
-        main.updateCalendar(main.from, main.to);
-    }
-
-    private class UpdateEventAndUpdateCalendar extends Thread{
-
+        main.updateCalendar(main.from, main.to, false);
     }
 
     private class UpdateEventThread extends Thread{
@@ -123,7 +133,7 @@ public class CalendarController {
                 e.printStackTrace();
             }
             //When done, update the calendar to reflect the changes
-            update(main.from,main.to);
+            update(main.from, main.to);
         }
     }
 
@@ -131,7 +141,6 @@ public class CalendarController {
         MainView main;
         long from;
         long to;
-
         public DownloadThread(MainView m, long f, long t) {
             main = m;
             from = f;
@@ -139,55 +148,40 @@ public class CalendarController {
         }
 
         public void run(){
-            long time = System.currentTimeMillis();
-            if(Statics.downloadPrimary){
-                try {
-                    events = GoogleCalendarDownload.execute(primaryCalendar, from, to );
-                } catch ( UserRecoverableAuthIOException er) {
-                    System.out.println("USER RECOVER EXCEPTION");
-                    er.printStackTrace();
-                    Gdx.app.exit();
-                    System.exit(0);
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-            else {
-                try {
-                    events = GoogleCalendarDownload.execute(calendarNames, from, to );
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            main.setDownloadDone(true);
-            System.out.println("Downloading took : " + (time - System.currentTimeMillis()));
-
+            download(from, to);
         }
 
     }
 
-
-
-    private class InsertThread extends Thread{
-
-        private Event event;
-
-        public InsertThread(Event e){
-            event = e;
-        }
-
-        public void run(){
-            System.out.println("Starting insert....");
+    private void download(long from, long to) {
+        long time = System.currentTimeMillis();
+        if(Statics.downloadPrimary){
             try {
-                GoogleCalendarDownload.uploadEvent(event);
+                events = GoogleCalendarDownload.execute(primaryCalendar, from, to );
+            } catch ( UserRecoverableAuthIOException er) {
+                System.out.println("USER RECOVER EXCEPTION");
+                er.printStackTrace();
+                Gdx.app.exit();
+                System.exit(0);
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        else {
+            try {
+                events = GoogleCalendarDownload.execute(calendarNames, from, to );
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Done inserting.");
         }
+        main.setDownloadDone(true);
+        System.out.println("Downloading took : " + (time - System.currentTimeMillis()));
     }
 
+    public long milliSecondsInAnHour() {
+        return 1000 * 60 *60;
+    }
 
 
 }

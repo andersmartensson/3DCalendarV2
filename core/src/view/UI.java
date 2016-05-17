@@ -143,9 +143,12 @@ public class UI implements Disposable{
 
         //Create details label
         Table detailsTable = new Table();
-        //detailsTable.setDebug(true);
+        detailsTable.setDebug(true);
         //Set background
         detailsTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(detailsBackground))));
+        detailsTable.setOrigin(50f,50f);
+        detailsTable.setBounds(50f,50f,500f,500f);
+        //detailsTable.setFillParent(true);
         detailsTable.align(Align.bottomLeft);
         detailsStage.addActor(detailsTable);
         detailsLabel = new Label("",skin);
@@ -159,7 +162,6 @@ public class UI implements Disposable{
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 reportDialogVisible = true;
                 updateReportDialogText();
-                System.out.println("Report Clicked");
                 return false;
             }
         });
@@ -397,7 +399,6 @@ public class UI implements Disposable{
 
             updateEvent(main.currentActivity.event);
         }
-
         @Override
         public void canceled () {
         }
@@ -424,6 +425,7 @@ public class UI implements Disposable{
 
         @Override
         public void canceled () {
+
         }
     }
 
@@ -434,7 +436,6 @@ public class UI implements Disposable{
                 EventDateTime edt = new EventDateTime().setDateTime(createStopTime(main.currentActivity.d3d));//.setTimeZone("Europe/Stockholm");
                 main.currentActivity.event.setEnd(edt);
                 reportDialogToContents.setText((main.currentActivity.d3d.getStopTime()));
-
                 updateEvent(main.currentActivity.event);
             }
             else {

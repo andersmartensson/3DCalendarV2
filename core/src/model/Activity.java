@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 
 import java.util.Date;
 
@@ -113,10 +114,14 @@ public class Activity extends GFXObject{
             sb.append("\nDesciption: - ");
         }
 
-        sb.append("\nStart: " + event.getStart());
-        sb.append("\nStop: " + event.getEnd());
+        sb.append("\nWhen: " + d3d.getDateName());
+        sb.append("\nFrom " + d3d.getStartTime(true) + " to " + d3d.getStopTime(true));
+        //sb.append("\nStop: " + event.getEnd());
 
         return sb.toString();
+    }
+
+    private String formatDate(EventDateTime start) {
     }
 
     public float getYOrigin() {

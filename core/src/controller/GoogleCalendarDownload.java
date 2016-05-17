@@ -175,8 +175,6 @@ public class GoogleCalendarDownload {
 
     public static Array<Event> execute(Array<String> cNames, long from, long to) throws IOException {
         // Build a new authorized API client service.
-        // Note: Do not confuse this class with the
-        //   com.google.api.services.calendar.model.Calendar class.
         long t = System.currentTimeMillis();
 
         com.google.api.services.calendar.Calendar service  = getCalendarService();
