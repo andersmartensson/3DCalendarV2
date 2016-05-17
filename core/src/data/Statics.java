@@ -33,8 +33,6 @@ public class Statics {
     public static final int INSERT_EVENT_BG_DIVISIONS = 10;
     public static final float INSERT_EVENT_BG_DEPTH = 0.5f;
 
-
-
     /*
     Activity Settings(Events)
      */
@@ -89,7 +87,6 @@ public class Statics {
     public static final float CAMERA_FOV = 75f;
     public static final float CAM_FAR = 1000f; //How far the camera can see.
     public static final float CAM_NEAR = 0.1f; //Camera cut-off.
-    public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
     public static final float CAMERA_CONTROL_TRANSLATE_UNITS =  100f; //How fast the camera pans and zooms
     public static final float CAMERA_IS_CLOSE_DISTANCE = 0.01f;
 
@@ -102,6 +99,12 @@ public class Statics {
     Sky box settings
      */
     public static final float SKYBOX_SIZE = CAM_FAR / 4;
+    /*
+    Details pop up window
+     */
+    public static final Color DETAILS_BACKGROUND_COLOR = new Color(0.2f,0.2f,0.2f,0.5f);
+    public static final float DETAILS_DEFAULT_WIDTH = 600f;
+    public static final float DETAILS_DEFAULT_HEIGHT = 300f;
     /*
     Ground settings
      */
@@ -117,8 +120,9 @@ public class Statics {
     public static final int WEEK_SWITCH_ANIMATE_TIME = 10;
     public static final float WEEK_ANIMATE_MOVE = 10f;
     public static final String ALPHA_PATH_ARIAL = "models/alphabet/arial.g3db";
-
-
+    /*
+    Java Util Calendar object
+     */
     public static Calendar calendar;
     /*
     Reusable materials
@@ -137,8 +141,6 @@ public class Statics {
     * Download settings
      */
     public static boolean downloadPrimary = true;
-    public final static String SwitchToDownloadAll = "Switch to download all";
-    public final static String switchToDownloadPrimary = "Switch to download primary only";
     /*
     Android stuff
      */
@@ -147,7 +149,21 @@ public class Statics {
     //Speed where it changes from drag to fling
     public static float TOUCH_DRAG_SPEED = 500;
 
+
     /*
-    Android settings
+    UI settings
      */
+    public static final String UI_MENU_NAME             = "   Menu       ";
+    public static final String UI_UPDATE_NAME           = "  Update     ";
+    public static final String UI_UNDO_DELETE_NAME      = "Undo Delete";
+    public static final String UNDO_NOT_DELETEABLE_NAME = "        -        ";
+
+    public final static String UI_SWITCH_TO_DOWNLOAD_ALL = "Switch to download all";
+    public final static String UI_SWITCH_TO_DOWNLOAD_PRIMARY = "Switch to download primary only";
+    public static final String UI_DELETE_NAME = "Delete";
+    public static final String UI_SWITCH_THEME_NAME = "Switch Theme";
+    public static final String UI_EDIT_NAME = "Edit";
+
+
+
 }

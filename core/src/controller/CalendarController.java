@@ -79,6 +79,35 @@ public class CalendarController {
         it.start();
     }
 
+    public void deleteEvent(Event event) {
+        //Clear current activity
+        main.currentActivity = null;
+        DeleteEventThread det = new DeleteEventThread(event);
+        det.start();
+    }
+
+    private class DeleteEventThread extends Thread{
+        private Event event;
+        public DeleteEventThread(Event e){
+            event = e;
+        }
+        public void run(){
+            System.out.println("Deleting event");
+            try {
+                GoogleCalendarDownload.deleteEvent(event);
+            } catch (IOException e) {
+                System.out.println("Deletion failed!!");
+                e.printStackTrace();
+            }
+            System.out.println("Event deleted");
+            //When done, update the calendar to reflect the changes
+            main.updateActivities = true;
+            main.clearedAndMoved = false;
+            main.setDownloadDone(false);
+            download(main.from, main.to);
+        }
+    }
+
     private class InsertThread extends Thread{
         private Event event;
         public InsertThread(Event e){

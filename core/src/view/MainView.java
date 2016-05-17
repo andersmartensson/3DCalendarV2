@@ -94,6 +94,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	private boolean downloadDone;
 	private Vector3 finalCameraPosition;
     private InsertEvent insertEvent;
+    public Activity deletedActivity;
 
     public boolean isDownloadDone() {
 		return downloadDone;
@@ -295,7 +296,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 
 	private int findWeek(long time) {
 		Calendar c = Statics.calendar;
-		c.setTime(new Date(time));
+        //Java util calender week starts at sunday so minus one day
+		c.setTime(new Date(time -calCont.milliSecondsInADay()));
 		return c.get(Calendar.WEEK_OF_YEAR);
 	}
 
@@ -330,6 +332,8 @@ public class MainView extends InputAdapter implements ApplicationListener{
 	@Override
 	public void render (){
 		appTime += 1 %1000000;
+        //update the ui
+        ui.update(cam);
 		//For smoothing camera movement
 		if(camIsMoving){
 			updateCamera();
@@ -364,21 +368,21 @@ public class MainView extends InputAdapter implements ApplicationListener{
         //Check if we can update camera position yet
         if(camIsMoving && !updateActivities){
             //update camera position and focus
-            //Update camera position ( not used since it's not ready )
+            //Update camera position (not used since it's not ready )
             if(false){
                 //if(v.x != finalCameraPosition.x && v.y != finalCameraPosition.y && v.z != finalCameraPosition.z){
                 smoothCameraMovement(v);
             }
             else {
                 camIsMoving = false;
-                cam.position.set(currentActivity.position.x
-                        , currentActivity.position.y
-                        //, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
-                        , cam.position.z);
                 //Fix pitch
                 fixPitch(finalCameraPosition);
                 //Fix focus
                 if(currentActivity != null){
+                    cam.position.set(currentActivity.position.x
+                            , currentActivity.position.y
+                            //, currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+                            , cam.position.z);
                     cam.lookAt(currentActivity.position.cpy());
                     //Controller
                     camController.target = currentActivity.position.cpy();
@@ -387,14 +391,39 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 else {
                     cam.lookAt(Statics.CAM_FOCUS_POSITION.cpy());
                     camController.target = Statics.CAM_FOCUS_POSITION.cpy();
-                    double cDate = (from + to) / 2;
-                    currentWeek = findWeek((long) cDate);
+                    if(insertEvent.datePillar != null){
+                        currentWeek = findWeek(insertEvent.datePillar.d3d.date);
+                    }
+                    else {
+                        double cDate = (from + to) / 2;
+                        currentWeek = findWeek((long) cDate);
+                    }
                 }
             }
             cam.update();
         }
 	}
 
+    public void moveWeek(long date){
+        from = calCont.getAdjustedDay(date);
+        //Calculate to
+        to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
+        //Update calendar
+        updateCalendar(to,from, true);
+        //Save old camera position to be able to determine how far to move models
+        oldCameraPosition = cam.position.cpy().x;
+        //Reset animateWeekSwitchTimer
+        animateWeekSwitchTimer = 0;
+        //Set direction
+        if(currentWeek < findWeek(date)){
+            //move right
+            animateRight = false;
+        }
+        else {
+            animateRight = true;
+        }
+        currentWeek = findWeek(date);
+    }
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         //Get clicked activity
@@ -406,30 +435,14 @@ public class MainView extends InputAdapter implements ApplicationListener{
             ui.updateDetails(currentActivity.getDetails());
             //Check if same week, if so; update calendar
             if(currentWeek != findWeek(currentActivity.d3d.date)){
-                from = calCont.getAdjustedDay(currentActivity.d3d.date);
-				//Calculate to
-                to = from + calCont.milliSecondsInADay() * (Statics.NUM_OF_WEEKS_BEFORE_AND_AFTER *2 +1) * 7;
-                //Update calendar
-				updateCalendar(to,from, true);
-                //Save old camera position to be able to determine how far to move models
-                oldCameraPosition = cam.position.cpy().x;
-                //Reset animateWeekSwitchTimer
-                animateWeekSwitchTimer = 0;
-                //Set direction
-                if(currentWeek < findWeek(currentActivity.d3d.date)){
-                    //move right
-                    animateRight = false;
-                }
-                else {
-                    animateRight = true;
-                }
+                moveWeek(currentActivity.d3d.date);
             }
             else {
                 //Else, if then we can switch focus of camera directly
                 //Focus and move camera to activity
-                    finalCameraPosition = new Vector3(currentActivity.position.x
-                            , currentActivity.position.y
-                            , currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
+                finalCameraPosition = new Vector3(currentActivity.position.x
+                        , currentActivity.position.y
+                        , currentActivity.position.z - Statics.CAMERA_DISTANCE_FROM);
             }
             camIsMoving = true;
         }
@@ -442,9 +455,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 EventDateTime start = new EventDateTime()
                         .setDateTime(startDateTime)
                         .setTimeZone("Europe/Stockholm");
-                Event e = new Event().setSummary("TEST UPLOAD NEW " + start.toString() )
-						.setLocation("")
-						.setDescription("TEST TEST TEST.");
+                Event e = new Event().setSummary("New event");
 				e.setStart(start);
 
                 DateTime endDateTime = new DateTime(time +calCont.milliSecondsInAnHour());
@@ -452,13 +463,15 @@ public class MainView extends InputAdapter implements ApplicationListener{
                         .setDateTime(endDateTime)
                         .setTimeZone("Europe/Stockholm");
                 e.setEnd(end);
+
                 calCont.InsertEvent(e);
             }
             //Check if we hit a date pillar
             result = getDatePillar(screenX,screenY);
             if(result  >= 0){
-                //remove old one
-                System.out.println("DatePillar result = " + result);
+                insertEvent.datePillar = datePillars.get(result);
+                //remove currentActivity
+                currentActivity = null;
                 //Place insertEvent model there.
                 if(insertEventModelInstance == null){
                     insertEventModelInstance = new ModelInstance(insertEvent.getModel());
@@ -466,13 +479,18 @@ public class MainView extends InputAdapter implements ApplicationListener{
                 }
                 Vector3 pos = new Vector3();
                 datePillars.get(result).getModelInstance().transform.getTranslation(pos);
-                pos.y = checkWhereWeHitPillar(pos, screenX, screenY);
-                insertEventModelInstance.transform.setTranslation(pos);
-                insertEvent.datePillar = datePillars.get(result);
-                firstShadedLayer.add(insertEventModelInstance);
-                System.out.println("Hit date: " + new DateTime(insertEvent.datePillar.d3d.date).toString());
-                //Check where we hit
-                System.out.println("=======\nMouse y: " + screenY);
+                //Check if another week
+                //System.out.println("CurrentWeek: " + currentWeek ) ;
+                //System.out.println("*Insert Date pillar " + insertEvent.datePillar.d3d.date);
+                if(currentWeek != findWeek(insertEvent.datePillar.d3d.date)){
+                    moveWeek(insertEvent.datePillar.d3d.date);
+                }
+                else {
+                    pos.y = checkWhereWeHitPillar(pos, screenX, screenY);
+                    insertEventModelInstance.transform.setTranslation(pos);
+                    insertEvent.datePillar = datePillars.get(result);
+                    firstShadedLayer.add(insertEventModelInstance);
+                }
             }
         }
         return false;
@@ -484,7 +502,7 @@ public class MainView extends InputAdapter implements ApplicationListener{
 		time -= calCont.milliSecondsInADay();
 		//Add the number of hours indicated by the insertSign
         Vector3 timeP = insertEvent.getModelInstance().transform.getTranslation(new Vector3());
-        time += + calCont.milliSecondsInAnHour()* (long) (timeP.y - 8) ;
+        time += calCont.milliSecondsInAnHour()* (long) (timeP.y - 15) ;
 		//Subtract Y Origin
 		//time -= Statics.DATEPILLAR_Y_ORIGIN * calCont.milliSecondsInAnHour();
         //Subtract time zone( 2 hours)

@@ -3,10 +3,12 @@ package view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,6 +25,7 @@ import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 
 import data.Statics;
+import model.Activity;
 import model.Date3d;
 
 /**
@@ -53,6 +56,8 @@ public class UI implements Disposable{
 
     private Label reportDialogDurationContents;
     private TextButton reportDialogChangeButton;
+    private Table detailsTable;
+    private TextButton undoButton;
 
     public Stage getOptionsStage() {
         return optionsStage;
@@ -87,7 +92,7 @@ public class UI implements Disposable{
         uiTable.align(Align.topLeft);
         uiStage.addActor(uiTable);
 
-        final TextButton optionsButton = new TextButton("Menu", skin);
+        final TextButton optionsButton = new TextButton(Statics.UI_MENU_NAME, skin);
         optionsButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
@@ -98,7 +103,35 @@ public class UI implements Disposable{
         optionsButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
         uiTable.add(optionsButton).minWidth(100f * density)
                 .minHeight(100f * density).align(Align.left);
+        uiTable.row();
+        //Update button
+        TextButton updateButton = new TextButton(Statics.UI_UPDATE_NAME, skin);
+        updateButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                updateCalender();
+                return false;
+            }
+        });
+        updateButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        uiTable.add(updateButton).minWidth(100f * density)
+                .minHeight(100f * density).align(Align.left);
+        uiTable.row();
 
+        //Undo button
+        undoButton = new TextButton(" x ", skin);
+        undoButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                if(main.deletedActivity != null){
+                    undoLastDelete();
+                }
+                return false;
+            }
+        });
+        undoButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        uiTable.add(undoButton).minWidth(100f * density)
+                .minHeight(100f * density).align(Align.left);
         /*
          * Create Options buttons
          */
@@ -108,7 +141,7 @@ public class UI implements Disposable{
         optionsTable.setFillParent(true);
         optionsStage.addActor(optionsTable);
 
-        final TextButton toggleTheme = new TextButton("Switch theme", skin);
+        final TextButton toggleTheme = new TextButton(Statics.UI_SWITCH_THEME_NAME, skin);
         optionsTable.add(toggleTheme).minWidth(100f * density).minHeight(50f * density);
         toggleTheme.getLabel().setFontScale(1.0f * density, 1.0f * density);
         toggleTheme.addListener(new InputListener() {
@@ -119,7 +152,7 @@ public class UI implements Disposable{
             }
         });
 
-        final TextButton toggleDownload = new TextButton(Statics.SwitchToDownloadAll,skin);
+        final TextButton toggleDownload = new TextButton(Statics.UI_SWITCH_TO_DOWNLOAD_ALL,skin);
         optionsTable.add(toggleDownload).minWidth(100f * density).minHeight(50f * density);
         toggleDownload.getLabel().setFontScale(1.0f * density, 1.0f * density);
         toggleDownload.addListener(new InputListener() {
@@ -127,9 +160,9 @@ public class UI implements Disposable{
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
                 Statics.downloadPrimary = !Statics.downloadPrimary;
                 if (!Statics.downloadPrimary) {
-                    toggleDownload.setText(Statics.switchToDownloadPrimary);
+                    toggleDownload.setText(Statics.UI_SWITCH_TO_DOWNLOAD_PRIMARY);
                 } else {
-                    toggleDownload.setText(Statics.SwitchToDownloadAll);
+                    toggleDownload.setText(Statics.UI_SWITCH_TO_DOWNLOAD_ALL);
                 }
                 return false;
             }
@@ -141,21 +174,66 @@ public class UI implements Disposable{
         detailsBackground.fill();
         detailsVisible = false;
 
-        //Create details label
-        Table detailsTable = new Table();
-        detailsTable.setDebug(true);
+        //Create details Table
+        detailsTable = new Table();
         //Set background
         detailsTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(detailsBackground))));
-        detailsTable.setOrigin(50f,50f);
-        detailsTable.setBounds(50f,50f,500f,500f);
-        //detailsTable.setFillParent(true);
+        detailsTable.setBounds(0, 0, Statics.DETAILS_DEFAULT_WIDTH, Statics.DETAILS_DEFAULT_HEIGHT);
         detailsTable.align(Align.bottomLeft);
         detailsStage.addActor(detailsTable);
+        //Add Close button
+        TextButton closeButton = new TextButton(" x ", skin);
+        detailsTable.add(closeButton).minWidth(100f * density).minHeight(50f * density)
+                .align(Align.right)
+                .pad(0, 0, 0, Statics.DATEPILLAR_WIDTH / 2f);
+        closeButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        closeButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                if (main.currentActivity != null && detailsVisible) {
+                    main.currentActivity = null;
+                    detailsVisible = false;
+                }
+                return false;
+            }
+        });
+        detailsTable.row();
+
+
         detailsLabel = new Label("",skin);
         detailsTable.add(detailsLabel).align(Align.left);
         detailsTable.row();
-        final TextButton reportButton = new TextButton("Edit", skin);
-        detailsTable.add(reportButton).minWidth(100f * density).minHeight(50f * density);
+
+        //insert space for delete and edit buttons
+        detailsTable.row();
+        detailsTable.row();
+        Label emptyRowLabel = new Label("  ",skin);
+        detailsTable.add(emptyRowLabel);
+        Table detailsButtonTable = new Table();
+        //detailsButtonTable.setDebug(true);
+        //detailsButtonTable.pad(0f,500f,0f,500f);
+        detailsTable.addActor(detailsButtonTable);
+        detailsButtonTable.setFillParent(true);
+        detailsButtonTable.align(Align.bottom);
+        //Delete button
+        final TextButton deleteButton = new TextButton(Statics.UI_DELETE_NAME, skin);
+        detailsButtonTable.add(deleteButton).minWidth(100f * density).minHeight(50f * density)
+                .align(Align.left)
+                .pad(0, 0, 0, Statics.DATEPILLAR_WIDTH /2f);
+        deleteButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
+        deleteButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
+                deleteEvent(main.currentActivity);
+                return false;
+            }
+        });
+
+        //Edit button
+        final TextButton reportButton = new TextButton(Statics.UI_EDIT_NAME, skin);
+        detailsButtonTable.add(reportButton).minWidth(100f * density).minHeight(50f * density)
+                .align(Align.right)
+                .pad(0, Statics.DETAILS_DEFAULT_WIDTH / 2f, 0f, 0);
         reportButton.getLabel().setFontScale(1.0f * density, 1.0f * density);
         reportButton.addListener(new InputListener() {
             @Override
@@ -198,8 +276,10 @@ public class UI implements Disposable{
         editSummary.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                EditSummary es = new EditSummary();
-                Gdx.input.getTextInput(es, "Edit Summary:","","");
+                if(reportDialogVisible){
+                    EditSummary es = new EditSummary();
+                    Gdx.input.getTextInput(es, "Edit Summary:","","");
+                }
                 return false;
             }
         });
@@ -216,8 +296,10 @@ public class UI implements Disposable{
         editDate.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                EditDate ed = new EditDate();
-                Gdx.input.getTextInput(ed, "Edit Date:", "", "year-month-day");
+                if(reportDialogVisible){
+                    EditDate ed = new EditDate();
+                    Gdx.input.getTextInput(ed, "Edit Date:", "", "year-month-day");
+                }
                 return false;
             }
         });
@@ -250,8 +332,10 @@ public class UI implements Disposable{
         editFrom.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                EditFrom ef = new EditFrom();
-                Gdx.input.getTextInput(ef, "From:", "", "hour:min");
+                if(reportDialogVisible){
+                    EditFrom ef = new EditFrom();
+                    Gdx.input.getTextInput(ef, "From:", "", "hour:min");
+                }
                 return false;
             }
         });
@@ -268,11 +352,14 @@ public class UI implements Disposable{
         editTo.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                EditTo eT = new EditTo();
-                Gdx.input.getTextInput(eT, "From:","","hour:min");
+                if(reportDialogVisible){
+                    EditTo eT = new EditTo();
+                    Gdx.input.getTextInput(eT, "From:","","hour:min");
+                }
                 return false;
             }
         });
+
         reportDialogTable.add(editTo).align(Align.left);
         reportDialogTable.row();
 
@@ -304,9 +391,11 @@ public class UI implements Disposable{
         reportOkButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                reportDialogVisible = false;
-                //Update events
-                System.out.println("Ok Clicked");
+                if(reportDialogVisible){
+                    reportDialogVisible = false;
+                    //Update events
+                    System.out.println("Ok Clicked");
+                }
                 return false;
             }
         });
@@ -317,12 +406,38 @@ public class UI implements Disposable{
         reportCancelButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float screenX, float screenY, int pointer, int button) {
-                reportDialogVisible = false;
-                System.out.println("Cancel Clicked");
+                if(reportDialogVisible){
+                    reportDialogVisible = false;
+                    System.out.println("Cancel Clicked");
+                }
                 return false;
             }
         });
         reportDialogTable.add(reportCancelButton).minWidth(100f * density).minHeight(50f * density);
+    }
+
+    private void updateCalender() {
+        main.updateActivities = true;
+        main.clearedAndMoved = false;
+        main.setDownloadDone(false);
+        main.calCont.update(main.from,main.to);
+    }
+
+    private void undoLastDelete() {
+        //main.deletedActivity.event.setId(main.deletedActivity.event.getId() + "2");
+        Event old = main.deletedActivity.event;
+        Event e = new Event().setSummary(old.getSummary());
+        e.setStart(old.getStart());
+        e.setEnd(old.getEnd());
+        main.calCont.InsertEvent(e);
+        main.deletedActivity = null;
+    }
+
+    private void deleteEvent(Activity a) {
+        if(a != null){
+            main.deletedActivity = a;
+            main.calCont.deleteEvent(a.event);
+        }
     }
 
     public void updateDetails(String text){
@@ -330,7 +445,6 @@ public class UI implements Disposable{
     }
 
     private void toggleOptions() {
-
         if (optionsMenuVisible) {
             inputMultiplexer.removeProcessor(optionsStage);
         } else {
@@ -366,7 +480,7 @@ public class UI implements Disposable{
         uiBatch.enableBlending();
         uiBatch.begin();
         uiStage.draw();
-        if(detailsVisible){
+        if(detailsVisible && main.currentActivity != null){
             detailsStage.draw();
         }
         if (optionsMenuVisible) {
@@ -387,6 +501,7 @@ public class UI implements Disposable{
 
     public void resize() {
         uiStage.getViewport().update(1024, 576, true);
+
     }
 
 
@@ -401,6 +516,23 @@ public class UI implements Disposable{
         }
         @Override
         public void canceled () {
+        }
+    }
+
+    public void update(PerspectiveCamera cam){
+        //update details position
+        if(main.currentActivity != null){
+            Vector3 pos = main.currentActivity.getModelInstance().transform.getTranslation(new Vector3());
+            cam.project(pos);
+            detailsTable.setBounds(pos.x,pos.y,Statics.DETAILS_DEFAULT_WIDTH,Statics.DETAILS_DEFAULT_HEIGHT);
+        }
+
+        //Update undo
+        if(main.deletedActivity != null){
+            undoButton.setText(Statics.UI_UNDO_DELETE_NAME);
+        }
+        else {
+            undoButton.setText(Statics.UNDO_NOT_DELETEABLE_NAME);
         }
     }
 

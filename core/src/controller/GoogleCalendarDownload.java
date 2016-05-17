@@ -220,11 +220,15 @@ public class GoogleCalendarDownload {
 
     public static void updateEvent(Event event) throws IOException {
         long t = System.currentTimeMillis();
-
         com.google.api.services.calendar.Calendar service  = getCalendarService();
         String calendarId = "primary";
-        service.events().update(calendarId,event.getId(),event).execute();
+        service.events().update(calendarId, event.getId(), event).execute();
         System.out.println("Update event took: " + (System.currentTimeMillis() - t));
+    }
+
+    public static void deleteEvent(Event event) throws IOException {
+        com.google.api.services.calendar.Calendar service  = getCalendarService();
+        service.events().delete("primary", event.getId()).execute();
 
     }
 }

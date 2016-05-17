@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
 
 import java.util.Date;
 
@@ -121,8 +120,6 @@ public class Activity extends GFXObject{
         return sb.toString();
     }
 
-    private String formatDate(EventDateTime start) {
-    }
 
     public float getYOrigin() {
         //Half the height
