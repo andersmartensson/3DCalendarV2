@@ -370,8 +370,8 @@ public class Alphabet implements Disposable{
                 return Z.getModelInstance();
                 //return loadCharacter(Z, 'Z');
 
-            case 'Ã…':
-            case 'Ã¥':
+            case 'Ä':
+            case 'ä':
                 if(SA == null){
                     System.out.println("Creating character: " + c);
                     SA = new Character3D(c,Statics.ALPHA_PATH + "SA" + ".g3dj",3.0f);
@@ -380,8 +380,8 @@ public class Alphabet implements Disposable{
                 return SA.getModelInstance();
                 //return loadCharacter(Ã…, 'Ã…');
 
-            case 'Ã„':
-            case 'Ã¤':
+            case 'Å':
+            case 'å':
                 if(SAA == null){
                     System.out.println("Creating character: " + c);
                     SAA = new Character3D(c,Statics.ALPHA_PATH + "SAA" + ".g3dj",3.0f);
@@ -390,8 +390,8 @@ public class Alphabet implements Disposable{
                 return SAA.getModelInstance();
                 //return loadCharacter(Ã„, 'Ã„');
 
-            case 'Ã–':
-            case 'Ã¶':
+            case 'Ö':
+            case 'ö':
                 if(SO == null){
                     System.out.println("Creating character: " + c);
                     SO = new Character3D(c,Statics.ALPHA_PATH + "SO" + ".g3dj",3.0f);
