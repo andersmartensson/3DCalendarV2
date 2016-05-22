@@ -78,6 +78,9 @@ public class UI implements Disposable{
         this.main = m;
         this.inputMultiplexer = inputMultiplexer;
         density = Gdx.graphics.getDensity();
+        if(Statics.isAndroid){
+            density *= 0.4;
+        }
         uiBatch = new SpriteBatch();
         disposables.add(uiBatch);
         uiStage = new Stage();
@@ -503,7 +506,6 @@ public class UI implements Disposable{
         uiStage.getViewport().update(1024, 576, true);
 
     }
-
 
     public class EditSummary implements Input.TextInputListener {
         @Override
